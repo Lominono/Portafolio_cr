@@ -14,11 +14,17 @@
 }
 
 .btn-primary {
-  @apply bg-accentMain text-primary uppercase font-sans py-3 px-6 transition-colors duration-300;
+  @apply bg-accentMain text-primary uppercase font-sans py-3 px-6 transition-all duration-300 relative overflow-hidden inline-block text-center;
   border-radius: 2px;
+  transform: translateY(0);
 }
 .btn-primary:hover {
   @apply bg-accentSecondary;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(140, 109, 88, 0.2);
+}
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .photo-card-secondary {
