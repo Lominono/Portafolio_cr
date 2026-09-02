@@ -27,6 +27,27 @@
   transform: translateY(0);
 }
 
+.nav-link {
+  position: relative;
+  display: inline-block;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: -4px;
+  left: 0;
+  background-color: theme('colors.accentMain');
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+.nav-link:hover::after, .nav-link.active::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
 .photo-card-secondary {
   @apply border border-accentSecondary;
   border-width: 1px;

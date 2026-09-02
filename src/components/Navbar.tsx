@@ -31,8 +31,8 @@ const Navbar = () => {
           <Link 
             key={link.path}
             to={link.path} 
-            className={`hover:text-accentMain transition-colors ${
-              location.pathname === link.path ? 'text-textMain font-medium' : ''
+            className={`nav-link hover:text-accentMain transition-colors ${
+              location.pathname === link.path ? 'text-textMain active' : ''
             }`}
           >
             {link.label}
@@ -53,13 +53,13 @@ const Navbar = () => {
 
       {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-primary border-b border-neutral-100 p-8 flex flex-col gap-6 md:hidden">
+        <div className="absolute top-full left-0 w-full bg-primary border-b border-neutral-100 p-8 flex flex-col gap-6 md:hidden animate-fade-in shadow-xl shadow-primary/20">
           {navLinks.map((link) => (
             <Link 
               key={link.path}
               to={link.path} 
               onClick={closeMenu}
-              className={`font-sans text-xs uppercase tracking-widest ${
+              className={`font-sans text-xs uppercase tracking-widest transition-colors ${
                 location.pathname === link.path ? 'text-accentMain' : 'text-textMain'
               }`}
             >
@@ -71,7 +71,7 @@ const Navbar = () => {
               href="https://wa.me/34640646963" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-accentMain font-sans text-xs uppercase tracking-widest"
+              className="text-accentMain font-sans text-xs uppercase tracking-widest inline-block nav-link"
             >
               CONTACTAR POR WHATSAPP
             </a>
