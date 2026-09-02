@@ -11,10 +11,10 @@
     "deploy": "sanity deploy"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "sanity": "^3.0.0",
-    "styled-components": "^6.0.0"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "sanity": "^6.12.0",
+    "styled-components": "^6.5.3"
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^3.0.0",

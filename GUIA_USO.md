@@ -37,19 +37,30 @@ Si quieres poder subir fotos estando de viaje sin usar VS Code, puedes publicar 
 
 ## 2. ¿Cómo subir y cambiar fotos en tu web?
 
-El sistema es completamente inteligente. Solo tienes que seguir estos pasos:
+El panel ahora está organizado de forma ultra visual por carpetas para cada página de tu web:
 
-1. Entra a tu Panel de Administración.
-2. En el menú de la izquierda, haz clic en **"Imágenes de la Web"**.
-3. Arriba a la derecha, haz clic en el botón del lápiz o en **"Create New"** (Crear Nuevo) para añadir una foto.
-4. Se abrirá un formulario súper sencillo:
-   * **Título / Descripción:** Pon un nombre para ti (Ej. "Boda Marta y Juan - Portada"). Esto no lo verán los clientes.
-   * **¿Dónde se mostrará esta foto?:** ¡Esta es la magia! Abre el desplegable y elige en qué hueco exacto de tu web quieres que aparezca esta foto. Tienes opciones precisas como *"Inicio - Galería Portafolio (4 fotos)"* o *"Tarifas - Bodas"*.
-   * **Fotografía:** Arrastra aquí tu foto en alta calidad.
-5. *(Opcional)* Si haces clic en el pequeño icono de un lápiz sobre la foto que acabas de subir (Hotspot), puedes decirle al sistema cuál es la "cara" o el punto focal de la foto. Así, si la web recorta la foto en un móvil, la cara del cliente nunca quedará fuera.
+1. Entra a tu Panel de Administración: **`https://cristianphotos.sanity.studio`**
+2. En el menú de la izquierda verás carpetas claras e intuitivas:
+   * **🏠 Página de Inicio**
+     * *📸 Retrato "Sobre Mí" (Máx. 1 foto)*
+     * *🖼️ Galería Portafolio Principal (4 fotos recomendadas)*
+   * **👤 Página "Sobre Mí"**
+     * *📸 Retrato Principal de Cristian (1 foto de autor)*
+     * *🎞️ Galería Detalles y Enfoque (2 fotos)*
+   * **🏷️ Página de Tarifas y Servicios**
+     * *💍 Portada Servicio: Bodas (1 foto)*
+     * *🎭 Portada Servicio: Retrato / Moda (1 foto)*
+     * *🎂 Portada Servicio: Eventos / 15 Años (1 foto)*
+   * **📁 Todas las Fotografías (Listado Global)**: Para buscar o ver todo en un solo lugar.
+3. Entra directamente a la carpeta donde quieras cambiar la foto (ej: *Página de Inicio → Galería Portafolio*).
+4. Haz clic en **"Create New"** arriba a la derecha:
+   * **La sección se autoselecciona sola**, ¡no tienes que buscarla en ningún menú!
+   * **Título:** Escribe un nombre para identificar la foto (Ej. "Boda Marta y Juan - Sesión Bosque").
+   * **Fotografía:** Arrastra tu foto en alta calidad (JPG, PNG o WebP).
+5. **Punto focal (Hotspot):** Haz clic en el círculo sobre la foto para centrar la cara del cliente. Así, cuando un usuario entre desde el móvil, la foto se recortará automáticamente sin cortar nunca el rostro.
 6. Haz clic en el botón verde **"Publish"** abajo a la derecha.
 
-¡Listo! Si vas a tu web pública (ej. `https://cristianphotos.vercel.app`) y recargas la página, tu foto aparecerá mágicamente en el sitio que indicaste, optimizada y perfecta.
+¡Listo! Si entras a tu web en Vercel y recargas, tu foto aparecerá en su lugar exacto, optimizada y nítida.
 
 ---
 
