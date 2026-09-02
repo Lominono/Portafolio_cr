@@ -1,0 +1,8 @@
+import {defineCliConfig} from 'sanity/cli'
+
+export default defineCliConfig({
+  api: {
+    projectId: '3vr7hd19',
+    dataset: 'photospaneladmin'
+  }
+})
