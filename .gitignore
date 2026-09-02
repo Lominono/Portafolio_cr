@@ -25,3 +25,5 @@ dist-ssr
 .sanity
 *.timestamp-*.mjs
 *.tsbuildinfo
+
+.vercel
