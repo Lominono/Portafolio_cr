@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-primary text-textMain;
+  }
+}
+
+/* Custom classes para respetar la guía de diseño */
+.title-main {
+  @apply font-serif uppercase tracking-title;
+}
+
+.btn-primary {
+  @apply bg-accentMain text-primary uppercase font-sans py-3 px-6 transition-colors duration-300;
+  border-radius: 2px;
+}
+.btn-primary:hover {
+  @apply bg-accentSecondary;
+}
+
+.photo-card-secondary {
+  @apply border border-accentSecondary;
+  border-width: 1px;
+}
