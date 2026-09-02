@@ -1,8 +1,9 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { Link } from 'react-router-dom';
+import { client, urlFor } from '../sanity';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -15,6 +16,20 @@ const servicesCategories = [
 
 const Home = () => {
   const container = useRef<HTMLDivElement>(null);
+  const [aboutImg, setAboutImg] = useState<string | null>(null);
+  const [portfolioImgs, setPortfolioImgs] = useState<string[]>([]);
+
+  useEffect(() => {
+    client.fetch(`*[_type == "siteImage" && placement in ["home-about", "home-portfolio"]]`).then((data: any[]) => {
+      const about = data.find((d: any) => d.placement === 'home-about');
+      if (about && about.image) setAboutImg(urlFor(about.image).auto('format').url());
+
+      const portfolio = data
+        .filter((d: any) => d.placement === 'home-portfolio' && d.image)
+        .map((d: any) => urlFor(d.image).auto('format').url());
+      setPortfolioImgs(portfolio);
+    }).catch(console.error);
+  }, []);
 
   useGSAP(() => {
     gsap.from('.hero-elem', {
@@ -83,8 +98,12 @@ const Home = () => {
 
       {/* About Section */}
       <section className="py-24 px-6 md:px-16 max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16 border-t border-neutral-100">
-        <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary relative scroll-reveal bg-neutral-50 flex items-center justify-center">
-          <span className="text-textSecondary uppercase tracking-widest text-xs font-sans">Retrato de Cristian</span>
+        <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary relative scroll-reveal bg-neutral-50 flex items-center justify-center overflow-hidden">
+          {aboutImg ? (
+            <img src={aboutImg} alt="Retrato Cristian" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-textSecondary uppercase tracking-widest text-xs font-sans">Retrato de Cristian</span>
+          )}
         </div>
         
         <div className="w-full md:w-1/2 scroll-reveal">
@@ -135,17 +154,21 @@ const Home = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 portfolio-grid mb-12">
-          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center">
-            <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>
+          {/* Foto 1 (Larga) */}
+          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden">
+            {portfolioImgs[0] ? <img src={portfolioImgs[0]} alt="Portafolio 1" className="w-full h-full object-cover" /> : <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>}
           </div>
-          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center">
-             <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>
+          {/* Foto 2 (Vertical) */}
+          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden">
+            {portfolioImgs[1] ? <img src={portfolioImgs[1]} alt="Portafolio 2" className="w-full h-full object-cover" /> : <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>}
           </div>
-          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center">
-             <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>
+          {/* Foto 3 (Vertical) */}
+          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden">
+            {portfolioImgs[2] ? <img src={portfolioImgs[2]} alt="Portafolio 3" className="w-full h-full object-cover" /> : <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>}
           </div>
-          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center">
-             <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>
+          {/* Foto 4 (Larga) */}
+          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden">
+            {portfolioImgs[3] ? <img src={portfolioImgs[3]} alt="Portafolio 4" className="w-full h-full object-cover" /> : <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>}
           </div>
         </div>
         
