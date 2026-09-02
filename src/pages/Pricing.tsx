@@ -1,8 +1,9 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { MessageCircle } from 'lucide-react';
+import { client, urlFor } from '../sanity';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -11,49 +12,57 @@ const pricingData = [
     title: 'SESIÓN INDIVIDUAL / RETRATO / MODA', 
     price: '80 € – 150 €', 
     desc: '1 hora de sesión (exterior o localización), 10 a 15 fotos editadas en alta resolución y galería digital privada.',
-    layout: 'single' // Layout type for the photo placeholders
+    layout: 'single',
+    sanityId: 'pricing-portrait'
   },
   { 
     title: 'CUMPLEAÑOS Y FIESTAS INFANTILES', 
     price: '100 € – 200 €', 
     desc: 'Cobertura del evento (2-3 horas), momentos clave (pastel, animación) y entrega de galería digital completa.',
-    layout: 'collage' 
+    layout: 'collage',
+    sanityId: 'pricing-events'
   },
   { 
     title: 'FIESTAS DE 15 AÑOS / QUINCEAÑERAS', 
     price: '200 € – 500 €', 
     desc: 'Cobertura de la celebración, vals, protocolo y sesión previa o de recepción con galería digital.',
-    layout: 'single'
+    layout: 'single',
+    sanityId: 'pricing-events'
   },
   { 
     title: 'BAUTIZOS Y COMUNIONES', 
     price: '120 € – 220 €', 
     desc: 'Cobertura de la ceremonia y/o reportaje exterior, con entrega de galería digital (25-40 fotos).',
-    layout: 'single'
+    layout: 'single',
+    sanityId: 'pricing-events'
   },
   { 
     title: 'EVENTOS DEPORTIVOS', 
     price: '150 € – 350 €', 
     desc: 'Cobertura de la competición, fotos de acción y entrega de galería completa.',
-    layout: 'collage'
+    layout: 'collage',
+    sanityId: 'pricing-events'
   },
   { 
     title: 'BODA BÁSICA / CIVIL', 
     price: '250 € – 450 €', 
     desc: 'Cobertura de ceremonia, fotos de pareja tras el enlace y fotos de grupo/familiares.',
-    layout: 'single'
+    layout: 'single',
+    sanityId: 'pricing-wedding'
   },
   { 
     title: 'BODA COMPLETA', 
     price: 'DESDE 650 €', 
     desc: 'Cobertura integral: preparativos, ceremonia, banquete y fiesta, más entrega completa en alta resolución.',
-    layout: 'collage'
+    layout: 'collage',
+    sanityId: 'pricing-wedding'
   },
   { 
     title: 'SESIONES ESPECIALES (PAREJA, PRE-MAMÁ, FAMILIA)', 
     price: '100 € – 180 €', 
     desc: '1 a 1,5 horas en exterior o domicilio con entrega digital de 20 a 30 imágenes.',
-    layout: 'single'
+    layout: 'single',
+    sanityId: 'pricing-portrait'
   }
 ];
 
@@ -64,6 +73,19 @@ const extrasData = [
 
 const Pricing = () => {
   const container = useRef<HTMLDivElement>(null);
+  const [pricingImgs, setPricingImgs] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    client.fetch(`*[_type == "siteImage" && placement in ["pricing-wedding", "pricing-portrait", "pricing-events"]]`).then((data: any[]) => {
+      const imgMap: Record<string, string> = {};
+      data.forEach(d => {
+        if (d.image) {
+          imgMap[d.placement] = urlFor(d.image).auto('format').url();
+        }
+      });
+      setPricingImgs(imgMap);
+    }).catch(console.error);
+  }, []);
 
   useGSAP(() => {
     gsap.from('.header-elem', {
@@ -134,14 +156,21 @@ const Pricing = () => {
                 {/* Lado de Fotos (Placeholders) */}
                 <div className="w-full md:w-1/2 flex gap-4 h-[400px]">
                   {item.layout === 'single' ? (
-                    <div className="w-full h-full photo-card-secondary bg-neutral-50 flex flex-col items-center justify-center p-6 text-center">
-                      <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans mb-2">Foto Referencia</span>
-                      <span className="title-main text-xs text-textMain opacity-50">{item.title}</span>
+                    <div className="w-full aspect-[3/4] photo-card-secondary relative flex items-center justify-center overflow-hidden">
+                      {pricingImgs[item.sanityId] ? (
+                        <img src={pricingImgs[item.sanityId]} alt={item.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-textSecondary uppercase tracking-widest text-xs font-sans text-center">Foto {item.sanityId.split('-')[1]}</span>
+                      )}
                     </div>
                   ) : (
                     <>
-                      <div className="w-1/2 h-full photo-card-secondary bg-neutral-50 flex flex-col items-center justify-center p-4 text-center">
-                        <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Foto 1</span>
+                      <div className="w-1/2 h-full photo-card-secondary relative flex flex-col items-center justify-center text-center overflow-hidden">
+                        {pricingImgs[item.sanityId] ? (
+                          <img src={pricingImgs[item.sanityId]} alt={item.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Foto 1</span>
+                        )}
                       </div>
                       <div className="w-1/2 h-full flex flex-col gap-4">
                         <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex flex-col items-center justify-center p-4 text-center">

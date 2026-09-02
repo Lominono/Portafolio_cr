@@ -1,12 +1,27 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { client, urlFor } from '../sanity';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const About = () => {
   const container = useRef<HTMLDivElement>(null);
+  const [mainImg, setMainImg] = useState<string | null>(null);
+  const [detailImgs, setDetailImgs] = useState<string[]>([]);
+
+  useEffect(() => {
+    client.fetch(`*[_type == "siteImage" && placement in ["about-main", "about-details"]]`).then((data: any[]) => {
+      const main = data.find((d: any) => d.placement === 'about-main');
+      if (main && main.image) setMainImg(urlFor(main.image).auto('format').url());
+
+      const details = data
+        .filter((d: any) => d.placement === 'about-details' && d.image)
+        .map((d: any) => urlFor(d.image).auto('format').url());
+      setDetailImgs(details);
+    }).catch(console.error);
+  }, []);
 
   useGSAP(() => {
     // Animación de entrada inicial
@@ -71,10 +86,16 @@ const About = () => {
         {/* Sección Principal: Retrato e Introducción */}
         <div className="flex flex-col md:flex-row gap-16 items-center mb-32">
           <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary bg-neutral-50 overflow-hidden relative header-elem flex items-center justify-center">
-            <div className="absolute inset-0 bg-neutral-100 opacity-50 img-parallax h-[120%] -top-[10%] w-full"></div>
-            <span className="text-textSecondary uppercase tracking-widest text-xs font-sans relative z-10 text-center px-4">
-              Foto de Cristian<br/>(Retrato Principal)
-            </span>
+            {mainImg ? (
+              <img src={mainImg} alt="Retrato Principal" className="w-full h-full object-cover img-parallax absolute h-[120%] -top-[10%]" />
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-neutral-100 opacity-50 img-parallax h-[120%] -top-[10%] w-full"></div>
+                <span className="text-textSecondary uppercase tracking-widest text-xs font-sans relative z-10 text-center px-4">
+                  Foto de Cristian<br/>(Retrato Principal)
+                </span>
+              </>
+            )}
           </div>
           
           <div className="w-full md:w-1/2">
@@ -159,16 +180,28 @@ const About = () => {
         {/* Galería Adicional (Detalles) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 scroll-reveal">
           <div className="aspect-[4/3] photo-card-secondary bg-neutral-50 overflow-hidden relative flex items-center justify-center">
-            <div className="absolute inset-0 bg-neutral-100 opacity-50 img-parallax h-[120%] -top-[10%] w-full"></div>
-            <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans relative z-10 text-center px-4">
-              Foto Estilo / Detalle 1<br/>(Apaisada)
-            </span>
+            {detailImgs[0] ? (
+              <img src={detailImgs[0]} alt="Detalle 1" className="w-full h-full object-cover img-parallax absolute h-[120%] -top-[10%]" />
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-neutral-100 opacity-50 img-parallax h-[120%] -top-[10%] w-full"></div>
+                <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans relative z-10 text-center px-4">
+                  Foto Estilo / Detalle 1<br/>(Apaisada)
+                </span>
+              </>
+            )}
           </div>
           <div className="aspect-[4/3] photo-card-secondary bg-neutral-50 overflow-hidden relative flex items-center justify-center">
-            <div className="absolute inset-0 bg-neutral-100 opacity-50 img-parallax h-[120%] -top-[10%] w-full"></div>
-            <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans relative z-10 text-center px-4">
-              Foto Estilo / Detalle 2<br/>(Apaisada)
-            </span>
+            {detailImgs[1] ? (
+              <img src={detailImgs[1]} alt="Detalle 2" className="w-full h-full object-cover img-parallax absolute h-[120%] -top-[10%]" />
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-neutral-100 opacity-50 img-parallax h-[120%] -top-[10%] w-full"></div>
+                <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans relative z-10 text-center px-4">
+                  Foto Estilo / Detalle 2<br/>(Apaisada)
+                </span>
+              </>
+            )}
           </div>
         </div>
 
