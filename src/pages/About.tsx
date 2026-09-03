@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { client, urlFor } from '../sanity';
+import { client, safeUrlFor } from '../sanity';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -12,15 +12,27 @@ const About = () => {
   const [detailImgs, setDetailImgs] = useState<string[]>([]);
 
   useEffect(() => {
-    client.fetch(`*[_type == "siteImage" && placement in ["about-main", "about-details"]]`).then((data: any[]) => {
-      const main = data.find((d: any) => d.placement === 'about-main');
-      if (main && main.image) setMainImg(urlFor(main.image).auto('format').url());
+    client
+      .fetch(`*[_type == "siteImage" && placement in ["about-main", "about-details", "home-about"] && defined(image.asset)] | order(_createdAt desc)`)
+      .then((data: any[]) => {
+        const main = data.find((d: any) => d.placement === 'about-main') || data.find((d: any) => d.placement === 'home-about');
+        if (main) {
+          const url = safeUrlFor(main.image);
+          if (url) setMainImg(url);
+        }
 
-      const details = data
-        .filter((d: any) => d.placement === 'about-details' && d.image)
-        .map((d: any) => urlFor(d.image).auto('format').url());
-      setDetailImgs(details);
-    }).catch(console.error);
+        const details = data
+          .filter((d: any) => d.placement === 'about-details')
+          .map((d: any) => safeUrlFor(d.image))
+          .filter((url): url is string => Boolean(url));
+
+        if (details.length > 0) {
+          setDetailImgs(details);
+        }
+      })
+      .catch((err) => {
+        console.error('Error cargando imágenes de Sanity en About:', err);
+      });
   }, []);
 
   useGSAP(() => {

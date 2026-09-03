@@ -3,66 +3,92 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { MessageCircle } from 'lucide-react';
-import { client, urlFor } from '../sanity';
+import { client, safeUrlFor } from '../sanity';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const pricingData = [
+interface PricingItem {
+  title: string;
+  price: string;
+  desc: string;
+  layout: 'single' | 'collage';
+  sanityId: string;
+  fallbackId: string;
+  label: string;
+}
+
+const pricingData: PricingItem[] = [
   { 
     title: 'SESIÓN INDIVIDUAL / RETRATO / MODA', 
     price: '80 € – 150 €', 
     desc: '1 hora de sesión (exterior o localización), 10 a 15 fotos editadas en alta resolución y galería digital privada.',
     layout: 'single',
-    sanityId: 'pricing-portrait'
+    sanityId: 'pricing-portrait',
+    fallbackId: 'pricing-portrait',
+    label: 'Retrato / Moda'
   },
   { 
     title: 'CUMPLEAÑOS Y FIESTAS INFANTILES', 
     price: '100 € – 200 €', 
     desc: 'Cobertura del evento (2-3 horas), momentos clave (pastel, animación) y entrega de galería digital completa.',
     layout: 'collage',
-    sanityId: 'pricing-events'
+    sanityId: 'pricing-birthday',
+    fallbackId: 'pricing-events',
+    label: 'Cumpleaños'
   },
   { 
     title: 'FIESTAS DE 15 AÑOS / QUINCEAÑERAS', 
     price: '200 € – 500 €', 
     desc: 'Cobertura de la celebración, vals, protocolo y sesión previa o de recepción con galería digital.',
     layout: 'single',
-    sanityId: 'pricing-events'
+    sanityId: 'pricing-quince',
+    fallbackId: 'pricing-events',
+    label: '15 Años'
   },
   { 
     title: 'BAUTIZOS Y COMUNIONES', 
     price: '120 € – 220 €', 
     desc: 'Cobertura de la ceremonia y/o reportaje exterior, con entrega de galería digital (25-40 fotos).',
     layout: 'single',
-    sanityId: 'pricing-events'
+    sanityId: 'pricing-baptism',
+    fallbackId: 'pricing-events',
+    label: 'Bautizos'
   },
   { 
     title: 'EVENTOS DEPORTIVOS', 
     price: '150 € – 350 €', 
     desc: 'Cobertura de la competición, fotos de acción y entrega de galería completa.',
     layout: 'collage',
-    sanityId: 'pricing-events'
+    sanityId: 'pricing-sports',
+    fallbackId: 'pricing-events',
+    label: 'Deportes'
   },
   { 
     title: 'BODA BÁSICA / CIVIL', 
     price: '250 € – 450 €', 
     desc: 'Cobertura de ceremonia, fotos de pareja tras el enlace y fotos de grupo/familiares.',
     layout: 'single',
-    sanityId: 'pricing-wedding'
+    sanityId: 'pricing-wedding',
+    fallbackId: 'pricing-wedding',
+    label: 'Boda Civil'
   },
   { 
     title: 'BODA COMPLETA', 
     price: 'DESDE 650 €', 
     desc: 'Cobertura integral: preparativos, ceremonia, banquete y fiesta, más entrega completa en alta resolución.',
     layout: 'collage',
-    sanityId: 'pricing-wedding'
+    sanityId: 'pricing-wedding-full',
+    fallbackId: 'pricing-wedding',
+    label: 'Boda Completa'
   },
   { 
     title: 'SESIONES ESPECIALES (PAREJA, PRE-MAMÁ, FAMILIA)', 
     price: '100 € – 180 €', 
     desc: '1 a 1,5 horas en exterior o domicilio con entrega digital de 20 a 30 imágenes.',
     layout: 'single',
-    sanityId: 'pricing-portrait'
+    sanityId: 'pricing-special',
+    fallbackId: 'pricing-portrait',
+    label: 'Sesiones Especiales'
   }
 ];
 
@@ -73,18 +99,27 @@ const extrasData = [
 
 const Pricing = () => {
   const container = useRef<HTMLDivElement>(null);
-  const [pricingImgs, setPricingImgs] = useState<Record<string, string>>({});
+  const [pricingImgs, setPricingImgs] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
-    client.fetch(`*[_type == "siteImage" && placement in ["pricing-wedding", "pricing-portrait", "pricing-events"]]`).then((data: any[]) => {
-      const imgMap: Record<string, string> = {};
-      data.forEach(d => {
-        if (d.image) {
-          imgMap[d.placement] = urlFor(d.image).auto('format').url();
-        }
+    client
+      .fetch(`*[_type == "siteImage" && placement match "pricing-*" && defined(image.asset)] | order(_createdAt desc)`)
+      .then((data: any[]) => {
+        const imgMap: Record<string, string[]> = {};
+        data.forEach((d: any) => {
+          const url = safeUrlFor(d.image);
+          if (url) {
+            if (!imgMap[d.placement]) {
+              imgMap[d.placement] = [];
+            }
+            imgMap[d.placement].push(url);
+          }
+        });
+        setPricingImgs(imgMap);
+      })
+      .catch((err) => {
+        console.error('Error cargando imágenes de Sanity en Tarifas:', err);
       });
-      setPricingImgs(imgMap);
-    }).catch(console.error);
   }, []);
 
   useGSAP(() => {
@@ -129,6 +164,16 @@ const Pricing = () => {
     return `https://wa.me/34640646963?text=${encodeURIComponent(text)}`;
   };
 
+  const getImagesForService = (item: PricingItem): string[] => {
+    const specific = pricingImgs[item.sanityId];
+    if (specific && specific.length > 0) return specific;
+
+    const fallback = pricingImgs[item.fallbackId];
+    if (fallback && fallback.length > 0) return fallback;
+
+    return [];
+  };
+
   return (
     <div ref={container} className="pt-32 pb-24 px-6 md:px-16 min-h-screen bg-primary">
       <div className="max-w-6xl mx-auto">
@@ -148,39 +193,102 @@ const Pricing = () => {
         <div className="mb-24 flex flex-col gap-24">
           {pricingData.map((item, index) => {
             const isEven = index % 2 === 0;
+            const imgs = getImagesForService(item);
+
             return (
               <div 
                 key={index} 
                 className={`pricing-block flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} gap-12 items-center`}
               >
-                {/* Lado de Fotos (Placeholders) */}
-                <div className="w-full md:w-1/2 flex gap-4 h-[400px]">
+                {/* Lado de Fotos */}
+                <div className="w-full md:w-1/2 flex gap-4 h-[380px] md:h-[420px]">
                   {item.layout === 'single' ? (
-                    <div className="w-full aspect-[3/4] photo-card-secondary relative flex items-center justify-center overflow-hidden">
-                      {pricingImgs[item.sanityId] ? (
-                        <img src={pricingImgs[item.sanityId]} alt={item.title} className="w-full h-full object-cover" />
+                    <div className="w-full h-full photo-card-secondary relative flex items-center justify-center overflow-hidden group bg-neutral-50">
+                      {imgs[0] ? (
+                        <img 
+                          src={imgs[0]} 
+                          alt={item.title} 
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                        />
                       ) : (
-                        <span className="text-textSecondary uppercase tracking-widest text-xs font-sans text-center">Foto {item.sanityId.split('-')[1]}</span>
+                        <div className="flex flex-col items-center justify-center p-6 text-center">
+                          <span className="w-8 h-px bg-accentMain mb-3"></span>
+                          <span className="text-textSecondary uppercase tracking-widest text-xs font-sans">
+                            {item.label}
+                          </span>
+                        </div>
                       )}
                     </div>
                   ) : (
-                    <>
-                      <div className="w-1/2 h-full photo-card-secondary relative flex flex-col items-center justify-center text-center overflow-hidden">
-                        {pricingImgs[item.sanityId] ? (
-                          <img src={pricingImgs[item.sanityId]} alt={item.title} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Foto 1</span>
-                        )}
-                      </div>
-                      <div className="w-1/2 h-full flex flex-col gap-4">
-                        <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex flex-col items-center justify-center p-4 text-center">
-                          <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Foto 2</span>
+                    /* Layout Collage */
+                    imgs.length >= 3 ? (
+                      <>
+                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                          <img 
+                            src={imgs[0]} 
+                            alt={`${item.title} 1`} 
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                          />
                         </div>
-                        <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex flex-col items-center justify-center p-4 text-center">
-                          <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Foto 3</span>
+                        <div className="w-1/2 h-full flex flex-col gap-4">
+                          <div className="h-1/2 w-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                            <img 
+                              src={imgs[1]} 
+                              alt={`${item.title} 2`} 
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                            />
+                          </div>
+                          <div className="h-1/2 w-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                            <img 
+                              src={imgs[2]} 
+                              alt={`${item.title} 3`} 
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                            />
+                          </div>
                         </div>
+                      </>
+                    ) : imgs.length === 2 ? (
+                      <>
+                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                          <img 
+                            src={imgs[0]} 
+                            alt={`${item.title} 1`} 
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                          />
+                        </div>
+                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                          <img 
+                            src={imgs[1]} 
+                            alt={`${item.title} 2`} 
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                          />
+                        </div>
+                      </>
+                    ) : imgs.length === 1 ? (
+                      <div className="w-full h-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                        <img 
+                          src={imgs[0]} 
+                          alt={item.title} 
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                        />
                       </div>
-                    </>
+                    ) : (
+                      <>
+                        <div className="w-1/2 h-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center">
+                          <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">
+                            {item.label}
+                          </span>
+                        </div>
+                        <div className="w-1/2 h-full flex flex-col gap-4">
+                          <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center">
+                            <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Detalle</span>
+                          </div>
+                          <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center">
+                            <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Momentos</span>
+                          </div>
+                        </div>
+                      </>
+                    )
                   )}
                 </div>
 

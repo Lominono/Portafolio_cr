@@ -12,7 +12,7 @@ export const structure: StructureResolver = (S) =>
             .title('Fotografías: Página de Inicio')
             .items([
               S.listItem()
-                .title('📸 Retrato "Sobre Mí" (Máx. 1 foto)')
+                .title('📸 Retrato "Sobre Mí" (1 foto)')
                 .child(
                   S.documentList()
                     .title('Inicio - Retrato Sobre Mí (1 foto)')
@@ -22,13 +22,53 @@ export const structure: StructureResolver = (S) =>
                     ])
                 ),
               S.listItem()
-                .title('🖼️ Galería Portafolio Principal (4 fotos)')
+                .title('🖼️ Galería Portafolio Principal')
                 .child(
                   S.documentList()
-                    .title('Inicio - Galería Portafolio (4 fotos recomendadas)')
+                    .title('Inicio - Galería Portafolio (Múltiples fotos)')
                     .filter('_type == "siteImage" && placement == "home-portfolio"')
                     .initialValueTemplates([
                       S.initialValueTemplateItem('siteImage-home-portfolio')
+                    ])
+                ),
+              S.listItem()
+                .title('🌟 Especialidades / Servicios Destacados')
+                .child(
+                  S.list()
+                    .title('Especialidades de Inicio')
+                    .items([
+                      S.listItem()
+                        .title('💍 Bodas & Enlaces')
+                        .child(
+                          S.documentList()
+                            .title('Inicio - Especialidad Bodas')
+                            .filter('_type == "siteImage" && placement == "home-service-wedding"')
+                            .initialValueTemplates([S.initialValueTemplateItem('siteImage-home-service-wedding')])
+                        ),
+                      S.listItem()
+                        .title('🎭 Retrato & Moda')
+                        .child(
+                          S.documentList()
+                            .title('Inicio - Especialidad Retrato')
+                            .filter('_type == "siteImage" && placement == "home-service-portrait"')
+                            .initialValueTemplates([S.initialValueTemplateItem('siteImage-home-service-portrait')])
+                        ),
+                      S.listItem()
+                        .title('🎉 Eventos & Celebraciones')
+                        .child(
+                          S.documentList()
+                            .title('Inicio - Especialidad Eventos')
+                            .filter('_type == "siteImage" && placement == "home-service-events"')
+                            .initialValueTemplates([S.initialValueTemplateItem('siteImage-home-service-events')])
+                        ),
+                      S.listItem()
+                        .title('⚽ Deportes')
+                        .child(
+                          S.documentList()
+                            .title('Inicio - Especialidad Deportes')
+                            .filter('_type == "siteImage" && placement == "home-service-sports"')
+                            .initialValueTemplates([S.initialValueTemplateItem('siteImage-home-service-sports')])
+                        ),
                     ])
                 ),
             ])
@@ -69,33 +109,93 @@ export const structure: StructureResolver = (S) =>
         .title('🏷️ Página de Tarifas y Servicios')
         .child(
           S.list()
-            .title('Fotografías: Portadas de Servicios')
+            .title('Fotografías: Servicios y Tarifas')
             .items([
               S.listItem()
-                .title('💍 Portada Servicio: Bodas (1 foto)')
+                .title('💍 Bodas (General / Boda Básica)')
                 .child(
                   S.documentList()
-                    .title('Tarifas - Bodas (1 foto de portada)')
+                    .title('Tarifas - Bodas (General / Básica)')
                     .filter('_type == "siteImage" && placement == "pricing-wedding"')
                     .initialValueTemplates([
                       S.initialValueTemplateItem('siteImage-pricing-wedding')
                     ])
                 ),
               S.listItem()
-                .title('🎭 Portada Servicio: Retrato / Moda (1 foto)')
+                .title('💍 Boda Completa (Collage 3 fotos)')
                 .child(
                   S.documentList()
-                    .title('Tarifas - Retrato / Moda (1 foto de portada)')
+                    .title('Tarifas - Boda Completa')
+                    .filter('_type == "siteImage" && placement == "pricing-wedding-full"')
+                    .initialValueTemplates([
+                      S.initialValueTemplateItem('siteImage-pricing-wedding-full')
+                    ])
+                ),
+              S.listItem()
+                .title('🎭 Retrato / Moda / Sesión Individual')
+                .child(
+                  S.documentList()
+                    .title('Tarifas - Retrato y Moda')
                     .filter('_type == "siteImage" && placement == "pricing-portrait"')
                     .initialValueTemplates([
                       S.initialValueTemplateItem('siteImage-pricing-portrait')
                     ])
                 ),
               S.listItem()
-                .title('🎂 Portada Servicio: Cumpleaños / 15 Años / Bautizos (1 foto)')
+                .title('🎂 Cumpleaños y Fiestas Infantiles')
                 .child(
                   S.documentList()
-                    .title('Tarifas - Eventos Sociales (1 foto de portada)')
+                    .title('Tarifas - Cumpleaños')
+                    .filter('_type == "siteImage" && placement == "pricing-birthday"')
+                    .initialValueTemplates([
+                      S.initialValueTemplateItem('siteImage-pricing-birthday')
+                    ])
+                ),
+              S.listItem()
+                .title('👑 Fiestas de 15 Años / Quinceañeras')
+                .child(
+                  S.documentList()
+                    .title('Tarifas - 15 Años')
+                    .filter('_type == "siteImage" && placement == "pricing-quince"')
+                    .initialValueTemplates([
+                      S.initialValueTemplateItem('siteImage-pricing-quince')
+                    ])
+                ),
+              S.listItem()
+                .title('🕊️ Bautizos y Comuniones')
+                .child(
+                  S.documentList()
+                    .title('Tarifas - Bautizos y Comuniones')
+                    .filter('_type == "siteImage" && placement == "pricing-baptism"')
+                    .initialValueTemplates([
+                      S.initialValueTemplateItem('siteImage-pricing-baptism')
+                    ])
+                ),
+              S.listItem()
+                .title('⚽ Eventos Deportivos')
+                .child(
+                  S.documentList()
+                    .title('Tarifas - Deportes')
+                    .filter('_type == "siteImage" && placement == "pricing-sports"')
+                    .initialValueTemplates([
+                      S.initialValueTemplateItem('siteImage-pricing-sports')
+                    ])
+                ),
+              S.listItem()
+                .title('🤍 Sesiones Especiales (Pareja / Familia)')
+                .child(
+                  S.documentList()
+                    .title('Tarifas - Sesiones Especiales')
+                    .filter('_type == "siteImage" && placement == "pricing-special"')
+                    .initialValueTemplates([
+                      S.initialValueTemplateItem('siteImage-pricing-special')
+                    ])
+                ),
+              S.listItem()
+                .title('🏷️ Eventos Generales (Comodín)')
+                .child(
+                  S.documentList()
+                    .title('Tarifas - Eventos Generales')
                     .filter('_type == "siteImage" && placement == "pricing-events"')
                     .initialValueTemplates([
                       S.initialValueTemplateItem('siteImage-pricing-events')

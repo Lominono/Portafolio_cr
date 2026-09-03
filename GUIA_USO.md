@@ -4,94 +4,79 @@
 
 Lo más importante: **Tu web es completamente autogestionable**. No necesitas tocar código para cambiar tus fotografías. Tienes un "Panel de Administración" profesional que hace todo el trabajo pesado por ti.
 
-Aquí tienes el paso a paso de cómo manejar tu página web para el resto de la vida.
+Aquí tienes el paso a paso de cómo manejar tu página web.
 
 ---
 
 ## 1. ¿Cómo acceder a tu Panel de Administración?
 
-Tu panel de control (creado con Sanity Studio) vive de forma independiente a la web para mayor seguridad. 
+Tu panel de control (creado con Sanity Studio) vive de forma independiente a la web para mayor seguridad:
 
-### Opción A: Abrirlo desde tu ordenador (Local)
-1. Abre tu proyecto (`crphoto_web`) en **Visual Studio Code**.
-2. Abre la terminal superior y escribe el comando para entrar a la carpeta del panel:
-   ```bash
-   cd studio
-   ```
-3. Enciende el panel escribiendo:
-   ```bash
-   npm run dev
-   ```
-4. Haz clic en el enlace que te aparecerá (usualmente `http://localhost:3333`) y accede con tu cuenta de GitHub o Google.
+👉 **Panel en la Nube:** **`https://cristianphotos.sanity.studio`**
 
-### Opción B: Subirlo a Internet (Para entrar desde tu móvil)
-Si quieres poder subir fotos estando de viaje sin usar VS Code, puedes publicar tu panel gratis en un servidor privado:
-1. En la terminal de VS Code, dentro de la carpeta `studio`, escribe:
-   ```bash
-   npx sanity deploy
-   ```
-2. El sistema te pedirá un nombre (ej. `cristianphotos`).
-3. Te dará un enlace mágico (ej. `https://cristianphotos.sanity.studio`). Guarda ese enlace en los favoritos de tu navegador. Ahora puedes entrar a tu panel desde cualquier lugar del mundo.
+Guarda ese enlace en los favoritos de tu navegador (Chrome, Safari, etc.) en tu ordenador o móvil. Puedes entrar desde cualquier lugar del mundo iniciando sesión con tu cuenta de Google o GitHub.
+
+*(Si alguna vez quieres abrirlo localmente en tu ordenador, entra a la carpeta `studio` en la terminal y ejecuta `npm run dev`)*.
 
 ---
 
 ## 2. ¿Cómo subir y cambiar fotos en tu web?
 
-El panel ahora está organizado de forma ultra visual por carpetas para cada página de tu web:
+El panel está organizado por carpetas según cada sección de tu web:
 
-1. Entra a tu Panel de Administración: **`https://cristianphotos.sanity.studio`**
-2. En el menú de la izquierda verás carpetas claras e intuitivas:
-   * **🏠 Página de Inicio**
-     * *📸 Retrato "Sobre Mí" (Máx. 1 foto)*
-     * *🖼️ Galería Portafolio Principal (4 fotos recomendadas)*
-   * **👤 Página "Sobre Mí"**
-     * *📸 Retrato Principal de Cristian (1 foto de autor)*
-     * *🎞️ Galería Detalles y Enfoque (2 fotos)*
-   * **🏷️ Página de Tarifas y Servicios**
-     * *💍 Portada Servicio: Bodas (1 foto)*
-     * *🎭 Portada Servicio: Retrato / Moda (1 foto)*
-     * *🎂 Portada Servicio: Eventos / 15 Años (1 foto)*
-   * **📁 Todas las Fotografías (Listado Global)**: Para buscar o ver todo en un solo lugar.
-3. Entra directamente a la carpeta donde quieras cambiar la foto (ej: *Página de Inicio → Galería Portafolio*).
-4. Haz clic en **"Create New"** arriba a la derecha:
-   * **La sección se autoselecciona sola**, ¡no tienes que buscarla en ningún menú!
-   * **Título:** Escribe un nombre para identificar la foto (Ej. "Boda Marta y Juan - Sesión Bosque").
-   * **Fotografía:** Arrastra tu foto en alta calidad (JPG, PNG o WebP).
-5. **Punto focal (Hotspot):** Haz clic en el círculo sobre la foto para centrar la cara del cliente. Así, cuando un usuario entre desde el móvil, la foto se recortará automáticamente sin cortar nunca el rostro.
-6. Haz clic en el botón verde **"Publish"** abajo a la derecha.
-
-¡Listo! Si entras a tu web en Vercel y recargas, tu foto aparecerá en su lugar exacto, optimizada y nítida.
+1. Entra a tu Panel: **`https://cristianphotos.sanity.studio`**
+2. En el menú de la izquierda verás las siguientes secciones:
+   * **🏠 Página de Inicio:**
+     * *📸 Retrato "Sobre Mí" (1 foto)*
+     * *🖼️ Galería Portafolio Principal (Múltiples fotos para la cuadrícula)*
+     * *🌟 Especialidades / Servicios Destacados (Bodas, Retrato, Eventos, Deportes)*
+   * **👤 Página "Sobre Mí":**
+     * *📸 Retrato Principal de Autor (1 foto de Cristian)*
+     * *🎞️ Galería Detalles y Enfoque (2 fotos de estilo/equipo)*
+   * **🏷️ Página de Tarifas y Servicios:**
+     * *💍 Bodas (General o Boda Básica)*
+     * *💍 Boda Completa (Collage de 3 fotos)*
+     * *🎭 Retrato / Moda / Sesión Individual*
+     * *🎂 Cumpleaños y Fiestas Infantiles*
+     * *👑 Fiestas de 15 Años / Quinceañeras*
+     * *🕊️ Bautizos y Comuniones*
+     * *⚽ Eventos Deportivos*
+     * *🤍 Sesiones Especiales (Parejas / Familia)*
+     * *🏷️ Eventos Generales (Comodín)*
+   * **📁 Todas las Fotografías (Listado Global):** Para ver o buscar todas las fotos subidas.
+3. Entra a la carpeta deseada y pulsa **"Create New"** arriba a la derecha.
+4. Completa:
+   * **Título:** Identificador interno (ej. "Boda Elena y David - Atardecer").
+   * **Archivo de Fotografía:** Arrastra o sube tu foto en alta resolución (JPG, PNG o WebP).
+   * **Punto Focal (Hotspot):** Haz clic en el círculo sobre la foto para centrar el rostro del cliente. Así la foto siempre lucirá perfecta en teléfonos móviles sin cortar caras.
+5. **⚠️ PASO VITAL: Hacer clic en el botón verde "Publish" (Publicar) abajo a la derecha.**
+   * Si no haces clic en *Publish*, la foto quedará guardada como *Borrador* y la web no podrá mostrarla al público.
+6. ¡Listo! Recarga tu web y verás la foto publicada al instante.
 
 ---
 
 ## 3. ¿Cómo funcionan las secciones y los huecos?
 
-Tu web tiene los siguientes "huecos" disponibles para rellenar desde Sanity:
-
 *   **Página de Inicio:**
-    *   1 hueco para el "Retrato Sobre Mí".
-    *   4 huecos para la "Galería de Portafolio Principal". *(Si subes 4 fotos con esta etiqueta, rellenarán la grilla automáticamente).*
+    *   1 foto para el retrato de Cristian.
+    *   Galería de portafolio flexible (las fotos que subas se acomodarán armónicamente).
+    *   Tarjetas de Especialidades conectadas con tus fotos de servicios.
 *   **Página Sobre Mí:**
-    *   1 hueco para el "Retrato Principal" (tu foto de autor).
-    *   2 huecos para "Galería Detalles" (fotos estilo de vida o herramientas).
+    *   1 foto para el retrato principal.
+    *   2 fotos para la galería de detalles.
 *   **Página de Tarifas:**
-    *   1 hueco para *"Tarifas - Bodas"*.
-    *   1 hueco para *"Tarifas - Retrato / Moda"*.
-    *   1 hueco para *"Tarifas - Cumpleaños / 15 Años / Bautizos"*.
-
-**¿Qué pasa si no subo foto a un hueco?**
-No pasa nada. La web está diseñada para mostrar un elegante marco minimalista gris claro que dice "Espacio para foto" de forma que nunca se vea un error o una imagen rota.
+    *   Cada servicio puede tener su propia foto o collage de 3 fotos.
+    *   **Fallback automático:** Si no has subido una foto específica para un servicio (ej: "Bautizos"), el sistema mostrará automáticamente la foto que hayas subido a "Eventos Generales" o mantendrá un marco minimalista y elegante.
 
 ---
 
-## 4. Formularios Inteligentes
+## 4. Formularios y Botones de Contacto
 
-La sección de **Contacto** y los botones de **"Consultar Disponibilidad"** en la página de tarifas ya están programados con una lógica inteligente:
-*   Si el cliente entra desde su **Móvil**, al tocar los botones se abrirá automáticamente su App oficial de Mail (iPhone/Android) o su WhatsApp directo.
-*   Si el cliente entra desde un **Ordenador**, la web abrirá elegantemente Gmail Web o WhatsApp Web en una pestaña nueva, evitando los clásicos errores de Windows.
-
-Tú recibirás todos los mensajes directamente en `Christianespinolas2317@gmail.com` o en tu número `+34 640 64 69 63`.
+Los botones de **"Consultar Disponibilidad"** y **"Contactar por WhatsApp"** están programados de forma inteligente:
+*   En **Móviles**, abrirán directamente la app de WhatsApp o Mail.
+*   En **Ordenadores**, abrirán WhatsApp Web o Gmail en una pestaña nueva para garantizar la mejor experiencia.
+*   Los mensajes llegarán a tu WhatsApp (`+34 640 64 69 63`) o correo (`Christianespinolas2317@gmail.com`).
 
 ---
 
-¡Disfruta de tu nueva plataforma fotográfica! 🚀
+¡Disfruta de tu plataforma autogestionable y profesional! 🚀

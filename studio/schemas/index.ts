@@ -14,17 +14,32 @@ export const schemaTypes = [
       {
         name: 'placement',
         title: '¿En qué sección de la web se publicará?',
-        description: 'Selecciona el espacio exacto donde aparecerá esta fotografía. Consulta la guía de fotos recomendadas.',
+        description: 'Selecciona el espacio exacto donde aparecerá esta fotografía.',
         type: 'string',
         options: {
           list: [
+            // Página de Inicio
             {title: '🏠 Inicio → Retrato "Sobre Mí" (1 foto | Vertical)', value: 'home-about'},
-            {title: '🏠 Inicio → Galería Portafolio Principal (4 fotos | Vertical 3:4)', value: 'home-portfolio'},
+            {title: '🏠 Inicio → Galería Portafolio Principal (Múltiples fotos)', value: 'home-portfolio'},
+            {title: '🏠 Inicio → Especialidad: Bodas & Enlaces (1 foto)', value: 'home-service-wedding'},
+            {title: '🏠 Inicio → Especialidad: Retrato & Moda (1 foto)', value: 'home-service-portrait'},
+            {title: '🏠 Inicio → Especialidad: Eventos & Celebraciones (1 foto)', value: 'home-service-events'},
+            {title: '🏠 Inicio → Especialidad: Deportes (1 foto)', value: 'home-service-sports'},
+
+            // Página Sobre Mí
             {title: '👤 Sobre Mí → Retrato Principal de Cristian (1 foto | Vertical)', value: 'about-main'},
-            {title: '👤 Sobre Mí → Galería Detalles y Enfoque (2 fotos | Cuadrada o Vertical)', value: 'about-details'},
-            {title: '🏷️ Tarifas → Servicio Bodas (1 foto de portada | Vertical)', value: 'pricing-wedding'},
-            {title: '🏷️ Tarifas → Servicio Retrato / Moda (1 foto de portada | Vertical)', value: 'pricing-portrait'},
-            {title: '🏷️ Tarifas → Servicio Eventos / 15 Años (1 foto de portada | Vertical)', value: 'pricing-events'},
+            {title: '👤 Sobre Mí → Galería Detalles y Enfoque (2 fotos)', value: 'about-details'},
+
+            // Página de Tarifas
+            {title: '💍 Tarifas → Bodas (General / Boda Básica)', value: 'pricing-wedding'},
+            {title: '💍 Tarifas → Boda Completa (Collage)', value: 'pricing-wedding-full'},
+            {title: '🎭 Tarifas → Sesión Individual / Retrato / Moda', value: 'pricing-portrait'},
+            {title: '🎂 Tarifas → Cumpleaños y Fiestas Infantiles (Collage)', value: 'pricing-birthday'},
+            {title: '👑 Tarifas → Fiestas de 15 Años / Quinceañeras', value: 'pricing-quince'},
+            {title: '🕊️ Tarifas → Bautizos y Comuniones', value: 'pricing-baptism'},
+            {title: '⚽ Tarifas → Eventos Deportivos (Collage)', value: 'pricing-sports'},
+            {title: '🤍 Tarifas → Sesiones Especiales (Pareja / Familia)', value: 'pricing-special'},
+            {title: '🏷️ Tarifas → Eventos Generales (Comodín para eventos)', value: 'pricing-events'},
           ],
           layout: 'dropdown',
         },
@@ -50,13 +65,23 @@ export const schemaTypes = [
       prepare(selection: any) {
         const {title, placement, media} = selection;
         const labels: Record<string, string> = {
-          'home-about': '🏠 Inicio → Retrato "Sobre Mí" (1 foto)',
-          'home-portfolio': '🏠 Inicio → Galería Portafolio (4 fotos)',
-          'about-main': '👤 Sobre Mí → Retrato Principal (1 foto)',
-          'about-details': '👤 Sobre Mí → Galería Detalles (2 fotos)',
-          'pricing-wedding': '🏷️ Tarifas → Bodas (1 foto)',
-          'pricing-portrait': '🏷️ Tarifas → Retrato / Moda (1 foto)',
-          'pricing-events': '🏷️ Tarifas → Eventos / 15 Años (1 foto)',
+          'home-about': '🏠 Inicio → Retrato "Sobre Mí"',
+          'home-portfolio': '🏠 Inicio → Galería Portafolio',
+          'home-service-wedding': '🏠 Inicio → Especialidad: Bodas',
+          'home-service-portrait': '🏠 Inicio → Especialidad: Retrato',
+          'home-service-events': '🏠 Inicio → Especialidad: Eventos',
+          'home-service-sports': '🏠 Inicio → Especialidad: Deportes',
+          'about-main': '👤 Sobre Mí → Retrato Principal',
+          'about-details': '👤 Sobre Mí → Galería Detalles',
+          'pricing-wedding': '💍 Tarifas → Bodas (General / Básica)',
+          'pricing-wedding-full': '💍 Tarifas → Boda Completa (Collage)',
+          'pricing-portrait': '🎭 Tarifas → Retrato / Moda',
+          'pricing-birthday': '🎂 Tarifas → Cumpleaños (Collage)',
+          'pricing-quince': '👑 Tarifas → 15 Años / Quinceañeras',
+          'pricing-baptism': '🕊️ Tarifas → Bautizos y Comuniones',
+          'pricing-sports': '⚽ Tarifas → Deportes (Collage)',
+          'pricing-special': '🤍 Tarifas → Sesiones Especiales',
+          'pricing-events': '🏷️ Tarifas → Eventos Generales',
         };
         return {
           title: title || 'Sin título',

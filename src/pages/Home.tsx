@@ -3,32 +3,81 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { Link } from 'react-router-dom';
-import { client, urlFor } from '../sanity';
+import { client, safeUrlFor } from '../sanity';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const servicesCategories = [
-  { title: 'Bodas & Enlaces', desc: 'Documentando el día más importante de tu vida con un enfoque narrativo y elegante.' },
-  { title: 'Retrato & Moda', desc: 'Sesiones individuales diseñadas para resaltar tu esencia natural y estilo.' },
-  { title: 'Eventos & Celebraciones', desc: 'Desde XV años hasta eventos familiares, capturando la alegría compartida.' },
-  { title: 'Deportes', desc: 'Congelando la acción y la pasión del momento en alta resolución.' }
+interface ServiceCategory {
+  title: string;
+  desc: string;
+  primaryKey: string;
+  fallbackKeys: string[];
+}
+
+const servicesCategories: ServiceCategory[] = [
+  { 
+    title: 'Bodas & Enlaces', 
+    desc: 'Documentando el día más importante de tu vida con un enfoque narrativo y elegante.',
+    primaryKey: 'home-service-wedding',
+    fallbackKeys: ['pricing-wedding', 'pricing-wedding-full']
+  },
+  { 
+    title: 'Retrato & Moda', 
+    desc: 'Sesiones individuales diseñadas para resaltar tu esencia natural y estilo.',
+    primaryKey: 'home-service-portrait',
+    fallbackKeys: ['pricing-portrait', 'about-main']
+  },
+  { 
+    title: 'Eventos & Celebraciones', 
+    desc: 'Desde XV años hasta eventos familiares, capturando la alegría compartida.',
+    primaryKey: 'home-service-events',
+    fallbackKeys: ['pricing-birthday', 'pricing-quince', 'pricing-events']
+  },
+  { 
+    title: 'Deportes', 
+    desc: 'Congelando la acción y la pasión del momento en alta resolución.',
+    primaryKey: 'home-service-sports',
+    fallbackKeys: ['pricing-sports', 'pricing-events']
+  }
 ];
 
 const Home = () => {
   const container = useRef<HTMLDivElement>(null);
   const [aboutImg, setAboutImg] = useState<string | null>(null);
   const [portfolioImgs, setPortfolioImgs] = useState<string[]>([]);
+  const [allImagesByPlacement, setAllImagesByPlacement] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
-    client.fetch(`*[_type == "siteImage" && placement in ["home-about", "home-portfolio"]]`).then((data: any[]) => {
-      const about = data.find((d: any) => d.placement === 'home-about');
-      if (about && about.image) setAboutImg(urlFor(about.image).auto('format').url());
+    client
+      .fetch(`*[_type == "siteImage" && defined(image.asset)] | order(_createdAt desc)`)
+      .then((data: any[]) => {
+        const imgMap: Record<string, string[]> = {};
 
-      const portfolio = data
-        .filter((d: any) => d.placement === 'home-portfolio' && d.image)
-        .map((d: any) => urlFor(d.image).auto('format').url());
-      setPortfolioImgs(portfolio);
-    }).catch(console.error);
+        data.forEach((d: any) => {
+          const url = safeUrlFor(d.image);
+          if (url && d.placement) {
+            if (!imgMap[d.placement]) {
+              imgMap[d.placement] = [];
+            }
+            imgMap[d.placement].push(url);
+          }
+        });
+
+        setAllImagesByPlacement(imgMap);
+
+        // Retrato sobre mí (prioriza home-about, fallback about-main)
+        const about = (imgMap['home-about'] && imgMap['home-about'][0]) || (imgMap['about-main'] && imgMap['about-main'][0]) || null;
+        if (about) setAboutImg(about);
+
+        // Portafolio de fotos
+        const portfolio = imgMap['home-portfolio'] || [];
+        if (portfolio.length > 0) {
+          setPortfolioImgs(portfolio);
+        }
+      })
+      .catch((err) => {
+        console.error('Error cargando imágenes de Sanity en Home:', err);
+      });
   }, []);
 
   useGSAP(() => {
@@ -70,6 +119,18 @@ const Home = () => {
     });
   }, { scope: container });
 
+  const getServiceImage = (srv: ServiceCategory): string | null => {
+    if (allImagesByPlacement[srv.primaryKey]?.length) {
+      return allImagesByPlacement[srv.primaryKey][0];
+    }
+    for (const fb of srv.fallbackKeys) {
+      if (allImagesByPlacement[fb]?.length) {
+        return allImagesByPlacement[fb][0];
+      }
+    }
+    return null;
+  };
+
   return (
     <div ref={container} className="pt-20 bg-primary">
       
@@ -98,11 +159,18 @@ const Home = () => {
 
       {/* About Section */}
       <section className="py-24 px-6 md:px-16 max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16 border-t border-neutral-100">
-        <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary relative scroll-reveal bg-neutral-50 flex items-center justify-center overflow-hidden">
+        <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary relative scroll-reveal bg-neutral-50 flex items-center justify-center overflow-hidden group">
           {aboutImg ? (
-            <img src={aboutImg} alt="Retrato Cristian" className="w-full h-full object-cover" />
+            <img 
+              src={aboutImg} 
+              alt="Retrato Cristian" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+            />
           ) : (
-            <span className="text-textSecondary uppercase tracking-widest text-xs font-sans">Retrato de Cristian</span>
+            <div className="flex flex-col items-center justify-center p-6 text-center">
+              <span className="w-8 h-px bg-accentMain mb-3"></span>
+              <span className="text-textSecondary uppercase tracking-widest text-xs font-sans">Retrato de Cristian</span>
+            </div>
           )}
         </div>
         
@@ -114,6 +182,12 @@ const Home = () => {
           <p className="text-textSecondary font-sans font-light leading-relaxed mb-10">
             Mi estilo se define por ser natural, poco invasivo y altamente enfocado en los detalles. Busco esos momentos genuinos que ocurren entre posados, las sonrisas sinceras y las miradas que hablan por sí solas.
           </p>
+          <Link 
+            to="/sobre-mi" 
+            className="text-textMain uppercase tracking-widest text-xs font-sans border-b border-accentMain pb-1 hover:text-accentMain transition-colors inline-block"
+          >
+            CONOCE MÁS SOBRE MI TRABAJO
+          </Link>
         </div>
       </section>
 
@@ -126,22 +200,37 @@ const Home = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 services-container">
-            {servicesCategories.map((srv, i) => (
-              <div key={i} className="service-card group cursor-pointer">
-                <div className="aspect-[4/5] mb-6 photo-card-secondary bg-neutral-50 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-neutral-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans relative z-10 text-center px-4">
-                    Foto Ref:<br/>{srv.title}
-                  </span>
-                </div>
-                <h3 className="title-main text-lg text-textMain mb-3 group-hover:text-accentMain transition-colors text-center">
-                  {srv.title}
-                </h3>
-                <p className="text-sm text-textSecondary font-sans font-light leading-relaxed text-center">
-                  {srv.desc}
-                </p>
-              </div>
-            ))}
+            {servicesCategories.map((srv, i) => {
+              const srvImg = getServiceImage(srv);
+
+              return (
+                <Link key={i} to="/tarifas" className="service-card group cursor-pointer block">
+                  <div className="aspect-[4/5] mb-6 photo-card-secondary bg-neutral-50 flex items-center justify-center relative overflow-hidden">
+                    {srvImg ? (
+                      <img 
+                        src={srvImg} 
+                        alt={srv.title} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center p-4 text-center">
+                        <span className="w-6 h-px bg-accentMain mb-2"></span>
+                        <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">
+                          {srv.title}
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+                  <h3 className="title-main text-lg text-textMain mb-3 group-hover:text-accentMain transition-colors text-center">
+                    {srv.title}
+                  </h3>
+                  <p className="text-sm text-textSecondary font-sans font-light leading-relaxed text-center">
+                    {srv.desc}
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -154,22 +243,65 @@ const Home = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 portfolio-grid mb-12">
-          {/* Foto 1 (Larga) */}
-          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden">
-            {portfolioImgs[0] ? <img src={portfolioImgs[0]} alt="Portafolio 1" className="w-full h-full object-cover" /> : <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>}
+          {/* Foto 1 (Apaisada) */}
+          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group">
+            {portfolioImgs[0] ? (
+              <img 
+                src={portfolioImgs[0]} 
+                alt="Portafolio 1" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              />
+            ) : (
+              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto 1</span>
+            )}
           </div>
           {/* Foto 2 (Vertical) */}
-          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden">
-            {portfolioImgs[1] ? <img src={portfolioImgs[1]} alt="Portafolio 2" className="w-full h-full object-cover" /> : <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>}
+          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group">
+            {portfolioImgs[1] ? (
+              <img 
+                src={portfolioImgs[1]} 
+                alt="Portafolio 2" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              />
+            ) : (
+              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto 2</span>
+            )}
           </div>
           {/* Foto 3 (Vertical) */}
-          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden">
-            {portfolioImgs[2] ? <img src={portfolioImgs[2]} alt="Portafolio 3" className="w-full h-full object-cover" /> : <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>}
+          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group">
+            {portfolioImgs[2] ? (
+              <img 
+                src={portfolioImgs[2]} 
+                alt="Portafolio 3" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              />
+            ) : (
+              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto 3</span>
+            )}
           </div>
-          {/* Foto 4 (Larga) */}
-          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden">
-            {portfolioImgs[3] ? <img src={portfolioImgs[3]} alt="Portafolio 4" className="w-full h-full object-cover" /> : <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto</span>}
+          {/* Foto 4 (Apaisada) */}
+          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group">
+            {portfolioImgs[3] ? (
+              <img 
+                src={portfolioImgs[3]} 
+                alt="Portafolio 4" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              />
+            ) : (
+              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto 4</span>
+            )}
           </div>
+
+          {/* Fotos extras si el usuario subió más de 4 */}
+          {portfolioImgs.slice(4).map((url, extraIdx) => (
+            <div key={extraIdx} className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group">
+              <img 
+                src={url} 
+                alt={`Portafolio adicional ${extraIdx + 5}`} 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+              />
+            </div>
+          ))}
         </div>
         
         <div className="text-center">
