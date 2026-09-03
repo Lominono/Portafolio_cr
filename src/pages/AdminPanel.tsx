@@ -683,7 +683,7 @@ export const AdminPanel: React.FC = () => {
                         {isUploadingThisSection && (
                           <div className="p-4 bg-neutral-50 border border-neutral-200">
                             <div className="flex justify-between text-xs font-sans text-textSecondary mb-2">
-                              <span>Subiendo fotografía a Firebase Storage...</span>
+                              <span>Subiendo fotografía a la nube (Cloudinary CDN)...</span>
                               <span className="font-medium text-accentMain">{uploadProgress}%</span>
                             </div>
                             <div className="w-full bg-neutral-200 h-1.5 overflow-hidden">

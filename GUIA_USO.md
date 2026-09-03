@@ -1,6 +1,9 @@
 # 📸 Guía Oficial de Uso: Panel Privado de Cristian Espinola
 
-Bienvenido a tu nuevo **Panel de Administración Privado**. Tu sitio web ahora está conectado directamente a **Firebase** (Google Cloud), eliminando intermediarios como Sanity. Todo el control de tus fotos es instantáneo, privado y optimizado al 100% para tu teléfono móvil.
+Bienvenido a tu nuevo **Panel de Administración Privado**. Tu sitio web ahora utiliza una arquitectura híbrida de alto rendimiento:
+* **Firebase Authentication:** Acceso seguro por correo y contraseña solo para ti.
+* **Firebase Firestore:** Base de datos en tiempo real para organizar los 26 slots de tu portafolio.
+* **Cloudinary CDN (100% Gratuito y sin tarjeta):** Alojamiento en la nube de alta velocidad con compresión automática a WebP y AVIF.
 
 ---
 
@@ -8,9 +11,9 @@ Bienvenido a tu nuevo **Panel de Administración Privado**. Tu sitio web ahora e
 
 Para garantizar máxima seguridad, el panel de administración **no tiene ningún botón ni enlace público en la web**. Solo tú conoces la ruta secreta:
 
-👉 **Enlace Secreto:** **`https://cristianphotos.vercel.app/panel-8f3k2xq1`**
+👉 **Enlace Secreto:** **`https://crphotoweb.vercel.app/panel-8f3k2xq1`**
 
-> **💡 Consejo:** Abre este enlace en el navegador de tu teléfono móvil (Safari en iPhone o Chrome en Android) y selecciona *"Añadir a la pantalla de inicio"*. De este modo, tendrás un icono en tu móvil como si fuera una aplicación nativa para gestionar tu portafolio en cualquier momento.
+> **💡 Consejo:** Abre este enlace en el navegador de tu teléfono móvil (Safari en iPhone o Chrome en Android) y selecciona *"Añadir a la pantalla de inicio"*. De este modo, tendrás un icono en tu pantalla como si fuera una aplicación nativa para gestionar tu portafolio en cualquier momento.
 
 ---
 
@@ -18,14 +21,14 @@ Para garantizar máxima seguridad, el panel de administración **no tiene ningú
 
 Tu panel utiliza **Firebase Authentication** con correo y contraseña.
 
-### Para registrar tu correo de administrador en Firebase:
+### Para registrar tu correo de administrador en Firebase (toma 1 minuto):
 1. Entra a la consola de [Firebase Console](https://console.firebase.google.com/).
 2. Selecciona tu proyecto: **`crphotos`**.
 3. En el menú izquierdo ve a **Build (Compilación) → Authentication**.
 4. Haz clic en **"Get Started"** (si aún no está activo) y activa el método **"Correo electrónico / Contraseña"**.
 5. En la pestaña **"Users" (Usuarios)**, haz clic en **"Add user" (Añadir usuario)**.
 6. Escribe tu correo (ej: `Christianespinolas2317@gmail.com`) y define una contraseña segura.
-7. ¡Listo! Con esas mismas credenciales podrás entrar a tu panel privado.
+7. ¡Listo! Con esas credenciales podrás entrar a tu panel privado.
 
 ---
 
@@ -39,7 +42,7 @@ El panel organiza las 26 secciones de tu web en 3 pestañas: **Inicio**, **Sobre
    *`+ Subir Fotografía (Espacio disponible: X de Y)`*
 3. Toca el recuadro, selecciona la foto de tu galería en alta resolución (JPG, PNG o WebP).
 4. Verás una barra de progreso que indica el porcentaje de subida.
-5. Al terminar, la foto se sincroniza en vivo en Firebase y se refleja de inmediato en tu web pública.
+5. Al terminar, la foto se procesa y optimiza en Cloudinary y se refleja al instante en tu web pública.
 
 ### B. Control estricto de cupos (Límite alcanzado):
 * Cuando una sección alcanza su número máximo de fotos diseñadas (ej: 4 de 4 en la Galería de Portafolio), la tarjeta cambiará a estado **LÍMITE ALCANZADO**.
@@ -51,7 +54,7 @@ El panel organiza las 26 secciones de tu web en 3 pestañas: **Inicio**, **Sobre
 
 ### D. Eliminar una foto:
 * Cada foto cuenta con un botón **"Eliminar"**.
-* Al tocarlo, el panel mostrará una ventana de confirmación para evitar borrados accidentales. Al confirmar, se eliminará tanto de la web pública como de Firebase Storage.
+* Al tocarlo, el panel mostrará una ventana de confirmación para evitar borrados accidentales. Al confirmar, se eliminará tanto de la web pública como de Cloudinary.
 
 ---
 
@@ -67,18 +70,15 @@ Si alguna vez deseas cambiar la URL secreta del panel:
 
 ---
 
-## 5. Reglas de Seguridad de Firebase (Firestore y Storage)
+## 5. Reglas de Seguridad de Firestore
 
-Para asegurar que nadie pueda manipular tus imágenes desde fuera del panel, hemos incluido los archivos:
-* `firestore.rules`
-* `storage.rules`
+Para asegurar que nadie pueda manipular tus imágenes desde fuera del panel, hemos incluido el archivo `firestore.rules`:
 
-### Para aplicarlas en tu consola de Firebase:
+### Para aplicarlo en tu consola de Firebase:
 1. En **Firebase Console → Firestore Database → Rules (Reglas)**: Copia y pega el contenido de [firestore.rules](file:///c:/Users/Usuario/Desktop/crphoto_web/firestore.rules) y pulsa **Publish**.
-2. En **Firebase Console → Storage → Rules (Reglas)**: Copia y pega el contenido de [storage.rules](file:///c:/Users/Usuario/Desktop/crphoto_web/storage.rules) y pulsa **Publish**.
 
 Con esto, cualquier persona que no haya iniciado sesión con tu correo admin tendrá **bloqueada la escritura** a nivel de servidor de Google.
 
 ---
 
-¡Disfruta de tu panel de administración a medida, ultrarrápido y seguro! 🚀
+¡Disfruta de tu panel de administración a medida, ultrarrápido, seguro y con costo $0 real garantizado! 🚀
