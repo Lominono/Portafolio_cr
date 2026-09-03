@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { client, safeUrlFor } from '../sanity';
+import { subscribeToAllPhotos } from '../services/photos';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -12,27 +12,18 @@ const About = () => {
   const [detailImgs, setDetailImgs] = useState<string[]>([]);
 
   useEffect(() => {
-    client
-      .fetch(`*[_type == "siteImage" && placement in ["about-main", "about-details", "home-about"] && defined(image.asset)] | order(_createdAt desc)`)
-      .then((data: any[]) => {
-        const main = data.find((d: any) => d.placement === 'about-main') || data.find((d: any) => d.placement === 'home-about');
-        if (main) {
-          const url = safeUrlFor(main.image);
-          if (url) setMainImg(url);
-        }
+    const unsubscribe = subscribeToAllPhotos((allPhotos) => {
+      // Retrato principal de Cristian (prioriza about-main, fallback home-about)
+      const main = (allPhotos['about-main'] && allPhotos['about-main'][0]) || 
+                    (allPhotos['home-about'] && allPhotos['home-about'][0]) || null;
+      setMainImg(main);
 
-        const details = data
-          .filter((d: any) => d.placement === 'about-details')
-          .map((d: any) => safeUrlFor(d.image))
-          .filter((url): url is string => Boolean(url));
+      // Galería de 2 detalles
+      const details = allPhotos['about-details'] || [];
+      setDetailImgs(details);
+    });
 
-        if (details.length > 0) {
-          setDetailImgs(details);
-        }
-      })
-      .catch((err) => {
-        console.error('Error cargando imágenes de Sanity en About:', err);
-      });
+    return () => unsubscribe();
   }, []);
 
   useGSAP(() => {

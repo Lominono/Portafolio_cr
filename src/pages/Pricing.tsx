@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { MessageCircle } from 'lucide-react';
-import { client, safeUrlFor } from '../sanity';
+import { subscribeToAllPhotos } from '../services/photos';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -12,7 +12,7 @@ interface PricingItem {
   price: string;
   desc: string;
   layout: 'single' | 'collage';
-  sanityId: string;
+  sectionId: string;
   fallbackId: string;
   label: string;
 }
@@ -23,7 +23,7 @@ const pricingData: PricingItem[] = [
     price: '80 € – 150 €', 
     desc: '1 hora de sesión (exterior o localización), 10 a 15 fotos editadas en alta resolución y galería digital privada.',
     layout: 'single',
-    sanityId: 'pricing-portrait',
+    sectionId: 'pricing-portrait',
     fallbackId: 'pricing-portrait',
     label: 'Retrato / Moda'
   },
@@ -32,7 +32,7 @@ const pricingData: PricingItem[] = [
     price: '100 € – 200 €', 
     desc: 'Cobertura del evento (2-3 horas), momentos clave (pastel, animación) y entrega de galería digital completa.',
     layout: 'collage',
-    sanityId: 'pricing-birthday',
+    sectionId: 'pricing-birthday',
     fallbackId: 'pricing-events',
     label: 'Cumpleaños'
   },
@@ -41,7 +41,7 @@ const pricingData: PricingItem[] = [
     price: '200 € – 500 €', 
     desc: 'Cobertura de la celebración, vals, protocolo y sesión previa o de recepción con galería digital.',
     layout: 'single',
-    sanityId: 'pricing-quince',
+    sectionId: 'pricing-quince',
     fallbackId: 'pricing-events',
     label: '15 Años'
   },
@@ -50,7 +50,7 @@ const pricingData: PricingItem[] = [
     price: '120 € – 220 €', 
     desc: 'Cobertura de la ceremonia y/o reportaje exterior, con entrega de galería digital (25-40 fotos).',
     layout: 'single',
-    sanityId: 'pricing-baptism',
+    sectionId: 'pricing-baptism',
     fallbackId: 'pricing-events',
     label: 'Bautizos'
   },
@@ -59,7 +59,7 @@ const pricingData: PricingItem[] = [
     price: '150 € – 350 €', 
     desc: 'Cobertura de la competición, fotos de acción y entrega de galería completa.',
     layout: 'collage',
-    sanityId: 'pricing-sports',
+    sectionId: 'pricing-sports',
     fallbackId: 'pricing-events',
     label: 'Deportes'
   },
@@ -68,7 +68,7 @@ const pricingData: PricingItem[] = [
     price: '250 € – 450 €', 
     desc: 'Cobertura de ceremonia, fotos de pareja tras el enlace y fotos de grupo/familiares.',
     layout: 'single',
-    sanityId: 'pricing-wedding',
+    sectionId: 'pricing-wedding-civil',
     fallbackId: 'pricing-wedding',
     label: 'Boda Civil'
   },
@@ -77,7 +77,7 @@ const pricingData: PricingItem[] = [
     price: 'DESDE 650 €', 
     desc: 'Cobertura integral: preparativos, ceremonia, banquete y fiesta, más entrega completa en alta resolución.',
     layout: 'collage',
-    sanityId: 'pricing-wedding-full',
+    sectionId: 'pricing-wedding-full',
     fallbackId: 'pricing-wedding',
     label: 'Boda Completa'
   },
@@ -86,7 +86,7 @@ const pricingData: PricingItem[] = [
     price: '100 € – 180 €', 
     desc: '1 a 1,5 horas en exterior o domicilio con entrega digital de 20 a 30 imágenes.',
     layout: 'single',
-    sanityId: 'pricing-special',
+    sectionId: 'pricing-special',
     fallbackId: 'pricing-portrait',
     label: 'Sesiones Especiales'
   }
@@ -102,24 +102,11 @@ const Pricing = () => {
   const [pricingImgs, setPricingImgs] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
-    client
-      .fetch(`*[_type == "siteImage" && placement match "pricing-*" && defined(image.asset)] | order(_createdAt desc)`)
-      .then((data: any[]) => {
-        const imgMap: Record<string, string[]> = {};
-        data.forEach((d: any) => {
-          const url = safeUrlFor(d.image);
-          if (url) {
-            if (!imgMap[d.placement]) {
-              imgMap[d.placement] = [];
-            }
-            imgMap[d.placement].push(url);
-          }
-        });
-        setPricingImgs(imgMap);
-      })
-      .catch((err) => {
-        console.error('Error cargando imágenes de Sanity en Tarifas:', err);
-      });
+    const unsubscribe = subscribeToAllPhotos((allPhotos) => {
+      setPricingImgs(allPhotos);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useGSAP(() => {
@@ -165,7 +152,7 @@ const Pricing = () => {
   };
 
   const getImagesForService = (item: PricingItem): string[] => {
-    const specific = pricingImgs[item.sanityId];
+    const specific = pricingImgs[item.sectionId];
     if (specific && specific.length > 0) return specific;
 
     const fallback = pricingImgs[item.fallbackId];

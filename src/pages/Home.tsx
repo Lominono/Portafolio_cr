@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { Link } from 'react-router-dom';
-import { client, safeUrlFor } from '../sanity';
+import { subscribeToAllPhotos } from '../services/photos';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -18,26 +18,26 @@ const servicesCategories: ServiceCategory[] = [
   { 
     title: 'Bodas & Enlaces', 
     desc: 'Documentando el día más importante de tu vida con un enfoque narrativo y elegante.',
-    primaryKey: 'home-service-wedding',
-    fallbackKeys: ['pricing-wedding', 'pricing-wedding-full']
+    primaryKey: 'home-services-wedding',
+    fallbackKeys: ['pricing-wedding-full', 'pricing-wedding-civil']
   },
   { 
     title: 'Retrato & Moda', 
     desc: 'Sesiones individuales diseñadas para resaltar tu esencia natural y estilo.',
-    primaryKey: 'home-service-portrait',
+    primaryKey: 'home-services-portrait',
     fallbackKeys: ['pricing-portrait', 'about-main']
   },
   { 
     title: 'Eventos & Celebraciones', 
     desc: 'Desde XV años hasta eventos familiares, capturando la alegría compartida.',
-    primaryKey: 'home-service-events',
-    fallbackKeys: ['pricing-birthday', 'pricing-quince', 'pricing-events']
+    primaryKey: 'home-services-events',
+    fallbackKeys: ['pricing-birthday', 'pricing-quince', 'pricing-baptism']
   },
   { 
     title: 'Deportes', 
     desc: 'Congelando la acción y la pasión del momento en alta resolución.',
-    primaryKey: 'home-service-sports',
-    fallbackKeys: ['pricing-sports', 'pricing-events']
+    primaryKey: 'home-services-sports',
+    fallbackKeys: ['pricing-sports']
   }
 ];
 
@@ -45,39 +45,24 @@ const Home = () => {
   const container = useRef<HTMLDivElement>(null);
   const [aboutImg, setAboutImg] = useState<string | null>(null);
   const [portfolioImgs, setPortfolioImgs] = useState<string[]>([]);
-  const [allImagesByPlacement, setAllImagesByPlacement] = useState<Record<string, string[]>>({});
+  const [photosMap, setPhotosMap] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
-    client
-      .fetch(`*[_type == "siteImage" && defined(image.asset)] | order(_createdAt desc)`)
-      .then((data: any[]) => {
-        const imgMap: Record<string, string[]> = {};
+    // Suscripción en tiempo real a Firebase Firestore
+    const unsubscribe = subscribeToAllPhotos((allPhotos) => {
+      setPhotosMap(allPhotos);
 
-        data.forEach((d: any) => {
-          const url = safeUrlFor(d.image);
-          if (url && d.placement) {
-            if (!imgMap[d.placement]) {
-              imgMap[d.placement] = [];
-            }
-            imgMap[d.placement].push(url);
-          }
-        });
+      // Retrato Sobre Mí
+      const about = (allPhotos['home-about'] && allPhotos['home-about'][0]) || 
+                    (allPhotos['about-main'] && allPhotos['about-main'][0]) || null;
+      setAboutImg(about);
 
-        setAllImagesByPlacement(imgMap);
+      // Galería de Portafolio
+      const portfolio = allPhotos['home-portfolio'] || [];
+      setPortfolioImgs(portfolio);
+    });
 
-        // Retrato sobre mí (prioriza home-about, fallback about-main)
-        const about = (imgMap['home-about'] && imgMap['home-about'][0]) || (imgMap['about-main'] && imgMap['about-main'][0]) || null;
-        if (about) setAboutImg(about);
-
-        // Portafolio de fotos
-        const portfolio = imgMap['home-portfolio'] || [];
-        if (portfolio.length > 0) {
-          setPortfolioImgs(portfolio);
-        }
-      })
-      .catch((err) => {
-        console.error('Error cargando imágenes de Sanity en Home:', err);
-      });
+    return () => unsubscribe();
   }, []);
 
   useGSAP(() => {
@@ -120,12 +105,12 @@ const Home = () => {
   }, { scope: container });
 
   const getServiceImage = (srv: ServiceCategory): string | null => {
-    if (allImagesByPlacement[srv.primaryKey]?.length) {
-      return allImagesByPlacement[srv.primaryKey][0];
+    if (photosMap[srv.primaryKey]?.length) {
+      return photosMap[srv.primaryKey][0];
     }
     for (const fb of srv.fallbackKeys) {
-      if (allImagesByPlacement[fb]?.length) {
-        return allImagesByPlacement[fb][0];
+      if (photosMap[fb]?.length) {
+        return photosMap[fb][0];
       }
     }
     return null;
@@ -235,7 +220,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Portfolio Highlight */}
+      {/* Portfolio Highlight (4 slots fijos) */}
       <section className="py-24 px-6 md:px-16 max-w-6xl mx-auto border-t border-neutral-100 scroll-reveal">
         <div className="text-center mb-16">
           <h2 className="title-main text-3xl md:text-4xl text-textMain mb-6">PORTAFOLIO</h2>
@@ -243,7 +228,7 @@ const Home = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 portfolio-grid mb-12">
-          {/* Foto 1 (Apaisada) */}
+          {/* Foto 1 (Apaisada 16:9) */}
           <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group">
             {portfolioImgs[0] ? (
               <img 
@@ -252,10 +237,10 @@ const Home = () => {
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
               />
             ) : (
-              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto 1</span>
+              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Foto 1 (16:9)</span>
             )}
           </div>
-          {/* Foto 2 (Vertical) */}
+          {/* Foto 2 (Vertical 3:4) */}
           <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group">
             {portfolioImgs[1] ? (
               <img 
@@ -264,10 +249,10 @@ const Home = () => {
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
               />
             ) : (
-              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto 2</span>
+              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Foto 2 (3:4)</span>
             )}
           </div>
-          {/* Foto 3 (Vertical) */}
+          {/* Foto 3 (Vertical 3:4) */}
           <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group">
             {portfolioImgs[2] ? (
               <img 
@@ -276,10 +261,10 @@ const Home = () => {
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
               />
             ) : (
-              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto 3</span>
+              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Foto 3 (3:4)</span>
             )}
           </div>
-          {/* Foto 4 (Apaisada) */}
+          {/* Foto 4 (Apaisada 16:9) */}
           <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group">
             {portfolioImgs[3] ? (
               <img 
@@ -288,20 +273,9 @@ const Home = () => {
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
               />
             ) : (
-              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Espacio para foto 4</span>
+              <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Foto 4 (16:9)</span>
             )}
           </div>
-
-          {/* Fotos extras si el usuario subió más de 4 */}
-          {portfolioImgs.slice(4).map((url, extraIdx) => (
-            <div key={extraIdx} className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group">
-              <img 
-                src={url} 
-                alt={`Portafolio adicional ${extraIdx + 5}`} 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-              />
-            </div>
-          ))}
         </div>
         
         <div className="text-center">
