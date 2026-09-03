@@ -74,13 +74,26 @@ const Legal = () => {
             </p>
           </section>
 
-          <section>
+          <section className="mb-12">
             <h2 className="title-main text-xl text-textMain mb-6">3. PROPIEDAD INTELECTUAL E INDUSTRIAL</h2>
             <p className="text-textSecondary font-sans font-light leading-relaxed text-sm mb-4">
               El diseño del portal y sus códigos fuente, así como los logos, marcas, fotografías, imágenes y demás signos distintivos que aparecen en el mismo, pertenecen a Cristian Espinola y están protegidos por los correspondientes derechos de propiedad intelectual e industrial.
             </p>
             <p className="text-textSecondary font-sans font-light leading-relaxed text-sm">
               Queda estrictamente prohibida la reproducción, distribución, comunicación pública y transformación, total o parcial, sin la autorización expresa del titular. Las fotografías expuestas en el portafolio son obras protegidas y su uso indebido será perseguido legalmente.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="title-main text-xl text-textMain mb-6">4. CONDICIONES DE RESERVA, ADELANTOS Y CANCELACIÓN</h2>
+            <p className="text-textSecondary font-sans font-light leading-relaxed text-sm mb-4">
+              <strong>Reserva de Fecha:</strong> La formalización de cualquier servicio fotográfico y el bloqueo exclusivo de la fecha en la agenda profesional queda supeditada al abono previo de un adelanto del <strong>75% del presupuesto acordado</strong>.
+            </p>
+            <p className="text-textSecondary font-sans font-light leading-relaxed text-sm mb-4">
+              <strong>Política de Cancelación:</strong> Dicho anticipo compensa la reserva exclusiva de la jornada, la dedicación previa y la imposibilidad de contratar otros clientes para esa misma fecha. En consecuencia, si el cliente cancela el evento o sesión por causas ajenas al fotógrafo, el importe abonado como adelanto <strong>no será reembolsable</strong>.
+            </p>
+            <p className="text-textSecondary font-sans font-light leading-relaxed text-sm">
+              <strong>Modificaciones o Reprogramación:</strong> Cualquier solicitud de cambio de horario o modificación de fecha deberá notificarse por escrito con un <strong>mínimo de 5 días de antelación</strong> respecto a la fecha originalmente fijada, quedando sujeta a la disponibilidad de agenda del fotógrafo.
             </p>
           </section>
 

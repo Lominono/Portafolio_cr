@@ -54,6 +54,8 @@ export const AdminPanel: React.FC = () => {
     file: File | null;
     section: SectionConfig;
     targetAspectRatio: string;
+    slotLabel?: string;
+    recommendationTip?: string;
     replacePhotoId?: string;
   } | null>(null);
 
@@ -193,7 +195,9 @@ export const AdminPanel: React.FC = () => {
       isOpen: true,
       file,
       section,
+      slotLabel: targetSlot?.label || `Foto ${nextIndex + 1}`,
       targetAspectRatio: targetSlot?.aspectRatio || '3:4',
+      recommendationTip: targetSlot?.recommendation,
     });
   };
 
@@ -224,7 +228,9 @@ export const AdminPanel: React.FC = () => {
       file,
       section,
       replacePhotoId: photoId,
+      slotLabel: targetSlot?.label || `Foto ${slotIndex + 1}`,
       targetAspectRatio: targetSlot?.aspectRatio || '3:4',
+      recommendationTip: targetSlot?.recommendation,
     });
   };
 
@@ -464,7 +470,9 @@ export const AdminPanel: React.FC = () => {
           isOpen={cropModalState.isOpen}
           file={cropModalState.file}
           sectionTitle={cropModalState.section.title}
+          slotLabel={cropModalState.slotLabel}
           targetAspectRatio={cropModalState.targetAspectRatio}
+          recommendationTip={cropModalState.recommendationTip}
           onConfirm={handleConfirmCropAndUpload}
           onCancel={() => setCropModalState(null)}
         />

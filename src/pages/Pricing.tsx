@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, ShieldCheck, FileText, Clock } from 'lucide-react';
 import { subscribeToAllPhotos } from '../services/photos';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -136,6 +136,18 @@ const Pricing = () => {
     gsap.from('.extras-reveal', {
       scrollTrigger: {
         trigger: '.extras-reveal',
+        start: 'top 85%',
+        toggleActions: 'play reverse play reverse',
+      },
+      y: 30,
+      opacity: 0,
+      duration: 1,
+      ease: 'power2.out'
+    });
+
+    gsap.from('.policies-reveal', {
+      scrollTrigger: {
+        trigger: '.policies-reveal',
         start: 'top 85%',
         toggleActions: 'play reverse play reverse',
       },
@@ -327,9 +339,86 @@ const Pricing = () => {
             ))}
             <div className="mt-8 text-center md:text-left">
               <p className="text-xs text-textSecondary font-sans italic">
-                * El precio del álbum varía según el formato, número de páginas y acabados seleccionados.
+                 * El precio del álbum varía según el formato, número de páginas y acabados seleccionados.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Condiciones y Políticas de Reserva Claras y Transparentes */}
+        <div className="policies-reveal max-w-4xl mx-auto mt-24">
+          <div className="text-center mb-12">
+            <span className="text-[10px] uppercase tracking-widest text-accentMain font-sans block mb-2 font-medium">
+              Transparencia y Compromiso Mutuo
+            </span>
+            <h2 className="title-main text-2xl md:text-3xl text-textMain mb-4">
+              CONDICIONES Y POLÍTICA DE RESERVA
+            </h2>
+            <div className="w-10 h-px bg-accentMain mx-auto"></div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Política 1: Reserva y Adelanto del 75% */}
+            <div className="bg-neutral-50 p-6 photo-card-secondary border border-neutral-200 flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 bg-white photo-card-secondary border border-neutral-200 flex items-center justify-center mb-4 text-accentMain">
+                  <ShieldCheck size={20} />
+                </div>
+                <span className="text-[10px] uppercase tracking-widest text-accentMain font-sans block mb-1 font-medium">
+                  Término 01
+                </span>
+                <h3 className="title-main text-sm text-textMain mb-3">
+                  75% DE ADELANTO
+                </h3>
+                <p className="text-xs text-textSecondary font-sans font-light leading-relaxed">
+                  Para formalizar la reserva y bloquear la fecha en exclusiva en la agenda, se abona un adelanto del <strong className="font-normal text-textMain">75% del importe pactado</strong>.
+                </p>
+              </div>
+            </div>
+
+            {/* Política 2: Cancelación */}
+            <div className="bg-neutral-50 p-6 photo-card-secondary border border-neutral-200 flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 bg-white photo-card-secondary border border-neutral-200 flex items-center justify-center mb-4 text-accentMain">
+                  <FileText size={20} />
+                </div>
+                <span className="text-[10px] uppercase tracking-widest text-accentMain font-sans block mb-1 font-medium">
+                  Término 02
+                </span>
+                <h3 className="title-main text-sm text-textMain mb-3">
+                  CANCELACIONES
+                </h3>
+                <p className="text-xs text-textSecondary font-sans font-light leading-relaxed">
+                  El anticipo garantiza la exclusividad de tu fecha y la preparación técnica. Si el evento se cancela por <strong className="font-normal text-textMain">motivos ajenos al fotógrafo</strong>, dicho pago no será reembolsable.
+                </p>
+              </div>
+            </div>
+
+            {/* Política 3: Cambios de Fecha con 5 días */}
+            <div className="bg-neutral-50 p-6 photo-card-secondary border border-neutral-200 flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 bg-white photo-card-secondary border border-neutral-200 flex items-center justify-center mb-4 text-accentMain">
+                  <Clock size={20} />
+                </div>
+                <span className="text-[10px] uppercase tracking-widest text-accentMain font-sans block mb-1 font-medium">
+                  Término 03
+                </span>
+                <h3 className="title-main text-sm text-textMain mb-3">
+                  5 DÍAS DE ANTELACIÓN
+                </h3>
+                <p className="text-xs text-textSecondary font-sans font-light leading-relaxed">
+                  Cualquier cambio de fecha o reprogramación horaria debe comunicarse con un <strong className="font-normal text-textMain">mínimo de 5 días de antelación</strong>, sujeto a disponibilidad de agenda.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <div className="mt-8 text-center bg-white p-4 border border-neutral-200 photo-card-secondary">
+            <p className="text-[11px] text-textSecondary font-sans font-light leading-relaxed">
+              * Estas condiciones garantizan una preparación profesional meticulosa, tranquilidad y dedicación exclusiva a tu evento o sesión.
+            </p>
           </div>
         </div>
 

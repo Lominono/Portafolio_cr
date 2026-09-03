@@ -5,10 +5,13 @@ import {
   RotateCw, 
   ZoomIn, 
   ZoomOut, 
-  Move, 
   Maximize2,
   Crop,
-  Sparkles
+  Eye,
+  Info,
+  Smartphone,
+  Sparkles,
+  HelpCircle
 } from 'lucide-react';
 
 interface AspectRatioOption {
@@ -30,7 +33,9 @@ interface ImageCropModalProps {
   isOpen: boolean;
   file: File | null;
   sectionTitle: string;
+  slotLabel?: string;
   targetAspectRatio?: string;
+  recommendationTip?: string;
   onConfirm: (croppedFile: File) => void;
   onCancel: () => void;
 }
@@ -39,7 +44,9 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
   isOpen,
   file,
   sectionTitle,
+  slotLabel,
   targetAspectRatio = '3:4',
+  recommendationTip,
   onConfirm,
   onCancel,
 }) => {
@@ -55,10 +62,14 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Estados de UI móvil
+  const [showWebPreview, setShowWebPreview] = useState(false);
+  const [showTips, setShowTips] = useState(true);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const initialTouchDistanceRef = useRef<number | null>(null);
 
-  // Detectar ratio inicial según la sección
+  // Detectar ratio inicial según la ranura
   useEffect(() => {
     if (targetAspectRatio.includes('16:9')) {
       setSelectedRatioId('16:9');
@@ -133,7 +144,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  // Manejo de touch táctil para móviles
+  // Manejo de touch táctil para móviles (touch-action: none)
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       setIsDragging(true);
@@ -142,7 +153,6 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
         y: e.touches[0].clientY - pan.y,
       });
     } else if (e.touches.length === 2) {
-      // Pinch to zoom inicial
       const dist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
@@ -163,7 +173,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
         e.touches[0].clientY - e.touches[1].clientY
       );
       const factor = dist / initialTouchDistanceRef.current;
-      setZoom((prev) => Math.min(Math.max(prev * factor, 1), 3));
+      setZoom((prev) => Math.min(Math.max(prev * factor, 1), 3.5));
       initialTouchDistanceRef.current = dist;
     }
   };
@@ -177,8 +187,12 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     const delta = -e.deltaY * 0.0015;
-    setZoom((prev) => Math.min(Math.max(prev + delta, 1), 3));
+    setZoom((prev) => Math.min(Math.max(prev + delta, 1), 3.5));
   };
+
+  // Zoom táctil por botones
+  const handleZoomIn = () => setZoom((prev) => Math.min(prev + 0.15, 3.5));
+  const handleZoomOut = () => setZoom((prev) => Math.max(prev - 0.15, 1));
 
   // Rotar 90 grados
   const handleRotate = () => {
@@ -200,7 +214,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
 
     try {
       const cropBox = containerRef.current.getBoundingClientRect();
-      const exportWidth = 1800; // Alta resolución profesional
+      const exportWidth = 1920; // Alta definición cinematográfica
       const exportHeight = Math.round(exportWidth / activeRatio);
 
       const canvas = document.createElement('canvas');
@@ -215,32 +229,29 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
 
-      // Fondo transparente/blanco
+      // Fondo blanco neutro
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, exportWidth, exportHeight);
 
-      // Calcular escala de la caja de recorte al canvas final
+      // Escala de la caja al canvas final
       const scaleToCanvas = exportWidth / cropBox.width;
 
-      // Transformaciones del Canvas
       ctx.translate(exportWidth / 2, exportHeight / 2);
       ctx.translate(pan.x * scaleToCanvas, pan.y * scaleToCanvas);
       ctx.rotate((rotation * Math.PI) / 180);
       ctx.scale(zoom, zoom);
 
-      // Calcular dimensiones base de la imagen para centrarla
       const isRotated90 = rotation === 90 || rotation === 270;
       const naturalW = isRotated90 ? imageElement.naturalHeight : imageElement.naturalWidth;
       const naturalH = isRotated90 ? imageElement.naturalWidth : imageElement.naturalHeight;
 
-      // Escala inicial para cubrir la caja ("cover")
+      // Escala "cover"
       const coverScale = Math.max(cropBox.width / naturalW, cropBox.height / naturalH);
       const renderW = imageElement.naturalWidth * coverScale * scaleToCanvas;
       const renderH = imageElement.naturalHeight * coverScale * scaleToCanvas;
 
       ctx.drawImage(imageElement, -renderW / 2, -renderH / 2, renderW, renderH);
 
-      // Convertir Canvas a Blob de alta calidad
       canvas.toBlob(
         (blob) => {
           if (!blob) {
@@ -248,7 +259,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
             return;
           }
 
-          const croppedFileName = file.name.replace(/\.[^/.]+$/, '') + '_encuadre.jpg';
+          const croppedFileName = file.name.replace(/\.[^/.]+$/, '') + '_opt.jpg';
           const croppedFile = new File([blob], croppedFileName, {
             type: 'image/jpeg',
             lastModified: Date.now(),
@@ -269,51 +280,85 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
   if (!isOpen || !file || !imageSrc) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-      <div className="bg-white w-full max-w-3xl photo-card-secondary border border-neutral-300 shadow-2xl flex flex-col max-h-[95vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto overscroll-contain">
+      <div className="bg-white w-full max-w-3xl photo-card-secondary border border-neutral-300 shadow-2xl flex flex-col max-h-[96vh] overflow-hidden my-auto">
         
         {/* Cabecera del Editor */}
-        <div className="bg-neutral-50 px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
-          <div>
+        <div className="bg-neutral-50 px-4 sm:px-6 py-3.5 border-b border-neutral-200 flex items-center justify-between shrink-0">
+          <div className="flex-1 pr-2 truncate">
             <div className="flex items-center gap-2">
-              <Crop size={16} className="text-accentMain" />
-              <h2 className="title-main text-base text-textMain">
-                AJUSTAR ENCUADRE Y RECORTE
+              <Crop size={16} className="text-accentMain shrink-0" />
+              <h2 className="title-main text-sm sm:text-base text-textMain truncate">
+                EDITOR & RECORTE INTELIGENTE
               </h2>
             </div>
-            <p className="text-[11px] text-textSecondary font-sans font-light mt-0.5">
-              Sección: <strong className="font-normal text-textMain">{sectionTitle}</strong> (Recomendado: {targetAspectRatio})
+            <p className="text-[11px] text-textSecondary font-sans truncate">
+              {sectionTitle} {slotLabel ? `— ${slotLabel}` : ''}
             </p>
           </div>
 
-          <button
-            onClick={onCancel}
-            disabled={isProcessing}
-            className="p-2 text-textSecondary hover:text-textMain transition-colors"
-            title="Cancelar"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setShowTips(!showTips)}
+              className={`p-1.5 rounded-none border text-xs font-sans flex items-center gap-1 transition-colors ${
+                showTips ? 'bg-accentMain text-white border-accentMain' : 'bg-white text-textSecondary border-neutral-300 hover:text-textMain'
+              }`}
+              title="Ver recomendaciones de recorte"
+            >
+              <HelpCircle size={14} />
+              <span className="hidden sm:inline">Guía Web</span>
+            </button>
+
+            <button
+              onClick={onCancel}
+              disabled={isProcessing}
+              className="p-1.5 text-textSecondary hover:text-textMain transition-colors"
+              title="Cerrar editor"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
-        {/* Área de Visualización y Enmarcado Interactivo */}
+        {/* Tarjeta de Recomendaciones y Guía Visual para que quede bien en la Web */}
+        {showTips && (
+          <div className="bg-amber-50/70 border-b border-amber-200 px-4 py-3 text-xs font-sans text-neutral-800 shrink-0 transition-all">
+            <div className="flex items-start gap-2.5">
+              <Info size={16} className="text-accentMain shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <strong className="text-textMain font-medium">Recomendación para esta ranura:</strong>
+                  <span className="bg-accentMain text-white text-[10px] px-2 py-0.2 uppercase tracking-widest font-sans font-medium">
+                    Proporción {targetAspectRatio}
+                  </span>
+                </div>
+                <p className="text-[11px] text-textSecondary font-light leading-relaxed">
+                  {recommendationTip || 
+                    'Encuadra el sujeto principal dentro de la cuadrícula de tercios. En teléfonos móviles la web adapta las fotos verticalmente: evita cortar rostros o detalles esenciales en los bordes.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Área de Visualización y Enmarcado Táctil */}
         <div 
-          className="relative flex-1 min-h-[320px] sm:min-h-[420px] bg-neutral-900 flex items-center justify-center overflow-hidden select-none"
+          className="relative flex-1 min-h-[260px] sm:min-h-[380px] bg-neutral-950 flex items-center justify-center overflow-hidden select-none touch-none"
           onWheel={handleWheel}
         >
-          {/* Contenedor del Cuadro de Recorte */}
+          {/* Cuadro de Recorte */}
           <div 
             ref={containerRef}
             style={{
               aspectRatio: `${activeRatio}`,
-              maxHeight: '380px',
-              maxWidth: '90%',
+              maxHeight: 'min(50vh, 360px)',
+              maxWidth: '88%',
             }}
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
-            className={`relative w-full h-full shadow-[0_0_0_9999px_rgba(0,0,0,0.7)] border-2 border-white/90 overflow-hidden cursor-move ${
+            className={`relative w-full h-full shadow-[0_0_0_9999px_rgba(0,0,0,0.75)] border-2 border-white/90 overflow-hidden cursor-move touch-none ${
               isDragging ? 'cursor-grabbing' : 'cursor-grab'
             }`}
           >
@@ -323,7 +368,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
                 style={{
                   transform: `translate(${pan.x}px, ${pan.y}px) rotate(${rotation}deg) scale(${zoom})`,
                   transformOrigin: 'center center',
-                  transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+                  transition: isDragging ? 'none' : 'transform 0.08s ease-out',
                 }}
                 className="w-full h-full flex items-center justify-center pointer-events-none"
               >
@@ -335,8 +380,8 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
               </div>
             )}
 
-            {/* Guía de Composición (Regla de Tercios) */}
-            <div className="absolute inset-0 pointer-events-none grid grid-cols-3 grid-rows-3 opacity-30 hover:opacity-50 transition-opacity">
+            {/* Regla de Tercios */}
+            <div className="absolute inset-0 pointer-events-none grid grid-cols-3 grid-rows-3 opacity-30">
               <div className="border-r border-b border-white"></div>
               <div className="border-r border-b border-white"></div>
               <div className="border-b border-white"></div>
@@ -348,27 +393,56 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
               <div></div>
             </div>
 
-            {/* Mensaje de ayuda sutil */}
-            <div className="absolute bottom-2 left-2 right-2 flex justify-center pointer-events-none">
-              <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] uppercase font-sans tracking-widest px-2.5 py-1 flex items-center gap-1.5 rounded-none">
-                <Move size={10} />
-                Arrastra para encuadrar el rostro o sujeto
+            {/* Ayuda de gestos móvil */}
+            <div className="absolute bottom-2 left-0 right-0 flex justify-center pointer-events-none px-2">
+              <span className="bg-black/70 backdrop-blur-sm text-white text-[9px] sm:text-[10px] uppercase font-sans tracking-widest px-2.5 py-1 flex items-center gap-1.5">
+                <Smartphone size={11} className="text-accentSecondary" />
+                Arrastra con 1 dedo para centrar • Pellizca para zoom
               </span>
             </div>
           </div>
+
+          {/* Maqueta de Vista Previa en Vivo (Mini Simulación Web) */}
+          {showWebPreview && (
+            <div className="absolute top-3 right-3 z-30 bg-white/95 backdrop-blur-md p-3 border border-neutral-300 shadow-xl max-w-[160px] animate-fadeIn">
+              <span className="block text-[9px] uppercase tracking-widest text-textSecondary font-sans mb-1 font-medium">
+                En la web se verá:
+              </span>
+              <div 
+                style={{ aspectRatio: `${activeRatio}` }}
+                className="w-full photo-card-secondary overflow-hidden bg-neutral-100 relative mb-1.5"
+              >
+                {imageElement && (
+                  <img
+                    src={imageSrc}
+                    alt="Mini preview"
+                    style={{
+                      transform: `translate(${pan.x * 0.25}px, ${pan.y * 0.25}px) rotate(${rotation}deg) scale(${zoom})`,
+                      transformOrigin: 'center center',
+                    }}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+              <span className="block text-[9px] text-textMain truncate font-serif uppercase">
+                {sectionTitle}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Barra de Herramientas de Ajuste */}
-        <div className="p-4 sm:p-6 bg-white border-t border-neutral-200 flex flex-col gap-4">
+        {/* Barra de Herramientas Táctil (Optimizado para Teléfonos) */}
+        <div className="p-3 sm:p-5 bg-white border-t border-neutral-200 flex flex-col gap-3 shrink-0 overflow-y-auto max-h-[38vh]">
           
-          {/* Selector de Relación de Aspecto */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <span className="text-[10px] uppercase tracking-widest text-textSecondary font-sans font-medium">
-              Proporción de Recorte:
+          {/* Selector de Ratios (Horizontal con scroll) */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] uppercase tracking-wider text-textSecondary font-sans font-medium whitespace-nowrap">
+              Formato:
             </span>
-            <div className="flex flex-wrap gap-1.5 w-full sm:w-auto">
+            <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar w-full justify-end">
               {ASPECT_RATIOS.map((item) => {
                 const isSelected = selectedRatioId === item.id;
+                const isRecommended = targetAspectRatio.includes(item.id);
                 return (
                   <button
                     key={item.id}
@@ -377,78 +451,106 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
                       setSelectedRatioId(item.id);
                       setPan({ x: 0, y: 0 });
                     }}
-                    className={`text-[10px] uppercase tracking-wider font-sans px-2.5 py-1.5 transition-colors border ${
+                    className={`text-[10px] uppercase font-sans px-2.5 py-1.5 transition-colors border whitespace-nowrap flex items-center gap-1 ${
                       isSelected
                         ? 'bg-accentMain text-white border-accentMain font-medium'
+                        : isRecommended
+                        ? 'bg-amber-50 text-accentMain border-amber-300 font-medium'
                         : 'bg-neutral-100 text-textSecondary border-neutral-200 hover:bg-neutral-200'
                     }`}
                   >
                     {item.label}
+                    {isRecommended && <span className="text-[8px] bg-white/20 px-1 rounded-none">Web</span>}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Controles de Zoom y Rotación */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-t border-neutral-100">
+          {/* Fila de Controles de Zoom, Giro y Previsualización */}
+          <div className="flex items-center justify-between gap-3 pt-2 border-t border-neutral-100">
             
-            {/* Slider de Zoom */}
-            <div className="flex items-center gap-3 w-full sm:w-1/2">
-              <ZoomOut size={16} className="text-textSecondary shrink-0" />
+            {/* Controles de Zoom con Botones Grandes para Móvil */}
+            <div className="flex items-center gap-2 flex-1 max-w-xs">
+              <button
+                type="button"
+                onClick={handleZoomOut}
+                className="w-8 h-8 rounded-none border border-neutral-200 flex items-center justify-center text-textSecondary hover:text-textMain hover:bg-neutral-50 active:bg-neutral-100 shrink-0"
+                title="Reducir zoom"
+              >
+                <ZoomOut size={14} />
+              </button>
+              
               <input
                 type="range"
                 min={1}
-                max={3}
+                max={3.5}
                 step={0.05}
                 value={zoom}
                 onChange={(e) => setZoom(parseFloat(e.target.value))}
                 className="w-full accent-accentMain h-1.5 bg-neutral-200 cursor-pointer"
               />
-              <ZoomIn size={16} className="text-textSecondary shrink-0" />
-              <span className="text-xs font-sans text-textSecondary w-10 text-right">
-                {Math.round(zoom * 100)}%
-              </span>
+
+              <button
+                type="button"
+                onClick={handleZoomIn}
+                className="w-8 h-8 rounded-none border border-neutral-200 flex items-center justify-center text-textSecondary hover:text-textMain hover:bg-neutral-50 active:bg-neutral-100 shrink-0"
+                title="Aumentar zoom"
+              >
+                <ZoomIn size={14} />
+              </button>
             </div>
 
-            {/* Botones de Rotación y Reseteo */}
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            {/* Acciones Rápidas: Rotar, Centrar, Previsualizar */}
+            <div className="flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
                 onClick={handleRotate}
-                className="inline-flex items-center gap-1.5 text-xs text-textSecondary hover:text-textMain border border-neutral-300 px-3 py-1.5 transition-colors"
-                title="Girar 90 grados en sentido horario"
+                className="px-2.5 py-1.5 border border-neutral-200 text-[11px] font-sans text-textSecondary hover:text-textMain hover:bg-neutral-50 flex items-center gap-1 transition-colors"
+                title="Girar 90 grados"
               >
                 <RotateCw size={13} />
-                <span>Girar 90°</span>
+                <span className="hidden sm:inline">Girar 90°</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleReset}
-                className="inline-flex items-center gap-1.5 text-xs text-textSecondary hover:text-textMain border border-neutral-300 px-3 py-1.5 transition-colors"
-                title="Restablecer posición y zoom"
+                className="px-2.5 py-1.5 border border-neutral-200 text-[11px] font-sans text-textSecondary hover:text-textMain hover:bg-neutral-50 flex items-center gap-1 transition-colors"
+                title="Centrar foto"
               >
                 <Maximize2 size={13} />
-                <span>Centrar</span>
+                <span className="hidden sm:inline">Centrar</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowWebPreview(!showWebPreview)}
+                className={`px-2.5 py-1.5 border text-[11px] font-sans flex items-center gap-1 transition-colors ${
+                  showWebPreview ? 'bg-accentMain text-white border-accentMain' : 'border-neutral-200 text-textSecondary hover:bg-neutral-50'
+                }`}
+                title="Previsualizar cómo queda en la web"
+              >
+                <Eye size={13} />
+                <span className="hidden sm:inline">Simulador Web</span>
               </button>
             </div>
 
           </div>
 
-          {/* Botones Finales de Acción */}
-          <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
+          {/* Botones Principales de Guardar / Cancelar (Sticky en móvil) */}
+          <div className="flex items-center justify-between pt-2 border-t border-neutral-200 gap-3">
             <span className="text-[10px] text-textSecondary font-sans font-light hidden sm:inline-flex items-center gap-1">
               <Sparkles size={12} className="text-accentMain" />
-              La imagen se optimizará automáticamente para una carga ultrarrápida.
+              Optimizada a alta resolución sin perder nitidez
             </span>
 
-            <div className="flex items-center gap-3 ml-auto w-full sm:w-auto">
+            <div className="flex items-center gap-2.5 w-full sm:w-auto ml-auto">
               <button
                 type="button"
                 onClick={onCancel}
                 disabled={isProcessing}
-                className="w-1/2 sm:w-auto text-xs uppercase tracking-widest font-sans px-5 py-2.5 text-textSecondary hover:text-textMain border border-neutral-300 transition-colors"
+                className="w-1/3 sm:w-auto text-xs uppercase tracking-widest font-sans px-4 py-2.5 text-textSecondary hover:text-textMain border border-neutral-300 transition-colors"
               >
                 Cancelar
               </button>
@@ -457,7 +559,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
                 type="button"
                 onClick={handleCropAndSave}
                 disabled={isProcessing}
-                className="w-1/2 sm:w-auto btn-primary text-xs tracking-widest uppercase flex items-center justify-center gap-2"
+                className="w-2/3 sm:w-auto btn-primary text-xs tracking-widest uppercase flex items-center justify-center gap-2 py-2.5"
               >
                 {isProcessing ? (
                   <>
@@ -467,7 +569,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
                 ) : (
                   <>
                     <Check size={14} />
-                    <span>Confirmar y Subir</span>
+                    <span>Aplicar y Subir</span>
                   </>
                 )}
               </button>

@@ -189,7 +189,13 @@ const Contact = () => {
                 ></textarea>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 mt-4">
+              {/* Resumen de Condiciones de Contratación */}
+              <div className="p-3 bg-neutral-100/80 border border-neutral-200 text-textSecondary text-[11px] font-sans font-light leading-relaxed">
+                <strong className="font-medium text-textMain block mb-0.5">Condiciones de reserva y agenda:</strong>
+                Confirmación de fecha sujeta al <strong>75% de adelanto</strong> (no reembolsable ante cancelaciones por causas ajenas al fotógrafo). Modificaciones de fecha con un <strong>mínimo de 5 días de antelación</strong>.
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 mt-2">
                 <button type="submit" className="btn-primary w-full text-xs">
                   ENVIAR POR CORREO
                 </button>
