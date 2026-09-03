@@ -3,6 +3,8 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 
+import { ShieldCheck } from 'lucide-react';
+
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const Contact = () => {
@@ -189,10 +191,28 @@ const Contact = () => {
                 ></textarea>
               </div>
 
-              {/* Resumen de Condiciones de Contratación */}
-              <div className="p-3 bg-neutral-100/80 border border-neutral-200 text-textSecondary text-[11px] font-sans font-light leading-relaxed">
-                <strong className="font-medium text-textMain block mb-0.5">Condiciones de reserva y agenda:</strong>
-                Confirmación de fecha sujeta al <strong>75% de adelanto</strong> (no reembolsable ante cancelaciones por causas ajenas al fotógrafo). Modificaciones de fecha con un <strong>mínimo de 5 días de antelación</strong>.
+              {/* Micro-Diseño Elegante de Condiciones de Reserva */}
+              <div className="bg-neutral-50/80 border border-neutral-200 p-3.5 photo-card-secondary">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <ShieldCheck size={14} className="text-accentMain" />
+                  <span className="text-[10px] uppercase font-sans tracking-widest text-textMain font-medium">
+                    Condiciones Clave de Contratación
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-white border border-neutral-200 px-2 py-0.5 text-textSecondary font-sans">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accentMain"></span>
+                    <strong>75%</strong> Adelanto de Reserva
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-white border border-neutral-200 px-2 py-0.5 text-textSecondary font-sans">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accentMain"></span>
+                    Fecha Exclusiva Bloqueada
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-white border border-neutral-200 px-2 py-0.5 text-textSecondary font-sans">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accentMain"></span>
+                    Aviso 5 días para cambios
+                  </span>
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-2">

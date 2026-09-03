@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { Camera, Heart } from 'lucide-react';
 import { subscribeToAllPhotos } from '../services/photos';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -127,25 +128,36 @@ const About = () => {
         </div>
 
         {/* Sección de Texto de Prueba Ampliado (Biografía o Enfoque) */}
+        {/* Sección de Historia, Enfoque y Manifiesto Editorial */}
         <div className="mb-32">
           <div className="text-center mb-16 scroll-reveal">
-            <h2 className="title-main text-2xl text-textMain mb-4">MI HISTORIA Y ENFOQUE</h2>
+            <span className="text-[10px] uppercase font-sans tracking-widest text-accentMain block mb-2 font-medium">
+              Detrás de la Mirada
+            </span>
+            <h2 className="title-main text-2xl md:text-3xl text-textMain mb-4">MI HISTORIA Y ENFOQUE</h2>
             <div className="w-8 h-px bg-accentMain mx-auto"></div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 scroll-reveal">
-            <div>
-              <h4 className="title-main text-sm text-textMain mb-4">EL ORIGEN DE LA PASIÓN</h4>
-              <p className="text-textSecondary font-sans font-light text-sm leading-relaxed mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 scroll-reveal mb-12">
+            <div className="bg-white p-8 photo-card-secondary border border-neutral-200 card-luxury">
+              <div className="flex items-center gap-2 mb-4">
+                <Heart size={14} className="text-accentMain" />
+                <h4 className="title-main text-xs sm:text-sm text-textMain tracking-widest">EL ORIGEN DE LA PASIÓN</h4>
+              </div>
+              <p className="drop-cap text-textSecondary font-sans font-light text-sm leading-relaxed mb-4">
                 Mi fascinación por la fotografía nació de una certeza temprana: el tiempo avanza sin tregua, pero una sola imagen tiene el poder sagrado de congelar una emoción para siempre. No comencé buscando la técnica perfecta, sino la verdad que habita en los gestos desapercibidos: la mano que busca apoyo antes del "sí, quiero", la risa desprevenida que descoloca la compostura o la calma cómplice de una mirada honesta.
               </p>
               <p className="text-textSecondary font-sans font-light text-sm leading-relaxed">
                 Con los años, esa curiosidad inicial se transformó en una vocación vital. Fotografiar para mí no es solo disparar una cámara; es aprender a observar con paciencia, respetar la intimidad de cada historia y construir un refugio visual donde los momentos más puros de tu vida queden a salvo del olvido.
               </p>
             </div>
-            <div>
-              <h4 className="title-main text-sm text-textMain mb-4">LA TÉCNICA Y EL ARTE</h4>
-              <p className="text-textSecondary font-sans font-light text-sm leading-relaxed mb-6">
+
+            <div className="bg-white p-8 photo-card-secondary border border-neutral-200 card-luxury">
+              <div className="flex items-center gap-2 mb-4">
+                <Camera size={14} className="text-accentMain" />
+                <h4 className="title-main text-xs sm:text-sm text-textMain tracking-widest">LA TÉCNICA Y EL ARTE</h4>
+              </div>
+              <p className="drop-cap text-textSecondary font-sans font-light text-sm leading-relaxed mb-4">
                 Concibo la técnica no como una demostración de artificio, sino como el lenguaje silencioso que permite a la emoción expresarse sin distracciones. El dominio riguroso de la luz natural, la composición equilibrada y una paleta cromática sobria son las herramientas con las que convierto instantes efímeros en estampas con peso narrativo y cinematográfico.
               </p>
               <p className="text-textSecondary font-sans font-light text-sm leading-relaxed">
@@ -153,6 +165,37 @@ const About = () => {
               </p>
             </div>
           </div>
+
+          {/* Cita Editorial Cinematográfica Flotante */}
+          <div className="py-10 px-6 my-10 bg-neutral-50 photo-card-secondary border border-neutral-200 text-center relative scroll-reveal">
+            <span className="text-[10px] uppercase font-sans tracking-widest text-accentMain block mb-3 font-medium">
+              Manifiesto de Autor
+            </span>
+            <blockquote className="font-serif italic text-base sm:text-xl text-textMain max-w-2xl mx-auto leading-relaxed">
+              "La técnica es el lenguaje invisible; la emoción es la verdadera protagonista de cada encuadre."
+            </blockquote>
+          </div>
+
+          {/* Métricas y Sellos de Calidad con Micro-Animaciones */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 scroll-reveal">
+            <div className="bg-white p-5 text-center border border-neutral-200 photo-card-secondary card-luxury">
+              <span className="block text-2xl font-serif text-accentMain mb-1">+8</span>
+              <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Años de Oficio</span>
+            </div>
+            <div className="bg-white p-5 text-center border border-neutral-200 photo-card-secondary card-luxury">
+              <span className="block text-2xl font-serif text-accentMain mb-1">100%</span>
+              <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Colorimetría de Autor</span>
+            </div>
+            <div className="bg-white p-5 text-center border border-neutral-200 photo-card-secondary card-luxury">
+              <span className="block text-2xl font-serif text-accentMain mb-1">1 Evento</span>
+              <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Exclusivo por Día</span>
+            </div>
+            <div className="bg-white p-5 text-center border border-neutral-200 photo-card-secondary card-luxury">
+              <span className="block text-2xl font-serif text-accentMain mb-1">RAW</span>
+              <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Máxima Calidad</span>
+            </div>
+          </div>
+
         </div>
 
         {/* Filosofía / Estilo */}

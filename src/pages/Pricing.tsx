@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { MessageCircle, ShieldCheck, FileText, Clock } from 'lucide-react';
+import { MessageCircle, ShieldCheck, FileText, Clock, Check, Sparkles, ArrowRight } from 'lucide-react';
 import { subscribeToAllPhotos } from '../services/photos';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -299,10 +299,23 @@ const Pricing = () => {
                   <div className="text-accentMain title-main text-xl mb-6">
                     {item.price}
                   </div>
-                  <p className="text-textSecondary font-sans font-light leading-relaxed mb-8 text-sm md:text-base">
+                  <p className="text-textSecondary font-sans font-light leading-relaxed mb-4 text-sm md:text-base">
                     {item.desc}
                   </p>
                   
+                  {/* Micro-Badges de Servicio */}
+                  <div className="flex flex-wrap gap-2 mb-8">
+                    <span className="inline-flex items-center gap-1 text-[11px] bg-neutral-100 text-textSecondary px-2.5 py-1 border border-neutral-200 font-sans">
+                      <Check size={12} className="text-accentMain" /> Edición Profesional
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] bg-neutral-100 text-textSecondary px-2.5 py-1 border border-neutral-200 font-sans">
+                      <Check size={12} className="text-accentMain" /> Galería Digital Privada
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] bg-neutral-100 text-textSecondary px-2.5 py-1 border border-neutral-200 font-sans">
+                      <Check size={12} className="text-accentMain" /> Máxima Resolución
+                    </span>
+                  </div>
+
                   <div>
                     <a 
                       href={createWhatsAppLink(item.title, item.price)}
@@ -345,81 +358,173 @@ const Pricing = () => {
           </div>
         </div>
 
-        {/* Condiciones y Políticas de Reserva Claras y Transparentes */}
+        {/* Condiciones y Políticas de Reserva Claras y No Invasivas */}
         <div className="policies-reveal max-w-4xl mx-auto mt-24">
-          <div className="text-center mb-12">
-            <span className="text-[10px] uppercase tracking-widest text-accentMain font-sans block mb-2 font-medium">
-              Transparencia y Compromiso Mutuo
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-accentMain font-sans mb-2 font-medium bg-neutral-100 px-3 py-1 border border-neutral-200">
+              <Sparkles size={11} /> Transparencia y Garantía de Reserva
             </span>
-            <h2 className="title-main text-2xl md:text-3xl text-textMain mb-4">
-              CONDICIONES Y POLÍTICA DE RESERVA
+            <h2 className="title-main text-2xl md:text-3xl text-textMain mb-3">
+              CONDICIONES DE CONTRATACIÓN
             </h2>
-            <div className="w-10 h-px bg-accentMain mx-auto"></div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {/* Política 1: Reserva y Adelanto del 75% */}
-            <div className="bg-neutral-50 p-6 photo-card-secondary border border-neutral-200 flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 bg-white photo-card-secondary border border-neutral-200 flex items-center justify-center mb-4 text-accentMain">
-                  <ShieldCheck size={20} />
-                </div>
-                <span className="text-[10px] uppercase tracking-widest text-accentMain font-sans block mb-1 font-medium">
-                  Término 01
-                </span>
-                <h3 className="title-main text-sm text-textMain mb-3">
-                  75% DE ADELANTO
-                </h3>
-                <p className="text-xs text-textSecondary font-sans font-light leading-relaxed">
-                  Para formalizar la reserva y bloquear la fecha en exclusiva en la agenda, se abona un adelanto del <strong className="font-normal text-textMain">75% del importe pactado</strong>.
-                </p>
-              </div>
-            </div>
-
-            {/* Política 2: Cancelación */}
-            <div className="bg-neutral-50 p-6 photo-card-secondary border border-neutral-200 flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 bg-white photo-card-secondary border border-neutral-200 flex items-center justify-center mb-4 text-accentMain">
-                  <FileText size={20} />
-                </div>
-                <span className="text-[10px] uppercase tracking-widest text-accentMain font-sans block mb-1 font-medium">
-                  Término 02
-                </span>
-                <h3 className="title-main text-sm text-textMain mb-3">
-                  CANCELACIONES
-                </h3>
-                <p className="text-xs text-textSecondary font-sans font-light leading-relaxed">
-                  El anticipo garantiza la exclusividad de tu fecha y la preparación técnica. Si el evento se cancela por <strong className="font-normal text-textMain">motivos ajenos al fotógrafo</strong>, dicho pago no será reembolsable.
-                </p>
-              </div>
-            </div>
-
-            {/* Política 3: Cambios de Fecha con 5 días */}
-            <div className="bg-neutral-50 p-6 photo-card-secondary border border-neutral-200 flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 bg-white photo-card-secondary border border-neutral-200 flex items-center justify-center mb-4 text-accentMain">
-                  <Clock size={20} />
-                </div>
-                <span className="text-[10px] uppercase tracking-widest text-accentMain font-sans block mb-1 font-medium">
-                  Término 03
-                </span>
-                <h3 className="title-main text-sm text-textMain mb-3">
-                  5 DÍAS DE ANTELACIÓN
-                </h3>
-                <p className="text-xs text-textSecondary font-sans font-light leading-relaxed">
-                  Cualquier cambio de fecha o reprogramación horaria debe comunicarse con un <strong className="font-normal text-textMain">mínimo de 5 días de antelación</strong>, sujeto a disponibilidad de agenda.
-                </p>
-              </div>
-            </div>
-
-          </div>
-
-          <div className="mt-8 text-center bg-white p-4 border border-neutral-200 photo-card-secondary">
-            <p className="text-[11px] text-textSecondary font-sans font-light leading-relaxed">
-              * Estas condiciones garantizan una preparación profesional meticulosa, tranquilidad y dedicación exclusiva a tu evento o sesión.
+            <div className="w-10 h-px bg-accentMain mx-auto mb-4"></div>
+            <p className="text-xs text-textSecondary font-sans font-light max-w-lg mx-auto">
+              Un marco simple y profesional para que disfrutes de tu evento con total tranquilidad y dedicación exclusiva.
             </p>
           </div>
+
+          {/* Línea de Proceso en 3 Pasos Visuales */}
+          <div className="hidden md:flex items-center justify-between mb-8 px-6">
+            <div className="flex items-center gap-2 text-xs font-serif uppercase tracking-wider text-textMain">
+              <span className="w-6 h-6 rounded-full bg-accentMain text-white flex items-center justify-center text-[11px] font-sans font-bold">1</span>
+              <span>Reserva Exclusiva</span>
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-r from-accentMain/50 via-neutral-300 to-accentMain/50 mx-4"></div>
+            <div className="flex items-center gap-2 text-xs font-serif uppercase tracking-wider text-textMain">
+              <span className="w-6 h-6 rounded-full bg-accentMain text-white flex items-center justify-center text-[11px] font-sans font-bold">2</span>
+              <span>Protección de Fecha</span>
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-r from-accentMain/50 via-neutral-300 to-accentMain/50 mx-4"></div>
+            <div className="flex items-center gap-2 text-xs font-serif uppercase tracking-wider text-textMain">
+              <span className="w-6 h-6 rounded-full bg-accentMain text-white flex items-center justify-center text-[11px] font-sans font-bold">3</span>
+              <span>Flexibilidad Horaria</span>
+            </div>
+          </div>
+
+          {/* Cuadrícula de Tarjetas Luxury con Micro-Interacciones */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Tarjeta 1: Reserva y Adelanto */}
+            <div className="relative bg-neutral-50 p-6 border border-neutral-200 photo-card-secondary card-luxury overflow-hidden flex flex-col justify-between group">
+              {/* Marca de agua elegante */}
+              <span className="absolute -bottom-4 -right-2 text-6xl font-serif text-neutral-200/50 select-none pointer-events-none group-hover:text-accentMain/10 transition-colors">
+                01
+              </span>
+
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 bg-white border border-neutral-200 flex items-center justify-center text-accentMain shadow-sm group-hover:bg-accentMain group-hover:text-white transition-colors">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <span className="text-[9px] uppercase tracking-widest text-accentMain font-sans font-semibold bg-white border border-neutral-200 px-2 py-0.5">
+                    Paso 1
+                  </span>
+                </div>
+
+                <h3 className="title-main text-sm text-textMain mb-2">
+                  75% DE ADELANTO
+                </h3>
+                <span className="text-[11px] text-accentMain font-serif italic block mb-3">
+                  Bloqueo exclusivo de agenda
+                </span>
+
+                <ul className="text-xs text-textSecondary font-sans font-light space-y-2 mb-4">
+                  <li className="flex items-start gap-2">
+                    <Check size={13} className="text-accentMain shrink-0 mt-0.5" />
+                    <span>Asegura tu fecha en exclusiva sin solapamiento de eventos.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check size={13} className="text-accentMain shrink-0 mt-0.5" />
+                    <span>Permite planificar la logística técnica con antelación.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Tarjeta 2: Cancelaciones */}
+            <div className="relative bg-neutral-50 p-6 border border-neutral-200 photo-card-secondary card-luxury overflow-hidden flex flex-col justify-between group">
+              <span className="absolute -bottom-4 -right-2 text-6xl font-serif text-neutral-200/50 select-none pointer-events-none group-hover:text-accentMain/10 transition-colors">
+                02
+              </span>
+
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 bg-white border border-neutral-200 flex items-center justify-center text-accentMain shadow-sm group-hover:bg-accentMain group-hover:text-white transition-colors">
+                    <FileText size={20} />
+                  </div>
+                  <span className="text-[9px] uppercase tracking-widest text-accentMain font-sans font-semibold bg-white border border-neutral-200 px-2 py-0.5">
+                    Paso 2
+                  </span>
+                </div>
+
+                <h3 className="title-main text-sm text-textMain mb-2">
+                  CANCELACIONES
+                </h3>
+                <span className="text-[11px] text-accentMain font-serif italic block mb-3">
+                  Cobertura por causa ajena
+                </span>
+
+                <ul className="text-xs text-textSecondary font-sans font-light space-y-2 mb-4">
+                  <li className="flex items-start gap-2">
+                    <Check size={13} className="text-accentMain shrink-0 mt-0.5" />
+                    <span>Compensa el bloqueo del día y la renuncia a otros clientes.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check size={13} className="text-accentMain shrink-0 mt-0.5" />
+                    <span>No reembolsable si la anulación responde a motivos ajenos.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Tarjeta 3: Flexibilidad 5 días */}
+            <div className="relative bg-neutral-50 p-6 border border-neutral-200 photo-card-secondary card-luxury overflow-hidden flex flex-col justify-between group">
+              <span className="absolute -bottom-4 -right-2 text-6xl font-serif text-neutral-200/50 select-none pointer-events-none group-hover:text-accentMain/10 transition-colors">
+                03
+              </span>
+
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 bg-white border border-neutral-200 flex items-center justify-center text-accentMain shadow-sm group-hover:bg-accentMain group-hover:text-white transition-colors">
+                    <Clock size={20} />
+                  </div>
+                  <span className="text-[9px] uppercase tracking-widest text-accentMain font-sans font-semibold bg-white border border-neutral-200 px-2 py-0.5">
+                    Paso 3
+                  </span>
+                </div>
+
+                <h3 className="title-main text-sm text-textMain mb-2">
+                  5 DÍAS DE AVISO
+                </h3>
+                <span className="text-[11px] text-accentMain font-serif italic block mb-3">
+                  Reprogramación flexible
+                </span>
+
+                <ul className="text-xs text-textSecondary font-sans font-light space-y-2 mb-4">
+                  <li className="flex items-start gap-2">
+                    <Check size={13} className="text-accentMain shrink-0 mt-0.5" />
+                    <span>Cambios de fecha u horario con 5 días mínimos de margen.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check size={13} className="text-accentMain shrink-0 mt-0.5" />
+                    <span>Sujeto a disponibilidad de agenda sin penalizaciones extras.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Sello de Confianza y Calidad Flotante */}
+          <div className="mt-8 bg-white p-5 border border-neutral-200 photo-card-secondary flex flex-col sm:flex-row items-center justify-between gap-4 animate-subtle-float">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-accentMain/10 text-accentMain flex items-center justify-center shrink-0">
+                <Sparkles size={16} />
+              </div>
+              <p className="text-xs text-textSecondary font-sans font-light text-center sm:text-left">
+                <strong className="text-textMain font-normal">Compromiso Cristian Espinola:</strong> Precios pactados cerrados, sin costes ocultos ni sorpresas de última hora.
+              </p>
+            </div>
+
+            <a
+              href="/contacto"
+              className="inline-flex items-center gap-1.5 text-xs text-textMain font-serif uppercase tracking-wider hover:text-accentMain transition-colors shrink-0 border-b border-accentMain pb-0.5"
+            >
+              <span>Consultar mi fecha</span>
+              <ArrowRight size={13} />
+            </a>
+          </div>
+
         </div>
 
       </div>
