@@ -14,7 +14,8 @@ import {
   ExternalLink, 
   CheckCircle, 
   AlertTriangle,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Crop
 } from 'lucide-react';
 import { auth } from '../firebase';
 import { SITE_SECTIONS, SectionConfig, TOTAL_SITE_SLOTS } from '../config/sections';
@@ -25,6 +26,7 @@ import {
   deletePhoto, 
   StoredPhoto 
 } from '../services/photos';
+import ImageCropModal from '../components/ImageCropModal';
 
 export const AdminPanel: React.FC = () => {
   // Estado de autenticación
@@ -46,6 +48,18 @@ export const AdminPanel: React.FC = () => {
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  // Estado del Modal de Recorte y Editor
+  const [cropModalState, setCropModalState] = useState<{
+    isOpen: boolean;
+    file: File | null;
+    section: SectionConfig;
+    targetAspectRatio: string;
+    replacePhotoId?: string;
+  } | null>(null);
+
+  // Estado de Drag and Drop en secciones
+  const [dragOverSectionId, setDragOverSectionId] = useState<string | null>(null);
+
   // Modal de confirmación de eliminación
   const [photoToDelete, setPhotoToDelete] = useState<{
     sectionId: string;
@@ -54,10 +68,11 @@ export const AdminPanel: React.FC = () => {
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Input oculto para reemplazo
+  // Input oculto para reemplazo directo
   const [photoToReplace, setPhotoToReplace] = useState<{
-    sectionId: string;
+    section: SectionConfig;
     photoId: string;
+    slotIndex: number;
   } | null>(null);
   const replaceFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -150,50 +165,48 @@ export const AdminPanel: React.FC = () => {
     }
   };
 
-  // Subir foto
-  const handleFileUpload = async (section: SectionConfig, fileList: FileList | null) => {
+  // -------------------------------------------------------------
+  // FLUJO DE SUBIDA CON RECORTE Y EDITOR INTERACTIVO
+  // -------------------------------------------------------------
+
+  // 1. Cuando el usuario selecciona un archivo (por clic o drop)
+  const handleInitiateUpload = (section: SectionConfig, fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
     const file = fileList[0];
 
-    // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
       showActionError('Por favor selecciona un archivo de imagen válido (JPG, PNG o WebP).');
       return;
     }
 
-    setUploadingSection(section.id);
-    setUploadProgress(0);
-
-    try {
-      const newPhoto = await uploadPhoto(section.id, file, (progress) => {
-        setUploadProgress(progress);
-      });
-
-      setPhotosData((prev) => ({
-        ...prev,
-        [section.id]: [...(prev[section.id] || []), newPhoto]
-      }));
-
-      showActionSuccess(`Fotografía subida con éxito en "${section.title}".`);
-    } catch (err: any) {
-      console.error('Error en subida:', err);
-      showActionError(err.message || 'Ocurrió un error al subir la fotografía.');
-    } finally {
-      setUploadingSection(null);
-      setUploadProgress(0);
+    const currentPhotos = photosData[section.id] || [];
+    if (currentPhotos.length >= section.maxPhotos) {
+      showActionError(`Límite alcanzado (${section.maxPhotos} fotos). Debes eliminar o reemplazar una foto.`);
+      return;
     }
+
+    const nextIndex = currentPhotos.length;
+    const targetSlot = section.slots[nextIndex] || section.slots[0];
+
+    // Abrir el editor de recorte antes de subir
+    setCropModalState({
+      isOpen: true,
+      file,
+      section,
+      targetAspectRatio: targetSlot?.aspectRatio || '3:4',
+    });
   };
 
-  // Reemplazar foto
-  const triggerReplacePhoto = (sectionId: string, photoId: string) => {
-    setPhotoToReplace({ sectionId, photoId });
+  // 2. Cuando el usuario pulsa "Reemplazar"
+  const triggerReplacePhoto = (section: SectionConfig, photoId: string, slotIndex: number) => {
+    setPhotoToReplace({ section, photoId, slotIndex });
     if (replaceFileInputRef.current) {
       replaceFileInputRef.current.value = '';
       replaceFileInputRef.current.click();
     }
   };
 
-  const handleExecuteReplace = async (fileList: FileList | null) => {
+  const handleInitiateReplace = (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0 || !photoToReplace) return;
     const file = fileList[0];
 
@@ -202,28 +215,61 @@ export const AdminPanel: React.FC = () => {
       return;
     }
 
-    const { sectionId, photoId } = photoToReplace;
-    setUploadingSection(sectionId);
+    const { section, photoId, slotIndex } = photoToReplace;
+    const targetSlot = section.slots[slotIndex] || section.slots[0];
+
+    // Abrir el editor de recorte para el reemplazo
+    setCropModalState({
+      isOpen: true,
+      file,
+      section,
+      replacePhotoId: photoId,
+      targetAspectRatio: targetSlot?.aspectRatio || '3:4',
+    });
+  };
+
+  // 3. Confirmación desde el Editor de Recorte
+  const handleConfirmCropAndUpload = async (croppedFile: File) => {
+    if (!cropModalState) return;
+    const { section, replacePhotoId } = cropModalState;
+
+    setCropModalState(null);
+    setUploadingSection(section.id);
     setUploadProgress(0);
 
     try {
-      const updatedPhoto = await replacePhoto(sectionId, photoId, file, (progress) => {
-        setUploadProgress(progress);
-      });
+      if (replacePhotoId) {
+        // Reemplazo en Cloudinary y Firestore
+        const updatedPhoto = await replacePhoto(section.id, replacePhotoId, croppedFile, (progress) => {
+          setUploadProgress(progress);
+        });
 
-      setPhotosData((prev) => {
-        const current = prev[sectionId] || [];
-        const index = current.findIndex((p) => p.id === photoId);
-        if (index === -1) return prev;
-        const copy = [...current];
-        copy[index] = updatedPhoto;
-        return { ...prev, [sectionId]: copy };
-      });
+        setPhotosData((prev) => {
+          const current = prev[section.id] || [];
+          const index = current.findIndex((p) => p.id === replacePhotoId);
+          if (index === -1) return prev;
+          const copy = [...current];
+          copy[index] = updatedPhoto;
+          return { ...prev, [section.id]: copy };
+        });
 
-      showActionSuccess('Fotografía reemplazada exitosamente.');
+        showActionSuccess(`Fotografía recortada y reemplazada con éxito en "${section.title}".`);
+      } else {
+        // Subida nueva a Cloudinary y Firestore
+        const newPhoto = await uploadPhoto(section.id, croppedFile, (progress) => {
+          setUploadProgress(progress);
+        });
+
+        setPhotosData((prev) => ({
+          ...prev,
+          [section.id]: [...(prev[section.id] || []), newPhoto]
+        }));
+
+        showActionSuccess(`Fotografía recortada y publicada en "${section.title}".`);
+      }
     } catch (err: any) {
-      console.error('Error al reemplazar:', err);
-      showActionError(err.message || 'Error al reemplazar la fotografía.');
+      console.error('Error al procesar subida:', err);
+      showActionError(err.message || 'Ocurrió un error al subir la fotografía.');
     } finally {
       setUploadingSection(null);
       setUploadProgress(0);
@@ -231,7 +277,33 @@ export const AdminPanel: React.FC = () => {
     }
   };
 
-  // Confirmar y ejecutar eliminación
+  // -------------------------------------------------------------
+  // MANEJO DE DRAG AND DROP
+  // -------------------------------------------------------------
+  const handleDragOver = (e: React.DragEvent, sectionId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (dragOverSectionId !== sectionId) {
+      setDragOverSectionId(sectionId);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverSectionId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, section: SectionConfig) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverSectionId(null);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleInitiateUpload(section, e.dataTransfer.files);
+    }
+  };
+
+  // Confirmar y ejecutar eliminación garantizada
   const handleExecuteDelete = async () => {
     if (!photoToDelete) return;
     setIsDeleting(true);
@@ -250,7 +322,7 @@ export const AdminPanel: React.FC = () => {
         )
       }));
 
-      showActionSuccess('Fotografía eliminada correctamente.');
+      showActionSuccess('Fotografía eliminada permanentemente de la web y de la nube.');
       setPhotoToDelete(null);
     } catch (err: any) {
       console.error('Error al eliminar:', err);
@@ -386,11 +458,23 @@ export const AdminPanel: React.FC = () => {
   return (
     <div className="min-h-screen bg-primary pb-24 text-textMain">
       
+      {/* Modal Interactivo de Recorte y Editor de Imagen */}
+      {cropModalState && (
+        <ImageCropModal
+          isOpen={cropModalState.isOpen}
+          file={cropModalState.file}
+          sectionTitle={cropModalState.section.title}
+          targetAspectRatio={cropModalState.targetAspectRatio}
+          onConfirm={handleConfirmCropAndUpload}
+          onCancel={() => setCropModalState(null)}
+        />
+      )}
+
       {/* Input oculto para el flujo de Reemplazo */}
       <input
         type="file"
         ref={replaceFileInputRef}
-        onChange={(e) => handleExecuteReplace(e.target.files)}
+        onChange={(e) => handleInitiateReplace(e.target.files)}
         accept="image/jpeg,image/png,image/webp"
         className="hidden"
       />
@@ -461,7 +545,7 @@ export const AdminPanel: React.FC = () => {
               ESTADO DEL PORTAFOLIO EN VIVO
             </h2>
             <p className="text-xs text-textSecondary font-sans font-light">
-              Las fotos subidas aquí se guardan de forma instantánea en Firebase y se reflejan al segundo en la web.
+              Las fotos se procesan en Cloudinary con entrega WebP/AVIF y se sincronizan en Firestore. Puedes arrastrar fotos directamente sobre cualquier sección.
             </p>
           </div>
 
@@ -522,12 +606,35 @@ export const AdminPanel: React.FC = () => {
               const currentPhotos = photosData[section.id] || [];
               const isLimitReached = currentPhotos.length >= section.maxPhotos;
               const isUploadingThisSection = uploadingSection === section.id;
+              const isDraggingOverThisSection = dragOverSectionId === section.id;
 
               return (
                 <div 
                   key={section.id} 
-                  className="bg-white border border-neutral-200 photo-card-secondary overflow-hidden"
+                  onDragOver={(e) => handleDragOver(e, section.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, section)}
+                  className={`relative bg-white border photo-card-secondary transition-all duration-300 overflow-hidden ${
+                    isDraggingOverThisSection 
+                      ? 'border-accentMain ring-4 ring-accentMain/20 bg-amber-50/30' 
+                      : 'border-neutral-200'
+                  }`}
                 >
+                  {/* Overlay visual cuando se arrastra un archivo */}
+                  {isDraggingOverThisSection && (
+                    <div className="absolute inset-0 z-30 bg-accentMain/10 backdrop-blur-[2px] border-2 border-dashed border-accentMain flex flex-col items-center justify-center p-6 text-center animate-pulse pointer-events-none">
+                      <div className="w-14 h-14 rounded-full bg-accentMain text-white flex items-center justify-center mb-3 shadow-lg">
+                        <Upload size={28} />
+                      </div>
+                      <h4 className="title-main text-base text-textMain mb-1">
+                        ¡SUELTA TU FOTOGRAFÍA AQUÍ!
+                      </h4>
+                      <p className="text-xs text-textSecondary font-sans">
+                        Se abrirá el editor para ajustar el encuadre ({section.slots[0]?.aspectRatio || '3:4'})
+                      </p>
+                    </div>
+                  )}
+
                   {/* Encabezado de la Tarjeta de Sección */}
                   <div className="bg-neutral-50 px-6 py-5 border-b border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
@@ -574,7 +681,7 @@ export const AdminPanel: React.FC = () => {
                           return (
                             <div 
                               key={photo.id} 
-                              className="group relative bg-neutral-100 border border-neutral-200 flex flex-col overflow-hidden"
+                              className="group relative bg-neutral-100 border border-neutral-200 flex flex-col overflow-hidden photo-card-secondary"
                             >
                               {/* Contenedor de la Imagen */}
                               <div className="aspect-[3/4] relative overflow-hidden bg-neutral-200">
@@ -602,11 +709,12 @@ export const AdminPanel: React.FC = () => {
                                 {/* Botones de Acción (Reemplazar y Eliminar) */}
                                 <div className="flex items-center gap-2 mt-3 pt-3 border-t border-neutral-100">
                                   <button
-                                    onClick={() => triggerReplacePhoto(section.id, photo.id)}
+                                    onClick={() => triggerReplacePhoto(section, photo.id, idx)}
                                     disabled={isUploadingThisSection}
-                                    className="w-1/2 inline-flex items-center justify-center gap-1 text-[11px] font-sans text-accentMain border border-accentMain/40 hover:bg-accentMain hover:text-white py-1.5 transition-colors"
+                                    className="w-1/2 inline-flex items-center justify-center gap-1.5 text-[11px] font-sans text-accentMain border border-accentMain/40 hover:bg-accentMain hover:text-white py-1.5 transition-colors"
+                                    title="Elegir nueva foto y ajustar encuadre"
                                   >
-                                    <RefreshCw size={11} />
+                                    <Crop size={11} />
                                     <span>Reemplazar</span>
                                   </button>
 
@@ -618,6 +726,7 @@ export const AdminPanel: React.FC = () => {
                                     })}
                                     disabled={isUploadingThisSection}
                                     className="w-1/2 inline-flex items-center justify-center gap-1 text-[11px] font-sans text-red-700 border border-red-200 hover:bg-red-700 hover:text-white py-1.5 transition-colors"
+                                    title="Eliminar permanentemente de la nube"
                                   >
                                     <Trash2 size={11} />
                                     <span>Eliminar</span>
@@ -631,11 +740,11 @@ export const AdminPanel: React.FC = () => {
                     ) : (
                       <div className="py-10 border border-dashed border-neutral-300 bg-neutral-50/50 text-center mb-6 flex flex-col items-center justify-center p-6">
                         <ImageIcon size={32} className="text-neutral-400 mb-2" />
-                        <span className="text-xs uppercase tracking-widest text-textSecondary font-sans">
+                        <span className="text-xs uppercase tracking-widest text-textMain font-sans">
                           No hay fotografías subidas en esta sección
                         </span>
                         <span className="text-[11px] text-neutral-400 font-sans font-light mt-1">
-                          Sube una foto a continuación para publicarla en el sitio web.
+                          Arrastra un archivo aquí o pulsa el botón de abajo para enmarcar y publicar.
                         </span>
                       </div>
                     )}
@@ -661,12 +770,15 @@ export const AdminPanel: React.FC = () => {
                             isUploadingThisSection ? 'pointer-events-none opacity-50' : ''
                           }`}
                         >
-                          <Upload size={22} className="text-accentMain mb-2" />
+                          <div className="flex items-center gap-2 mb-2 text-accentMain">
+                            <Upload size={20} />
+                            <Crop size={16} />
+                          </div>
                           <span className="text-xs uppercase tracking-widest text-textMain font-sans font-medium">
                             + Subir Fotografía (Espacio disponible: {section.maxPhotos - currentPhotos.length} de {section.maxPhotos})
                           </span>
                           <span className="text-[11px] text-textSecondary font-sans font-light mt-1">
-                            Haz clic aquí o arrastra tu archivo (JPG, PNG o WebP de alta resolución)
+                            Haz clic o arrastra tu foto aquí para abrir el <strong>Editor de Recorte</strong>
                           </span>
                         </label>
                         
@@ -675,7 +787,7 @@ export const AdminPanel: React.FC = () => {
                           type="file"
                           accept="image/jpeg,image/png,image/webp"
                           disabled={isUploadingThisSection}
-                          onChange={(e) => handleFileUpload(section, e.target.files)}
+                          onChange={(e) => handleInitiateUpload(section, e.target.files)}
                           className="hidden"
                         />
 
@@ -718,7 +830,7 @@ export const AdminPanel: React.FC = () => {
             </h3>
             
             <p className="text-xs text-textSecondary font-sans font-light leading-relaxed mb-6">
-              Esta fotografía se eliminará de la sección <strong className="text-textMain font-normal">"{photoToDelete.sectionTitle}"</strong> y desaparecerá de la web pública de forma permanente.
+              Esta fotografía se eliminará de la sección <strong className="text-textMain font-normal">"{photoToDelete.sectionTitle}"</strong> y se purgará de forma permanente de Cloudinary para liberar espacio de almacenamiento.
             </p>
 
             {/* Miniatura de la foto a borrar */}
@@ -752,7 +864,7 @@ export const AdminPanel: React.FC = () => {
                     <span>Eliminando...</span>
                   </>
                 ) : (
-                  <span>Sí, Eliminar</span>
+                  <span>Sí, Eliminar de la Nube</span>
                 )}
               </button>
             </div>

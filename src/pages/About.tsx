@@ -137,19 +137,19 @@ const About = () => {
             <div>
               <h4 className="title-main text-sm text-textMain mb-4">EL ORIGEN DE LA PASIÓN</h4>
               <p className="text-textSecondary font-sans font-light text-sm leading-relaxed mb-6">
-                (Texto de prueba para diseño) Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                Mi fascinación por la fotografía nació de una certeza temprana: el tiempo avanza sin tregua, pero una sola imagen tiene el poder sagrado de congelar una emoción para siempre. No comencé buscando la técnica perfecta, sino la verdad que habita en los gestos desapercibidos: la mano que busca apoyo antes del "sí, quiero", la risa desprevenida que descoloca la compostura o la calma cómplice de una mirada honesta.
               </p>
               <p className="text-textSecondary font-sans font-light text-sm leading-relaxed">
-                Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.
+                Con los años, esa curiosidad inicial se transformó en una vocación vital. Fotografiar para mí no es solo disparar una cámara; es aprender a observar con paciencia, respetar la intimidad de cada historia y construir un refugio visual donde los momentos más puros de tu vida queden a salvo del olvido.
               </p>
             </div>
             <div>
               <h4 className="title-main text-sm text-textMain mb-4">LA TÉCNICA Y EL ARTE</h4>
               <p className="text-textSecondary font-sans font-light text-sm leading-relaxed mb-6">
-                (Texto de prueba para diseño) Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.
+                Concibo la técnica no como una demostración de artificio, sino como el lenguaje silencioso que permite a la emoción expresarse sin distracciones. El dominio riguroso de la luz natural, la composición equilibrada y una paleta cromática sobria son las herramientas con las que convierto instantes efímeros en estampas con peso narrativo y cinematográfico.
               </p>
               <p className="text-textSecondary font-sans font-light text-sm leading-relaxed">
-                Consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.
+                Cada reportaje es un equilibrio entre intuición y oficio. Me alejo deliberadamente de las modas de edición pasajeras y los filtros saturados; mi compromiso es entregarte una obra con estética atemporal, donde la belleza, el contraste y la textura sigan conmoviéndote con la misma fuerza dentro de veinte años.
               </p>
             </div>
           </div>

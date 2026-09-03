@@ -105,17 +105,19 @@ async function uploadToCloudinary(
 }
 
 /**
- * Elimina una imagen en Cloudinary mediante su publicId.
+ * Elimina una imagen en Cloudinary mediante su publicId y purga la caché de CDN.
  */
 async function deleteFromCloudinary(publicId: string): Promise<void> {
   const timestamp = Math.round(Date.now() / 1000);
-  const strToSign = `public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_CONFIG.apiSecret}`;
+  // Parámetros ordenados alfabéticamente para la firma Cloudinary: invalidate, public_id, timestamp
+  const strToSign = `invalidate=true&public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_CONFIG.apiSecret}`;
   const signature = await generateSha1(strToSign);
 
   const formData = new FormData();
   formData.append('public_id', publicId);
   formData.append('api_key', CLOUDINARY_CONFIG.apiKey);
   formData.append('timestamp', timestamp.toString());
+  formData.append('invalidate', 'true');
   formData.append('signature', signature);
 
   try {
@@ -127,8 +129,9 @@ async function deleteFromCloudinary(publicId: string): Promise<void> {
       }
     );
     const data = await response.json();
+    console.log(`Cloudinary destroy status (${publicId}):`, data);
     if (data.result !== 'ok' && data.result !== 'not found') {
-      console.warn('Respuesta de Cloudinary destroy:', data);
+      console.warn('Respuesta inesperada de Cloudinary destroy:', data);
     }
   } catch (err) {
     console.warn('Error al eliminar archivo en Cloudinary:', err);
@@ -287,9 +290,9 @@ export const replacePhoto = async (
     updatedAt: serverTimestamp()
   });
 
-  // 3. Eliminar la foto anterior de Cloudinary
+  // 3. Eliminar la foto anterior de Cloudinary asegurando que libere espacio
   if (oldPhoto.storagePath) {
-    deleteFromCloudinary(oldPhoto.storagePath);
+    await deleteFromCloudinary(oldPhoto.storagePath);
   }
 
   return updatedPhoto;
@@ -313,7 +316,7 @@ export const deletePhoto = async (
     updatedAt: serverTimestamp()
   });
 
-  // 2. Eliminar archivo de Cloudinary
+  // 2. Eliminar archivo de Cloudinary liberando espacio inmediatamente
   if (storagePath) {
     await deleteFromCloudinary(storagePath);
   }
