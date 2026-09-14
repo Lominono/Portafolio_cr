@@ -2,14 +2,14 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { useLayoutEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/Home';
-import Pricing from './pages/Pricing';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Legal from './pages/Legal';
+import ScrollToTopButton from './components/ScrollToTopButton';
 import { ADMIN_ROUTE } from './config/admin';
-
-// Carga perezosa (lazy) del panel privado: NUNCA se descarga en el bundle público de los visitantes
+// Carga perezosa (lazy) de todas las páginas para optimizar rendimiento y tiempo de carga
+const Home = lazy(() => import('./pages/Home'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Legal = lazy(() => import('./pages/Legal'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 
 const ScrollToTop = () => {
@@ -44,6 +44,7 @@ const AppContent = () => {
           </Routes>
         </Suspense>
       </main>
+      {!isAdmin && <ScrollToTopButton />}
       {!isAdmin && <Footer />}
     </div>
   );

@@ -1,6 +1,6 @@
 export const CLOUDINARY_CONFIG = {
-  cloudName: 'yvo7dzmz',
-  apiKey: '479641136355382',
-  apiSecret: 'cru6sQMUJ3hzoLoDqh9nVJw0ijI',
+  cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'yvo7dzmz',
+  apiKey: import.meta.env.VITE_CLOUDINARY_API_KEY || '479641136355382',
+  uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'cristian_portfolio',
   folder: 'cristian_portafolio'
 };

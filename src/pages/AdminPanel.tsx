@@ -20,13 +20,15 @@ import {
 import { auth } from '../firebase';
 import { SITE_SECTIONS, SectionConfig, TOTAL_SITE_SLOTS } from '../config/sections';
 import { 
-  getSectionData, 
+  getAllSectionsData,
   uploadPhoto, 
   replacePhoto, 
   deletePhoto, 
   StoredPhoto 
 } from '../services/photos';
 import ImageCropModal from '../components/ImageCropModal';
+
+const AUTHORIZED_ADMIN_EMAIL = 'Christianespinolas2317@gmail.com';
 
 export const AdminPanel: React.FC = () => {
   // Estado de autenticación
@@ -96,27 +98,34 @@ export const AdminPanel: React.FC = () => {
     };
   }, []);
 
-  // 2. Listener de autenticación
+  // 2. Listener de autenticación con verificación estricta de correo admin
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setAuthLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
+        if (currentUser.email?.toLowerCase() !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+          console.warn('Usuario no autorizado intentó acceder al panel:', currentUser.email);
+          await signOut(auth);
+          setUser(null);
+          setAuthError('Acceso denegado: esta cuenta no tiene permisos de administrador.');
+          setAuthLoading(false);
+          return;
+        }
+        setUser(currentUser);
+        setAuthLoading(false);
         loadAllSectionsData();
+      } else {
+        setUser(null);
+        setAuthLoading(false);
       }
     });
     return () => unsubscribe();
   }, []);
 
-  // Cargar datos de todas las secciones
+  // Cargar datos de todas las secciones en una sola petición optimizada
   const loadAllSectionsData = async () => {
     setLoadingSections(true);
     try {
-      const data: Record<string, StoredPhoto[]> = {};
-      for (const section of SITE_SECTIONS) {
-        const photos = await getSectionData(section.id);
-        data[section.id] = photos;
-      }
+      const data = await getAllSectionsData();
       setPhotosData(data);
     } catch (err) {
       console.error('Error al cargar fotos:', err);

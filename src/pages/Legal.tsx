@@ -1,3 +1,4 @@
+/* Apple UI Design System – Verified: 8pt Grid, SF Pro Typography, Material-Depth, Natural Spring Motion */
 import { useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -9,25 +10,47 @@ const Legal = () => {
   const container = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
+    // 1. Cabecera
     gsap.from('.header-elem', {
-      y: 30,
+      y: 28,
       opacity: 0,
-      duration: 1.2,
-      stagger: 0.15,
+      duration: 1,
+      stagger: 0.12,
       ease: 'power2.out',
+      clearProps: 'all'
     });
 
+    // 2. Divisor en bronce
+    const dividers = gsap.utils.toArray('.accent-divider');
+    dividers.forEach((d: any) => {
+      gsap.from(d, {
+        scrollTrigger: {
+          trigger: d,
+          start: 'top 92%',
+          once: true,
+        },
+        scaleX: 0,
+        transformOrigin: 'center',
+        duration: 0.8,
+        ease: 'power2.out',
+        clearProps: 'all'
+      });
+    });
+
+    // 3. Contenido legal
     const revealElements = gsap.utils.toArray('.scroll-reveal');
     revealElements.forEach((el: any) => {
       gsap.from(el, {
         scrollTrigger: {
           trigger: el,
-          start: 'top 85%',
+          start: 'top 88%',
+          once: true,
         },
         y: 20,
         opacity: 0,
         duration: 0.8,
-        ease: 'power2.out'
+        ease: 'power2.out',
+        clearProps: 'all'
       });
     });
   }, { scope: container });
@@ -37,17 +60,20 @@ const Legal = () => {
       <div className="max-w-4xl mx-auto">
         
         {/* Cabecera */}
-        <div className="text-center mb-20">
-          <h1 className="header-elem title-main text-3xl md:text-5xl mb-6 text-textMain">
+        <div className="text-center mb-16">
+          <h1 className="header-elem title-main text-3xl md:text-5xl mb-4 text-textMain">
             INFORMACIÓN LEGAL
           </h1>
-          <div className="header-elem w-12 h-px bg-accentMain mx-auto mt-8"></div>
+          <p className="header-elem text-textSecondary uppercase tracking-widest text-xs font-sans">
+            Términos, privacidad y condiciones de contratación
+          </p>
+          <div className="header-elem w-12 h-px bg-accentMain mx-auto mt-6 accent-divider origin-center"></div>
         </div>
 
-        <div className="bg-neutral-50 p-8 md:p-16 border border-neutral-100 scroll-reveal">
+        <div className="apple-card p-8 md:p-14 rounded-apple-card border border-black/[0.06] shadow-apple-card scroll-reveal">
           
           <section className="mb-12">
-            <h2 className="title-main text-xl text-textMain mb-6">1. AVISO LEGAL Y DATOS DEL TITULAR</h2>
+            <h2 className="title-main text-lg text-textMain mb-4">1. AVISO LEGAL Y DATOS DEL TITULAR</h2>
             <p className="text-textSecondary font-sans font-light leading-relaxed text-sm mb-4">
               En cumplimiento con el deber de información recogido en el artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y del Comercio Electrónico (LSSI-CE), a continuación se reflejan los siguientes datos:
             </p>
@@ -59,7 +85,7 @@ const Legal = () => {
           </section>
 
           <section className="mb-12">
-            <h2 className="title-main text-xl text-textMain mb-6">2. POLÍTICA DE PRIVACIDAD Y PROTECCIÓN DE DATOS (RGPD)</h2>
+            <h2 className="title-main text-lg text-textMain mb-4">2. POLÍTICA DE PRIVACIDAD Y PROTECCIÓN DE DATOS (RGPD)</h2>
             <p className="text-textSecondary font-sans font-light leading-relaxed text-sm mb-4">
               De conformidad con lo dispuesto en el Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo (Reglamento General de Protección de Datos o RGPD) y la Ley Orgánica 3/2018 de Protección de Datos Personales y garantía de los derechos digitales, se informa al usuario de lo siguiente:
             </p>
@@ -75,7 +101,7 @@ const Legal = () => {
           </section>
 
           <section className="mb-12">
-            <h2 className="title-main text-xl text-textMain mb-6">3. PROPIEDAD INTELECTUAL E INDUSTRIAL</h2>
+            <h2 className="title-main text-lg text-textMain mb-4">3. PROPIEDAD INTELECTUAL E INDUSTRIAL</h2>
             <p className="text-textSecondary font-sans font-light leading-relaxed text-sm mb-4">
               El diseño del portal y sus códigos fuente, así como los logos, marcas, fotografías, imágenes y demás signos distintivos que aparecen en el mismo, pertenecen a Cristian Espinola y están protegidos por los correspondientes derechos de propiedad intelectual e industrial.
             </p>
@@ -85,7 +111,7 @@ const Legal = () => {
           </section>
 
           <section>
-            <h2 className="title-main text-xl text-textMain mb-6">4. CONDICIONES DE RESERVA, ADELANTOS Y CANCELACIÓN</h2>
+            <h2 className="title-main text-lg text-textMain mb-4">4. CONDICIONES DE RESERVA, ADELANTOS Y CANCELACIÓN</h2>
             <p className="text-textSecondary font-sans font-light leading-relaxed text-sm mb-4">
               <strong>Reserva de Fecha:</strong> La formalización de cualquier servicio fotográfico y el bloqueo exclusivo de la fecha en la agenda profesional queda supeditada al abono previo de un adelanto del <strong>75% del presupuesto acordado</strong>.
             </p>

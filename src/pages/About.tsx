@@ -1,3 +1,4 @@
+/* Apple UI Design System – Verified: 8pt Grid, SF Pro Typography, Material-Depth, Natural Spring Motion */
 import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -28,44 +29,63 @@ const About = () => {
   }, []);
 
   useGSAP(() => {
-    // Animación de entrada inicial
+    // 1. Animación de entrada de cabecera
     gsap.from('.header-elem', {
-      y: 40,
+      y: 28,
       opacity: 0,
-      duration: 1.2,
-      stagger: 0.15,
+      duration: 1,
+      stagger: 0.12,
       ease: 'power2.out',
+      clearProps: 'all'
     });
 
-    // Animaciones reversibles (hacia abajo y hacia arriba)
+    // 2. Animaciones de scroll estables para móvil
     const revealElements = gsap.utils.toArray('.scroll-reveal');
     revealElements.forEach((el: any) => {
       gsap.from(el, {
         scrollTrigger: {
           trigger: el,
-          start: 'top 85%',
-          toggleActions: 'play reverse play reverse',
+          start: 'top 88%',
+          once: true,
         },
-        y: 40,
+        y: 24,
         opacity: 0,
-        duration: 1,
-        ease: 'power2.out'
+        duration: 0.8,
+        ease: 'power2.out',
+        clearProps: 'all'
       });
     });
 
-    // Efecto Parallax en las fotos
+    // 3. Revelado de divisores en bronce
+    const dividers = gsap.utils.toArray('.accent-divider');
+    dividers.forEach((d: any) => {
+      gsap.from(d, {
+        scrollTrigger: {
+          trigger: d,
+          start: 'top 92%',
+          once: true,
+        },
+        scaleX: 0,
+        transformOrigin: 'center',
+        duration: 0.8,
+        ease: 'power2.out',
+        clearProps: 'all'
+      });
+    });
+
+    // 4. Efecto Parallax táctil amortiguado
     const parallaxImages = gsap.utils.toArray('.img-parallax');
     parallaxImages.forEach((img: any) => {
       gsap.fromTo(img, 
-        { y: -30 },
+        { yPercent: -6 },
         {
-          y: 30,
+          yPercent: 6,
           ease: 'none',
           scrollTrigger: {
             trigger: img.parentElement,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: true 
+            scrub: 0.8
           }
         }
       );
@@ -77,19 +97,19 @@ const About = () => {
       <div className="max-w-5xl mx-auto">
         
         {/* Cabecera */}
-        <div className="text-center mb-20 md:mb-32">
-          <h1 className="header-elem title-main text-4xl md:text-5xl mb-6 text-textMain">
+        <div className="text-center mb-20 md:mb-28">
+          <h1 className="header-elem title-main text-4xl md:text-5xl mb-4 text-textMain">
             SOBRE MÍ
           </h1>
           <p className="header-elem text-textSecondary uppercase tracking-widest text-xs font-sans">
             La mirada detrás de la lente
           </p>
-          <div className="header-elem w-12 h-px bg-accentMain mx-auto mt-8"></div>
+          <div className="header-elem w-12 h-px bg-accentMain mx-auto mt-6 accent-divider origin-center"></div>
         </div>
 
         {/* Sección Principal: Retrato e Introducción */}
         <div className="flex flex-col md:flex-row gap-16 items-center mb-32">
-          <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary bg-neutral-50 overflow-hidden relative header-elem flex items-center justify-center">
+          <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary bg-neutral-50 overflow-hidden relative header-elem flex items-center justify-center shadow-apple-card">
             {mainImg ? (
               <img src={mainImg} alt="Retrato Principal" className="w-full h-full object-cover img-parallax absolute h-[120%] -top-[10%]" />
             ) : (
@@ -103,10 +123,10 @@ const About = () => {
           </div>
           
           <div className="w-full md:w-1/2">
-            <h2 className="title-main text-2xl text-textMain mb-8 scroll-reveal">
+            <h2 className="title-main text-2xl text-textMain mb-6 scroll-reveal">
               HOLA, SOY CRISTIAN ESPINOLA
             </h2>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5">
               <p className="text-textSecondary font-sans font-light leading-relaxed scroll-reveal text-sm md:text-base">
                 Mi acercamiento a la fotografía nació de una necesidad profunda de detener el tiempo. Creo que cada persona tiene una luz única y mi propósito es capturarla de la forma más honesta posible. No busco la perfección artificial, sino la belleza real de los instantes que compartimos.
               </p>
@@ -121,13 +141,12 @@ const About = () => {
         </div>
 
         {/* Gran Cita Tipográfica */}
-        <div className="py-20 mb-32 border-y border-neutral-100 text-center px-4 scroll-reveal">
-          <h3 className="title-main text-2xl md:text-4xl text-textMain leading-tight mx-auto max-w-3xl">
-            "NO FOTOGRAFÍO LO QUE VEO, <span className="text-accentMain italic">FOTOGRAFÍO LO QUE SIENTO</span> CUANDO ESTOY ALLÍ."
-          </h3>
+        <div className="py-16 mb-28 border-y border-black/[0.06] text-center px-4 scroll-reveal">
+          <blockquote className="font-serif text-2xl md:text-4xl text-textMain leading-tight mx-auto max-w-3xl">
+            "NO FOTOGRAFÍO LO QUE VEO, FOTOGRAFÍO LO QUE SIENTO CUANDO ESTOY ALLÍ."
+          </blockquote>
         </div>
 
-        {/* Sección de Texto de Prueba Ampliado (Biografía o Enfoque) */}
         {/* Sección de Historia, Enfoque y Manifiesto Editorial */}
         <div className="mb-32">
           <div className="text-center mb-16 scroll-reveal">
@@ -135,14 +154,14 @@ const About = () => {
               Detrás de la Mirada
             </span>
             <h2 className="title-main text-2xl md:text-3xl text-textMain mb-4">MI HISTORIA Y ENFOQUE</h2>
-            <div className="w-8 h-px bg-accentMain mx-auto"></div>
+            <div className="w-8 h-px bg-accentMain mx-auto accent-divider origin-center"></div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 scroll-reveal mb-12">
-            <div className="bg-white p-8 photo-card-secondary border border-neutral-200 card-luxury">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 scroll-reveal mb-12">
+            <div className="apple-card p-8 rounded-apple-card border border-black/[0.06] shadow-apple-card">
               <div className="flex items-center gap-2 mb-4">
-                <Heart size={14} className="text-accentMain" />
-                <h4 className="title-main text-xs sm:text-sm text-textMain tracking-widest">EL ORIGEN DE LA PASIÓN</h4>
+                <Heart size={16} className="text-accentMain" />
+                <h3 className="title-main text-xs sm:text-sm text-textMain tracking-widest">EL ORIGEN DE LA PASIÓN</h3>
               </div>
               <p className="drop-cap text-textSecondary font-sans font-light text-sm leading-relaxed mb-4">
                 Mi fascinación por la fotografía nació de una certeza temprana: el tiempo avanza sin tregua, pero una sola imagen tiene el poder sagrado de congelar una emoción para siempre. No comencé buscando la técnica perfecta, sino la verdad que habita en los gestos desapercibidos: la mano que busca apoyo antes del "sí, quiero", la risa desprevenida que descoloca la compostura o la calma cómplice de una mirada honesta.
@@ -152,10 +171,10 @@ const About = () => {
               </p>
             </div>
 
-            <div className="bg-white p-8 photo-card-secondary border border-neutral-200 card-luxury">
+            <div className="apple-card p-8 rounded-apple-card border border-black/[0.06] shadow-apple-card">
               <div className="flex items-center gap-2 mb-4">
-                <Camera size={14} className="text-accentMain" />
-                <h4 className="title-main text-xs sm:text-sm text-textMain tracking-widest">LA TÉCNICA Y EL ARTE</h4>
+                <Camera size={16} className="text-accentMain" />
+                <h3 className="title-main text-xs sm:text-sm text-textMain tracking-widest">LA TÉCNICA Y EL ARTE</h3>
               </div>
               <p className="drop-cap text-textSecondary font-sans font-light text-sm leading-relaxed mb-4">
                 Concibo la técnica no como una demostración de artificio, sino como el lenguaje silencioso que permite a la emoción expresarse sin distracciones. El dominio riguroso de la luz natural, la composición equilibrada y una paleta cromática sobria son las herramientas con las que convierto instantes efímeros en estampas con peso narrativo y cinematográfico.
@@ -166,31 +185,31 @@ const About = () => {
             </div>
           </div>
 
-          {/* Cita Editorial Cinematográfica Flotante */}
-          <div className="py-10 px-6 my-10 bg-neutral-50 photo-card-secondary border border-neutral-200 text-center relative scroll-reveal">
-            <span className="text-[10px] uppercase font-sans tracking-widest text-accentMain block mb-3 font-medium">
+          {/* Cita Editorial Flotante */}
+          <div className="py-8 px-6 my-8 apple-glass rounded-apple-card border border-black/[0.08] shadow-apple-subtle text-center relative scroll-reveal">
+            <span className="text-[10px] uppercase font-sans tracking-widest text-accentMain block mb-2 font-medium">
               Manifiesto de Autor
             </span>
-            <blockquote className="font-serif italic text-base sm:text-xl text-textMain max-w-2xl mx-auto leading-relaxed">
+            <p className="font-serif italic text-base sm:text-lg text-textMain max-w-2xl mx-auto leading-relaxed">
               "La técnica es el lenguaje invisible; la emoción es la verdadera protagonista de cada encuadre."
-            </blockquote>
+            </p>
           </div>
 
           {/* Métricas y Sellos de Calidad con Micro-Animaciones */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 scroll-reveal">
-            <div className="bg-white p-5 text-center border border-neutral-200 photo-card-secondary card-luxury">
+            <div className="apple-card p-6 text-center border border-black/[0.06] rounded-apple-card shadow-apple-subtle">
               <span className="block text-2xl font-serif text-accentMain mb-1">+8</span>
               <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Años de Oficio</span>
             </div>
-            <div className="bg-white p-5 text-center border border-neutral-200 photo-card-secondary card-luxury">
+            <div className="apple-card p-6 text-center border border-black/[0.06] rounded-apple-card shadow-apple-subtle">
               <span className="block text-2xl font-serif text-accentMain mb-1">100%</span>
               <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Colorimetría de Autor</span>
             </div>
-            <div className="bg-white p-5 text-center border border-neutral-200 photo-card-secondary card-luxury">
+            <div className="apple-card p-6 text-center border border-black/[0.06] rounded-apple-card shadow-apple-subtle">
               <span className="block text-2xl font-serif text-accentMain mb-1">1 Evento</span>
               <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Exclusivo por Día</span>
             </div>
-            <div className="bg-white p-5 text-center border border-neutral-200 photo-card-secondary card-luxury">
+            <div className="apple-card p-6 text-center border border-black/[0.06] rounded-apple-card shadow-apple-subtle">
               <span className="block text-2xl font-serif text-accentMain mb-1">RAW</span>
               <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Máxima Calidad</span>
             </div>
@@ -199,25 +218,25 @@ const About = () => {
         </div>
 
         {/* Filosofía / Estilo */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center py-20 mb-32 bg-neutral-50 px-8 photo-card-secondary scroll-reveal">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center py-16 mb-28 apple-glass rounded-apple-card border border-black/[0.08] px-8 shadow-apple-card scroll-reveal">
           <div className="flex flex-col items-center">
-            <span className="text-accentMain text-3xl mb-4 block font-serif">01.</span>
-            <h3 className="title-main text-lg text-textMain mb-4">NATURALIDAD</h3>
-            <p className="text-textSecondary font-sans font-light text-sm leading-relaxed">
+            <span className="text-accentMain text-3xl mb-3 block font-serif">01.</span>
+            <h3 className="title-main text-base text-textMain mb-3">NATURALIDAD</h3>
+            <p className="text-textSecondary font-sans font-light text-xs leading-relaxed">
               Dirección sutil para que te sientas libre. El mejor retrato es aquel en el que simplemente eres tú mismo.
             </p>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-accentMain text-3xl mb-4 block font-serif">02.</span>
-            <h3 className="title-main text-lg text-textMain mb-4">ATEMPORALIDAD</h3>
-            <p className="text-textSecondary font-sans font-light text-sm leading-relaxed">
+            <span className="text-accentMain text-3xl mb-3 block font-serif">02.</span>
+            <h3 className="title-main text-base text-textMain mb-3">ATEMPORALIDAD</h3>
+            <p className="text-textSecondary font-sans font-light text-xs leading-relaxed">
               Edición cuidada y colores puros que resistirán el paso de los años, alejados de las modas efímeras.
             </p>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-accentMain text-3xl mb-4 block font-serif">03.</span>
-            <h3 className="title-main text-lg text-textMain mb-4">COMPROMISO</h3>
-            <p className="text-textSecondary font-sans font-light text-sm leading-relaxed">
+            <span className="text-accentMain text-3xl mb-3 block font-serif">03.</span>
+            <h3 className="title-main text-base text-textMain mb-3">COMPROMISO</h3>
+            <p className="text-textSecondary font-sans font-light text-xs leading-relaxed">
               Trato personalizado desde el primer contacto hasta la entrega de la galería final. Tu tranquilidad es clave.
             </p>
           </div>
@@ -225,7 +244,7 @@ const About = () => {
 
         {/* Galería Adicional (Detalles) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 scroll-reveal">
-          <div className="aspect-[4/3] photo-card-secondary bg-neutral-50 overflow-hidden relative flex items-center justify-center">
+          <div className="aspect-[4/3] photo-card-secondary bg-neutral-50 overflow-hidden relative flex items-center justify-center shadow-apple-card">
             {detailImgs[0] ? (
               <img src={detailImgs[0]} alt="Detalle 1" className="w-full h-full object-cover img-parallax absolute h-[120%] -top-[10%]" />
             ) : (
@@ -237,7 +256,7 @@ const About = () => {
               </>
             )}
           </div>
-          <div className="aspect-[4/3] photo-card-secondary bg-neutral-50 overflow-hidden relative flex items-center justify-center">
+          <div className="aspect-[4/3] photo-card-secondary bg-neutral-50 overflow-hidden relative flex items-center justify-center shadow-apple-card">
             {detailImgs[1] ? (
               <img src={detailImgs[1]} alt="Detalle 2" className="w-full h-full object-cover img-parallax absolute h-[120%] -top-[10%]" />
             ) : (

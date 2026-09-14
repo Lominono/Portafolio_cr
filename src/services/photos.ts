@@ -28,34 +28,22 @@ export interface SectionDocument {
 const COLLECTION_NAME = 'site_photos';
 
 /**
- * Función criptográfica nativa del navegador para generar firmas SHA-1 de Cloudinary.
- */
-async function generateSha1(message: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(message);
-  const hashBuffer = await window.crypto.subtle.digest('SHA-1', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-/**
- * Sube un archivo a Cloudinary con firma segura y progreso en tiempo real.
+ * Sube un archivo a Cloudinary mediante Unsigned Upload Preset (sin exponer apiSecret en el navegador).
  */
 async function uploadToCloudinary(
   file: File,
   folder: string,
   onProgress?: (progress: number) => void
 ): Promise<{ url: string; publicId: string }> {
-  const timestamp = Math.round(Date.now() / 1000);
-  const strToSign = `folder=${folder}&timestamp=${timestamp}${CLOUDINARY_CONFIG.apiSecret}`;
-  const signature = await generateSha1(strToSign);
-
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('api_key', CLOUDINARY_CONFIG.apiKey);
-  formData.append('timestamp', timestamp.toString());
-  formData.append('folder', folder);
-  formData.append('signature', signature);
+  formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
+  if (CLOUDINARY_CONFIG.apiKey) {
+    formData.append('api_key', CLOUDINARY_CONFIG.apiKey);
+  }
+  if (folder) {
+    formData.append('folder', folder);
+  }
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -105,36 +93,27 @@ async function uploadToCloudinary(
 }
 
 /**
- * Elimina una imagen en Cloudinary mediante su publicId y purga la caché de CDN.
+ * Elimina una imagen en Cloudinary mediante la función Serverless segura para no exponer apiSecret en el cliente.
  */
 async function deleteFromCloudinary(publicId: string): Promise<void> {
-  const timestamp = Math.round(Date.now() / 1000);
-  // Parámetros ordenados alfabéticamente para la firma Cloudinary: invalidate, public_id, timestamp
-  const strToSign = `invalidate=true&public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_CONFIG.apiSecret}`;
-  const signature = await generateSha1(strToSign);
-
-  const formData = new FormData();
-  formData.append('public_id', publicId);
-  formData.append('api_key', CLOUDINARY_CONFIG.apiKey);
-  formData.append('timestamp', timestamp.toString());
-  formData.append('invalidate', 'true');
-  formData.append('signature', signature);
-
   try {
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/destroy`,
-      {
-        method: 'POST',
-        body: formData
-      }
-    );
-    const data = await response.json();
-    console.log(`Cloudinary destroy status (${publicId}):`, data);
-    if (data.result !== 'ok' && data.result !== 'not found') {
-      console.warn('Respuesta inesperada de Cloudinary destroy:', data);
+    const response = await fetch('/api/delete-photo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ publicId })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(`Cloudinary destroy status (${publicId}):`, data);
+    } else {
+      const err = await response.json().catch(() => ({}));
+      console.warn('Aviso al purgar en Cloudinary:', err);
     }
   } catch (err) {
-    console.warn('Error al eliminar archivo en Cloudinary:', err);
+    console.warn('Aviso: error de red al invocar eliminación en Cloudinary:', err);
   }
 }
 
@@ -156,6 +135,28 @@ export const getAllPhotosMap = async (): Promise<Record<string, string[]>> => {
     return map;
   } catch (error) {
     console.error('Error al obtener fotos desde Firestore:', error);
+    return {};
+  }
+};
+
+/**
+ * Obtiene el catálogo completo de secciones con metadatos de fotos en una sola consulta (evita peticiones N+1).
+ */
+export const getAllSectionsData = async (): Promise<Record<string, StoredPhoto[]>> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+    const map: Record<string, StoredPhoto[]> = {};
+
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data() as SectionDocument;
+      if (data && Array.isArray(data.images)) {
+        map[docSnap.id] = data.images;
+      }
+    });
+
+    return map;
+  } catch (error) {
+    console.error('Error al obtener catálogo completo desde Firestore:', error);
     return {};
   }
 };

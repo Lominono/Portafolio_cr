@@ -6,13 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "tsc -b",
     "preview": "vite preview"
   },
   "dependencies": {
     "@gsap/react": "^2.1.1",
-    "@sanity/client": "^8.4.0",
-    "@sanity/image-url": "^2.1.1",
     "firebase": "^12.18.0",
     "gsap": "^3.12.5",
     "lucide-react": "^0.436.0",

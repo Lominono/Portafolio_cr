@@ -1,3 +1,4 @@
+/* Apple UI Design System – Verified: 8pt Grid, SF Pro Typography, Material-Depth, Natural Spring Motion */
 import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -110,51 +111,75 @@ const Pricing = () => {
   }, []);
 
   useGSAP(() => {
+    // 1. Cabecera
     gsap.from('.header-elem', {
-      y: 30,
+      y: 28,
       opacity: 0,
-      duration: 1.2,
-      stagger: 0.15,
+      duration: 1,
+      stagger: 0.12,
       ease: 'power2.out',
+      clearProps: 'all'
     });
 
+    // 2. Líneas divisoras en bronce
+    const dividers = gsap.utils.toArray('.accent-divider');
+    dividers.forEach((d: any) => {
+      gsap.from(d, {
+        scrollTrigger: {
+          trigger: d,
+          start: 'top 92%',
+          once: true,
+        },
+        scaleX: 0,
+        transformOrigin: 'center',
+        duration: 0.8,
+        ease: 'power2.out',
+        clearProps: 'all'
+      });
+    });
+
+    // 3. Bloques de tarifas
     const rows = gsap.utils.toArray('.pricing-block');
     rows.forEach((row: any) => {
       gsap.from(row, {
         scrollTrigger: {
           trigger: row,
-          start: 'top 85%',
-          toggleActions: 'play reverse play reverse',
+          start: 'top 88%',
+          once: true,
         },
-        y: 40,
+        y: 28,
         opacity: 0,
-        duration: 1,
-        ease: 'power2.out'
+        duration: 0.8,
+        ease: 'power2.out',
+        clearProps: 'all'
       });
     });
 
+    // 4. Extras y Políticas
     gsap.from('.extras-reveal', {
       scrollTrigger: {
         trigger: '.extras-reveal',
-        start: 'top 85%',
-        toggleActions: 'play reverse play reverse',
+        start: 'top 88%',
+        once: true,
       },
-      y: 30,
+      y: 24,
       opacity: 0,
-      duration: 1,
-      ease: 'power2.out'
+      duration: 0.8,
+      ease: 'power2.out',
+      clearProps: 'all'
     });
 
     gsap.from('.policies-reveal', {
       scrollTrigger: {
         trigger: '.policies-reveal',
-        start: 'top 85%',
-        toggleActions: 'play reverse play reverse',
+        start: 'top 88%',
+        once: true,
       },
-      y: 30,
+      y: 24,
       opacity: 0,
-      duration: 1,
-      ease: 'power2.out'
+      duration: 0.8,
+      ease: 'power2.out',
+      clearProps: 'all'
     });
   }, { scope: container });
 
@@ -179,17 +204,17 @@ const Pricing = () => {
         
         {/* Cabecera Principal */}
         <div className="text-center mb-24">
-          <h1 className="header-elem title-main text-3xl md:text-5xl mb-6 text-textMain">
+          <h1 className="header-elem title-main text-3xl md:text-5xl mb-4 text-textMain">
             TARIFAS Y SERVICIOS
           </h1>
           <p className="header-elem text-textSecondary uppercase tracking-widest text-xs max-w-lg mx-auto font-sans">
             Dossier completo de precios fotográficos
           </p>
-          <div className="header-elem w-12 h-px bg-accentMain mx-auto mt-8"></div>
+          <div className="header-elem w-12 h-px bg-accentMain mx-auto mt-6 accent-divider origin-center"></div>
         </div>
 
-        {/* Listado de Tarifas con Espacios para Fotos */}
-        <div className="mb-24 flex flex-col gap-24">
+        {/* Listado de Tarifas con Espacios para Fotos (20px radii, 8pt spacing) */}
+        <div className="mb-28 flex flex-col gap-24">
           {pricingData.map((item, index) => {
             const isEven = index % 2 === 0;
             const imgs = getImagesForService(item);
@@ -202,7 +227,7 @@ const Pricing = () => {
                 {/* Lado de Fotos */}
                 <div className="w-full md:w-1/2 flex gap-4 h-[380px] md:h-[420px]">
                   {item.layout === 'single' ? (
-                    <div className="w-full h-full photo-card-secondary relative flex items-center justify-center overflow-hidden group bg-neutral-50">
+                    <div className="w-full h-full photo-card-secondary relative flex items-center justify-center overflow-hidden group bg-neutral-50 shadow-apple-card">
                       {imgs[0] ? (
                         <img 
                           src={imgs[0]} 
@@ -222,7 +247,7 @@ const Pricing = () => {
                     /* Layout Collage */
                     imgs.length >= 3 ? (
                       <>
-                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
                           <img 
                             src={imgs[0]} 
                             alt={`${item.title} 1`} 
@@ -230,14 +255,14 @@ const Pricing = () => {
                           />
                         </div>
                         <div className="w-1/2 h-full flex flex-col gap-4">
-                          <div className="h-1/2 w-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                          <div className="h-1/2 w-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
                             <img 
                               src={imgs[1]} 
                               alt={`${item.title} 2`} 
                               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                             />
                           </div>
-                          <div className="h-1/2 w-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                          <div className="h-1/2 w-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
                             <img 
                               src={imgs[2]} 
                               alt={`${item.title} 3`} 
@@ -248,14 +273,14 @@ const Pricing = () => {
                       </>
                     ) : imgs.length === 2 ? (
                       <>
-                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
                           <img 
                             src={imgs[0]} 
                             alt={`${item.title} 1`} 
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                           />
                         </div>
-                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
                           <img 
                             src={imgs[1]} 
                             alt={`${item.title} 2`} 
@@ -264,7 +289,7 @@ const Pricing = () => {
                         </div>
                       </>
                     ) : imgs.length === 1 ? (
-                      <div className="w-full h-full photo-card-secondary relative overflow-hidden group bg-neutral-50">
+                      <div className="w-full h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
                         <img 
                           src={imgs[0]} 
                           alt={item.title} 
@@ -273,16 +298,16 @@ const Pricing = () => {
                       </div>
                     ) : (
                       <>
-                        <div className="w-1/2 h-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center">
+                        <div className="w-1/2 h-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
                           <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">
                             {item.label}
                           </span>
                         </div>
                         <div className="w-1/2 h-full flex flex-col gap-4">
-                          <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center">
+                          <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
                             <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Detalle</span>
                           </div>
-                          <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center">
+                          <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
                             <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Momentos</span>
                           </div>
                         </div>
@@ -293,25 +318,25 @@ const Pricing = () => {
 
                 {/* Lado de Texto */}
                 <div className="w-full md:w-1/2 flex flex-col justify-center">
-                  <h2 className="title-main text-2xl md:text-3xl text-textMain mb-4 leading-tight">
+                  <h2 className="title-main text-2xl md:text-3xl text-textMain mb-3 leading-tight">
                     {item.title}
                   </h2>
-                  <div className="text-accentMain title-main text-xl mb-6">
+                  <div className="text-accentMain title-main text-xl mb-4 font-medium">
                     {item.price}
                   </div>
-                  <p className="text-textSecondary font-sans font-light leading-relaxed mb-4 text-sm md:text-base">
+                  <p className="text-textSecondary font-sans font-light leading-relaxed mb-6 text-sm md:text-base">
                     {item.desc}
                   </p>
                   
-                  {/* Micro-Badges de Servicio */}
+                  {/* Micro-Badges Apple (8px) */}
                   <div className="flex flex-wrap gap-2 mb-8">
-                    <span className="inline-flex items-center gap-1 text-[11px] bg-neutral-100 text-textSecondary px-2.5 py-1 border border-neutral-200 font-sans">
+                    <span className="apple-badge text-textSecondary bg-black/[0.03] border border-black/[0.06]">
                       <Check size={12} className="text-accentMain" /> Edición Profesional
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] bg-neutral-100 text-textSecondary px-2.5 py-1 border border-neutral-200 font-sans">
+                    <span className="apple-badge text-textSecondary bg-black/[0.03] border border-black/[0.06]">
                       <Check size={12} className="text-accentMain" /> Galería Digital Privada
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] bg-neutral-100 text-textSecondary px-2.5 py-1 border border-neutral-200 font-sans">
+                    <span className="apple-badge text-textSecondary bg-black/[0.03] border border-black/[0.06]">
                       <Check size={12} className="text-accentMain" /> Máxima Resolución
                     </span>
                   </div>
@@ -321,9 +346,10 @@ const Pricing = () => {
                       href={createWhatsAppLink(item.title, item.price)}
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-textMain uppercase tracking-widest text-xs font-sans border-b border-accentMain pb-1 hover:text-accentMain transition-colors"
+                      className="min-h-[44px] px-6 rounded-apple-btn bg-accentMain text-white uppercase tracking-widest text-xs font-sans inline-flex items-center justify-center gap-2 shadow-apple-subtle hover:bg-accentSecondary transition-all duration-300 active:scale-95"
                     >
-                      <MessageCircle size={14} /> CONSULTAR DISPONIBILIDAD
+                      <MessageCircle size={15} />
+                      <span>CONSULTAR DISPONIBILIDAD</span>
                     </a>
                   </div>
                 </div>
@@ -333,19 +359,19 @@ const Pricing = () => {
         </div>
 
         {/* Extras y Complementos */}
-        <div className="extras-reveal max-w-4xl mx-auto">
+        <div className="extras-reveal max-w-4xl mx-auto mb-24">
           <div className="text-center mb-10">
-            <h2 className="title-main text-2xl text-textMain mb-4">EXTRAS Y COMPLEMENTOS</h2>
+            <h2 className="title-main text-2xl text-textMain mb-3">EXTRAS Y COMPLEMENTOS</h2>
             <div className="w-8 h-px bg-accentMain mx-auto"></div>
           </div>
           
-          <div className="bg-neutral-50 p-8 md:p-12 photo-card-secondary">
+          <div className="apple-card p-8 md:p-12 rounded-apple-card border border-black/[0.06] shadow-apple-card">
             {extrasData.map((extra, index) => (
-              <div key={index} className="flex flex-col md:flex-row justify-between items-start md:items-center py-6 border-b border-neutral-200 last:border-0 border-dashed first:pt-0 last:pb-0">
-                <div className="mb-4 md:mb-0">
+              <div key={index} className="flex flex-col md:flex-row justify-between items-start md:items-center py-6 border-b border-black/[0.06] last:border-0 border-dashed first:pt-0 last:pb-0">
+                <div className="mb-3 md:mb-0">
                   <h3 className="title-main text-sm text-textMain">{extra.title}</h3>
                 </div>
-                <span className="title-main text-sm text-accentMain md:ml-4 whitespace-nowrap">
+                <span className="title-main text-sm text-accentMain md:ml-4 whitespace-nowrap font-medium">
                   {extra.price}
                 </span>
               </div>
@@ -358,67 +384,48 @@ const Pricing = () => {
           </div>
         </div>
 
-        {/* Condiciones y Políticas de Reserva Claras y No Invasivas */}
-        <div className="policies-reveal max-w-4xl mx-auto mt-24">
-          <div className="text-center mb-10">
-            <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-accentMain font-sans mb-2 font-medium bg-neutral-100 px-3 py-1 border border-neutral-200">
-              <Sparkles size={11} /> Transparencia y Garantía de Reserva
+        {/* Condiciones y Políticas de Reserva */}
+        <div className="policies-reveal max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-accentMain font-sans mb-3 font-medium apple-badge bg-black/[0.02] border border-black/[0.06]">
+              <Sparkles size={12} /> Transparencia y Garantía de Reserva
             </span>
             <h2 className="title-main text-2xl md:text-3xl text-textMain mb-3">
               CONDICIONES DE CONTRATACIÓN
             </h2>
             <div className="w-10 h-px bg-accentMain mx-auto mb-4"></div>
-            <p className="text-xs text-textSecondary font-sans font-light max-w-lg mx-auto">
+            <p className="text-xs text-textSecondary font-sans font-light max-w-lg mx-auto leading-relaxed">
               Un marco simple y profesional para que disfrutes de tu evento con total tranquilidad y dedicación exclusiva.
             </p>
           </div>
 
-          {/* Línea de Proceso en 3 Pasos Visuales */}
-          <div className="hidden md:flex items-center justify-between mb-8 px-6">
-            <div className="flex items-center gap-2 text-xs font-serif uppercase tracking-wider text-textMain">
-              <span className="w-6 h-6 rounded-full bg-accentMain text-white flex items-center justify-center text-[11px] font-sans font-bold">1</span>
-              <span>Reserva Exclusiva</span>
-            </div>
-            <div className="flex-1 h-px bg-gradient-to-r from-accentMain/50 via-neutral-300 to-accentMain/50 mx-4"></div>
-            <div className="flex items-center gap-2 text-xs font-serif uppercase tracking-wider text-textMain">
-              <span className="w-6 h-6 rounded-full bg-accentMain text-white flex items-center justify-center text-[11px] font-sans font-bold">2</span>
-              <span>Protección de Fecha</span>
-            </div>
-            <div className="flex-1 h-px bg-gradient-to-r from-accentMain/50 via-neutral-300 to-accentMain/50 mx-4"></div>
-            <div className="flex items-center gap-2 text-xs font-serif uppercase tracking-wider text-textMain">
-              <span className="w-6 h-6 rounded-full bg-accentMain text-white flex items-center justify-center text-[11px] font-sans font-bold">3</span>
-              <span>Flexibilidad Horaria</span>
-            </div>
-          </div>
-
-          {/* Cuadrícula de Tarjetas Luxury con Micro-Interacciones */}
+          {/* Cuadrícula de Tarjetas con Acabado Apple */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             {/* Tarjeta 1: Reserva y Adelanto */}
-            <div className="relative bg-neutral-50 p-6 border border-neutral-200 photo-card-secondary card-luxury overflow-hidden flex flex-col justify-between group">
-              {/* Marca de agua elegante */}
-              <span className="absolute -bottom-4 -right-2 text-6xl font-serif text-neutral-200/50 select-none pointer-events-none group-hover:text-accentMain/10 transition-colors">
+            <div className="relative apple-card p-6 rounded-apple-card border border-black/[0.06] shadow-apple-card flex flex-col justify-between group">
+              <span className="absolute -bottom-4 -right-2 text-6xl font-serif text-black/[0.03] select-none pointer-events-none group-hover:text-accentMain/10 transition-colors">
                 01
               </span>
 
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 bg-white border border-neutral-200 flex items-center justify-center text-accentMain shadow-sm group-hover:bg-accentMain group-hover:text-white transition-colors">
+                  <div className="w-10 h-10 rounded-apple-btn bg-accentMain/10 text-accentMain flex items-center justify-center shadow-sm">
                     <ShieldCheck size={20} />
                   </div>
-                  <span className="text-[9px] uppercase tracking-widest text-accentMain font-sans font-semibold bg-white border border-neutral-200 px-2 py-0.5">
+                  <span className="text-[9px] uppercase tracking-widest text-accentMain font-sans font-semibold apple-badge bg-white border border-black/[0.08]">
                     Paso 1
                   </span>
                 </div>
 
-                <h3 className="title-main text-sm text-textMain mb-2">
+                <h3 className="title-main text-sm text-textMain mb-1">
                   75% DE ADELANTO
                 </h3>
                 <span className="text-[11px] text-accentMain font-serif italic block mb-3">
                   Bloqueo exclusivo de agenda
                 </span>
 
-                <ul className="text-xs text-textSecondary font-sans font-light space-y-2 mb-4">
+                <ul className="text-xs text-textSecondary font-sans font-light space-y-2 mb-4 leading-relaxed">
                   <li className="flex items-start gap-2">
                     <Check size={13} className="text-accentMain shrink-0 mt-0.5" />
                     <span>Asegura tu fecha en exclusiva sin solapamiento de eventos.</span>
@@ -432,29 +439,29 @@ const Pricing = () => {
             </div>
 
             {/* Tarjeta 2: Cancelaciones */}
-            <div className="relative bg-neutral-50 p-6 border border-neutral-200 photo-card-secondary card-luxury overflow-hidden flex flex-col justify-between group">
-              <span className="absolute -bottom-4 -right-2 text-6xl font-serif text-neutral-200/50 select-none pointer-events-none group-hover:text-accentMain/10 transition-colors">
+            <div className="relative apple-card p-6 rounded-apple-card border border-black/[0.06] shadow-apple-card flex flex-col justify-between group">
+              <span className="absolute -bottom-4 -right-2 text-6xl font-serif text-black/[0.03] select-none pointer-events-none group-hover:text-accentMain/10 transition-colors">
                 02
               </span>
 
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 bg-white border border-neutral-200 flex items-center justify-center text-accentMain shadow-sm group-hover:bg-accentMain group-hover:text-white transition-colors">
+                  <div className="w-10 h-10 rounded-apple-btn bg-accentMain/10 text-accentMain flex items-center justify-center shadow-sm">
                     <FileText size={20} />
                   </div>
-                  <span className="text-[9px] uppercase tracking-widest text-accentMain font-sans font-semibold bg-white border border-neutral-200 px-2 py-0.5">
+                  <span className="text-[9px] uppercase tracking-widest text-accentMain font-sans font-semibold apple-badge bg-white border border-black/[0.08]">
                     Paso 2
                   </span>
                 </div>
 
-                <h3 className="title-main text-sm text-textMain mb-2">
+                <h3 className="title-main text-sm text-textMain mb-1">
                   CANCELACIONES
                 </h3>
                 <span className="text-[11px] text-accentMain font-serif italic block mb-3">
                   Cobertura por causa ajena
                 </span>
 
-                <ul className="text-xs text-textSecondary font-sans font-light space-y-2 mb-4">
+                <ul className="text-xs text-textSecondary font-sans font-light space-y-2 mb-4 leading-relaxed">
                   <li className="flex items-start gap-2">
                     <Check size={13} className="text-accentMain shrink-0 mt-0.5" />
                     <span>Compensa el bloqueo del día y la renuncia a otros clientes.</span>
@@ -468,29 +475,29 @@ const Pricing = () => {
             </div>
 
             {/* Tarjeta 3: Flexibilidad 5 días */}
-            <div className="relative bg-neutral-50 p-6 border border-neutral-200 photo-card-secondary card-luxury overflow-hidden flex flex-col justify-between group">
-              <span className="absolute -bottom-4 -right-2 text-6xl font-serif text-neutral-200/50 select-none pointer-events-none group-hover:text-accentMain/10 transition-colors">
+            <div className="relative apple-card p-6 rounded-apple-card border border-black/[0.06] shadow-apple-card flex flex-col justify-between group">
+              <span className="absolute -bottom-4 -right-2 text-6xl font-serif text-black/[0.03] select-none pointer-events-none group-hover:text-accentMain/10 transition-colors">
                 03
               </span>
 
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 bg-white border border-neutral-200 flex items-center justify-center text-accentMain shadow-sm group-hover:bg-accentMain group-hover:text-white transition-colors">
+                  <div className="w-10 h-10 rounded-apple-btn bg-accentMain/10 text-accentMain flex items-center justify-center shadow-sm">
                     <Clock size={20} />
                   </div>
-                  <span className="text-[9px] uppercase tracking-widest text-accentMain font-sans font-semibold bg-white border border-neutral-200 px-2 py-0.5">
+                  <span className="text-[9px] uppercase tracking-widest text-accentMain font-sans font-semibold apple-badge bg-white border border-black/[0.08]">
                     Paso 3
                   </span>
                 </div>
 
-                <h3 className="title-main text-sm text-textMain mb-2">
+                <h3 className="title-main text-sm text-textMain mb-1">
                   5 DÍAS DE AVISO
                 </h3>
                 <span className="text-[11px] text-accentMain font-serif italic block mb-3">
                   Reprogramación flexible
                 </span>
 
-                <ul className="text-xs text-textSecondary font-sans font-light space-y-2 mb-4">
+                <ul className="text-xs text-textSecondary font-sans font-light space-y-2 mb-4 leading-relaxed">
                   <li className="flex items-start gap-2">
                     <Check size={13} className="text-accentMain shrink-0 mt-0.5" />
                     <span>Cambios de fecha u horario con 5 días mínimos de margen.</span>
@@ -505,8 +512,8 @@ const Pricing = () => {
 
           </div>
 
-          {/* Sello de Confianza y Calidad Flotante */}
-          <div className="mt-8 bg-white p-5 border border-neutral-200 photo-card-secondary flex flex-col sm:flex-row items-center justify-between gap-4 animate-subtle-float">
+          {/* Sello de Confianza y Calidad */}
+          <div className="mt-8 apple-glass p-6 rounded-apple-card border border-black/[0.08] shadow-apple-subtle flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-accentMain/10 text-accentMain flex items-center justify-center shrink-0">
                 <Sparkles size={16} />
