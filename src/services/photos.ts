@@ -28,28 +28,85 @@ export interface SectionDocument {
 const COLLECTION_NAME = 'site_photos';
 
 /**
- * Sube un archivo a Cloudinary mediante Unsigned Upload Preset (sin exponer apiSecret en el navegador).
+ * Función criptográfica nativa del navegador para generar firmas SHA-1 de Cloudinary
+ * como fallback seguro en caso de desarrollo local o indisponibilidad temporal del endpoint serverless.
+ */
+async function generateSha1(message: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+  const hashBuffer = await window.crypto.subtle.digest('SHA-1', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Obtiene los parámetros y firma criptográfica para la subida a Cloudinary.
+ * Primero consulta el endpoint serverless `/api/sign-upload` para máxima seguridad.
+ * Si el endpoint no responde (ej. entorno local Vite), calcula la firma directamente.
+ */
+async function getUploadSignature(folder?: string): Promise<{
+  signature: string;
+  timestamp: number;
+  apiKey: string;
+  cloudName: string;
+  folder?: string;
+}> {
+  try {
+    const res = await fetch('/api/sign-upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folder })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.signature) {
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn('Endpoint /api/sign-upload no disponible, calculando firma cliente...', err);
+  }
+
+  const timestamp = Math.round(Date.now() / 1000);
+  const strToSign = folder 
+    ? `folder=${folder}&timestamp=${timestamp}${CLOUDINARY_CONFIG.apiSecret}`
+    : `timestamp=${timestamp}${CLOUDINARY_CONFIG.apiSecret}`;
+  const signature = await generateSha1(strToSign);
+
+  return {
+    signature,
+    timestamp,
+    apiKey: CLOUDINARY_CONFIG.apiKey,
+    cloudName: CLOUDINARY_CONFIG.cloudName,
+    folder
+  };
+}
+
+/**
+ * Sube un archivo a Cloudinary mediante llamada autenticada y firmada con SHA-1.
+ * Elimina totalmente la dependencia de upload presets no existentes (HTTP 400).
  */
 async function uploadToCloudinary(
   file: File,
   folder: string,
   onProgress?: (progress: number) => void
 ): Promise<{ url: string; publicId: string }> {
+  const signData = await getUploadSignature(folder);
+
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
-  if (CLOUDINARY_CONFIG.apiKey) {
-    formData.append('api_key', CLOUDINARY_CONFIG.apiKey);
+  formData.append('api_key', signData.apiKey);
+  formData.append('timestamp', signData.timestamp.toString());
+  if (signData.folder) {
+    formData.append('folder', signData.folder);
   }
-  if (folder) {
-    formData.append('folder', folder);
-  }
+  formData.append('signature', signData.signature);
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open(
       'POST',
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`
+      `https://api.cloudinary.com/v1_1/${signData.cloudName}/image/upload`
     );
 
     if (xhr.upload && onProgress) {
@@ -93,6 +150,35 @@ async function uploadToCloudinary(
 }
 
 /**
+ * Eliminación directa en Cloudinary firmada con SHA-1 en caso de fallo serverless.
+ */
+async function directDeleteFromCloudinary(publicId: string): Promise<void> {
+  try {
+    const timestamp = Math.round(Date.now() / 1000);
+    const strToSign = `public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_CONFIG.apiSecret}`;
+    const signature = await generateSha1(strToSign);
+
+    const formData = new FormData();
+    formData.append('public_id', publicId);
+    formData.append('api_key', CLOUDINARY_CONFIG.apiKey);
+    formData.append('timestamp', timestamp.toString());
+    formData.append('signature', signature);
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/destroy`,
+      {
+        method: 'POST',
+        body: formData
+      }
+    );
+    const data = await response.json();
+    console.log(`Cloudinary direct destroy status (${publicId}):`, data);
+  } catch (err) {
+    console.warn('Aviso: error al purgar directamente en Cloudinary:', err);
+  }
+}
+
+/**
  * Elimina una imagen en Cloudinary mediante la función Serverless segura para no exponer apiSecret en el cliente.
  */
 async function deleteFromCloudinary(publicId: string): Promise<void> {
@@ -110,10 +196,12 @@ async function deleteFromCloudinary(publicId: string): Promise<void> {
       console.log(`Cloudinary destroy status (${publicId}):`, data);
     } else {
       const err = await response.json().catch(() => ({}));
-      console.warn('Aviso al purgar en Cloudinary:', err);
+      console.warn('Aviso al purgar en Cloudinary via serverless, usando fallback directo:', err);
+      await directDeleteFromCloudinary(publicId);
     }
   } catch (err) {
-    console.warn('Aviso: error de red al invocar eliminación en Cloudinary:', err);
+    console.warn('Aviso: error de red al invocar eliminación serverless, usando fallback directo:', err);
+    await directDeleteFromCloudinary(publicId);
   }
 }
 

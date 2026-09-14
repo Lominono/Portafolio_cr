@@ -12,11 +12,7 @@ export default async function handler(req, res) {
 
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.VITE_CLOUDINARY_CLOUD_NAME || 'yvo7dzmz';
   const apiKey = process.env.CLOUDINARY_API_KEY || process.env.VITE_CLOUDINARY_API_KEY || '479641136355382';
-  const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-  if (!apiSecret) {
-    return res.status(500).json({ error: 'CLOUDINARY_API_SECRET is not configured on server' });
-  }
+  const apiSecret = process.env.CLOUDINARY_API_SECRET || 'cru6sQMUJ3hzoLoDqh9nVJw0ijI';
 
   try {
     const timestamp = Math.round(Date.now() / 1000);
