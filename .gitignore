@@ -36,3 +36,4 @@ vite.config.d.ts
 
 # Vercel
 .vercel
+.env*

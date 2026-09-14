@@ -224,10 +224,10 @@ const Pricing = () => {
                 key={index} 
                 className={`pricing-block flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} gap-12 items-center`}
               >
-                {/* Lado de Fotos */}
-                <div className="w-full md:w-1/2 flex gap-4 h-[380px] md:h-[420px]">
+                {/* Lado de Fotos con Proporciones Exactas */}
+                <div className="w-full md:w-1/2 flex justify-center">
                   {item.layout === 'single' ? (
-                    <div className="w-full h-full photo-card-secondary relative flex items-center justify-center overflow-hidden group bg-neutral-50 shadow-apple-card">
+                    <div className="w-full max-w-[380px] aspect-[3/4] photo-card-secondary relative flex items-center justify-center overflow-hidden group bg-neutral-50 shadow-apple-card">
                       {imgs[0] ? (
                         <img 
                           src={imgs[0]} 
@@ -238,81 +238,98 @@ const Pricing = () => {
                         <div className="flex flex-col items-center justify-center p-6 text-center">
                           <span className="w-8 h-px bg-accentMain mb-3"></span>
                           <span className="text-textSecondary uppercase tracking-widest text-xs font-sans">
-                            {item.label}
+                            {item.label} (3:4 Vertical)
                           </span>
                         </div>
                       )}
                     </div>
                   ) : (
-                    /* Layout Collage */
-                    imgs.length >= 3 ? (
-                      <>
-                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
-                          <img 
-                            src={imgs[0]} 
-                            alt={`${item.title} 1`} 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                          />
-                        </div>
-                        <div className="w-1/2 h-full flex flex-col gap-4">
-                          <div className="h-1/2 w-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
+                    /* Layout Collage Calibrado al Milímetro: Izquierda 3:4, Derecha dos de 4:3 */
+                    <div className="w-full max-w-[560px] flex gap-4 aspect-[10/7]">
+                      {imgs.length >= 3 ? (
+                        <>
+                          <div className="w-[54%] h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
                             <img 
-                              src={imgs[1]} 
-                              alt={`${item.title} 2`} 
+                              src={imgs[0]} 
+                              alt={`${item.title} 1`} 
                               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                             />
                           </div>
-                          <div className="h-1/2 w-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
+                          <div className="w-[46%] h-full flex flex-col gap-4">
+                            <div className="h-[calc(50%-8px)] w-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
+                              <img 
+                                src={imgs[1]} 
+                                alt={`${item.title} 2`} 
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                              />
+                            </div>
+                            <div className="h-[calc(50%-8px)] w-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
+                              <img 
+                                src={imgs[2]} 
+                                alt={`${item.title} 3`} 
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                              />
+                            </div>
+                          </div>
+                        </>
+                      ) : imgs.length === 2 ? (
+                        <>
+                          <div className="w-[54%] h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
                             <img 
-                              src={imgs[2]} 
-                              alt={`${item.title} 3`} 
+                              src={imgs[0]} 
+                              alt={`${item.title} 1`} 
                               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                             />
                           </div>
-                        </div>
-                      </>
-                    ) : imgs.length === 2 ? (
-                      <>
-                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
-                          <img 
-                            src={imgs[0]} 
-                            alt={`${item.title} 1`} 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                          />
-                        </div>
-                        <div className="w-1/2 h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
-                          <img 
-                            src={imgs[1]} 
-                            alt={`${item.title} 2`} 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                          />
-                        </div>
-                      </>
-                    ) : imgs.length === 1 ? (
-                      <div className="w-full h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
-                        <img 
-                          src={imgs[0]} 
-                          alt={item.title} 
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <div className="w-1/2 h-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
-                          <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">
-                            {item.label}
-                          </span>
-                        </div>
-                        <div className="w-1/2 h-full flex flex-col gap-4">
-                          <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
-                            <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Detalle</span>
+                          <div className="w-[46%] h-full flex flex-col gap-4">
+                            <div className="h-[calc(50%-8px)] w-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
+                              <img 
+                                src={imgs[1]} 
+                                alt={`${item.title} 2`} 
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                              />
+                            </div>
+                            <div className="h-[calc(50%-8px)] w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
+                              <span className="text-textSecondary uppercase tracking-widest text-[9px] font-sans">Momento (4:3)</span>
+                            </div>
                           </div>
-                          <div className="h-1/2 w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
-                            <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">Momentos</span>
+                        </>
+                      ) : imgs.length === 1 ? (
+                        <>
+                          <div className="w-[54%] h-full photo-card-secondary relative overflow-hidden group bg-neutral-50 shadow-apple-card">
+                            <img 
+                              src={imgs[0]} 
+                              alt={`${item.title} 1`} 
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                            />
                           </div>
-                        </div>
-                      </>
-                    )
+                          <div className="w-[46%] h-full flex flex-col gap-4">
+                            <div className="h-[calc(50%-8px)] w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
+                              <span className="text-textSecondary uppercase tracking-widest text-[9px] font-sans">Detalle (4:3)</span>
+                            </div>
+                            <div className="h-[calc(50%-8px)] w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
+                              <span className="text-textSecondary uppercase tracking-widest text-[9px] font-sans">Momento (4:3)</span>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-[54%] h-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
+                            <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">
+                              {item.label} (3:4)
+                            </span>
+                          </div>
+                          <div className="w-[46%] h-full flex flex-col gap-4">
+                            <div className="h-[calc(50%-8px)] w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
+                              <span className="text-textSecondary uppercase tracking-widest text-[9px] font-sans">Detalle (4:3)</span>
+                            </div>
+                            <div className="h-[calc(50%-8px)] w-full photo-card-secondary bg-neutral-50 flex items-center justify-center p-4 text-center shadow-apple-card">
+                              <span className="text-textSecondary uppercase tracking-widest text-[9px] font-sans">Momento (4:3)</span>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
 
