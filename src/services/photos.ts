@@ -208,7 +208,31 @@ async function deleteFromCloudinary(publicId: string): Promise<void> {
 /**
  * Obtiene todas las fotografías del sitio agrupadas por sectionId.
  */
+const LOCAL_CACHE_KEY_URLS = 'cr_portfolio_photos_cache';
+const LOCAL_CACHE_KEY_SECTIONS = 'cr_portfolio_sections_cache';
+
+function getLocalCache<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function setLocalCache<T>(key: string, data: T): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (err) {
+    console.warn('No se pudo guardar la caché local de fotos:', err);
+  }
+}
+
+/**
+ * Obtiene todas las fotografías del sitio agrupadas por sectionId con resiliencia de caché.
+ */
 export const getAllPhotosMap = async (): Promise<Record<string, string[]>> => {
+  const cached = getLocalCache<Record<string, string[]>>(LOCAL_CACHE_KEY_URLS);
   try {
     const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
     const map: Record<string, string[]> = {};
@@ -220,17 +244,19 @@ export const getAllPhotosMap = async (): Promise<Record<string, string[]>> => {
       }
     });
 
+    setLocalCache(LOCAL_CACHE_KEY_URLS, map);
     return map;
   } catch (error) {
-    console.error('Error al obtener fotos desde Firestore:', error);
-    return {};
+    console.warn('Error al obtener fotos desde Firestore, utilizando caché local:', error);
+    return cached || {};
   }
 };
 
 /**
- * Obtiene el catálogo completo de secciones con metadatos de fotos en una sola consulta (evita peticiones N+1).
+ * Obtiene el catálogo completo de secciones con metadatos de fotos en una sola consulta (evita peticiones N+1) con resiliencia de caché.
  */
 export const getAllSectionsData = async (): Promise<Record<string, StoredPhoto[]>> => {
+  const cached = getLocalCache<Record<string, StoredPhoto[]>>(LOCAL_CACHE_KEY_SECTIONS);
   try {
     const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
     const map: Record<string, StoredPhoto[]> = {};
@@ -242,19 +268,26 @@ export const getAllSectionsData = async (): Promise<Record<string, StoredPhoto[]
       }
     });
 
+    setLocalCache(LOCAL_CACHE_KEY_SECTIONS, map);
     return map;
   } catch (error) {
-    console.error('Error al obtener catálogo completo desde Firestore:', error);
-    return {};
+    console.warn('Error al obtener catálogo completo desde Firestore, utilizando caché local:', error);
+    return cached || {};
   }
 };
 
 /**
- * Suscripción en tiempo real a todas las fotos para reflejar cambios instantáneamente.
+ * Suscripción en tiempo real a todas las fotos con Stale-While-Revalidate (carga instantánea desde caché y revalidación en segundo plano).
  */
 export const subscribeToAllPhotos = (
   callback: (photos: Record<string, string[]>) => void
 ): (() => void) => {
+  // 1. Emitir inmediatamente la caché local para 0ms de espera visual y robustez offline
+  const cached = getLocalCache<Record<string, string[]>>(LOCAL_CACHE_KEY_URLS);
+  if (cached && Object.keys(cached).length > 0) {
+    callback(cached);
+  }
+
   const colRef = collection(db, COLLECTION_NAME);
   return onSnapshot(
     colRef,
@@ -266,10 +299,15 @@ export const subscribeToAllPhotos = (
           map[docSnap.id] = data.images.map((img) => img.url);
         }
       });
+      setLocalCache(LOCAL_CACHE_KEY_URLS, map);
       callback(map);
     },
     (error) => {
-      console.error('Error en suscripción de fotos:', error);
+      console.warn('Aviso de suscripción Firestore (manteniendo datos en caché si existen):', error);
+      // Si ocurre un fallo pero tenemos caché, aseguramos que el usuario mantenga su vista
+      if (cached && Object.keys(cached).length > 0) {
+        callback(cached);
+      }
     }
   );
 };

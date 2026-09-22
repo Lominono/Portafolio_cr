@@ -1,10 +1,10 @@
-/* Apple UI Design System – Verified: 8pt Grid, SF Pro Typography, Material-Depth, Natural Spring Motion */
 import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { Camera, Heart } from 'lucide-react';
 import { subscribeToAllPhotos } from '../services/photos';
+import SmartImage from '../components/SmartImage';
+import AppleLightbox from '../components/AppleLightbox';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -12,6 +12,21 @@ const About = () => {
   const container = useRef<HTMLDivElement>(null);
   const [mainImg, setMainImg] = useState<string | null>(null);
   const [detailImgs, setDetailImgs] = useState<string[]>([]);
+
+  // Estado de Lightbox
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [lightboxTitles, setLightboxTitles] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openLightbox = (images: string[], index: number, titles?: string[]) => {
+    const valid = images.filter(Boolean);
+    if (valid.length === 0) return;
+    setLightboxImages(valid);
+    setLightboxIndex(Math.min(index, valid.length - 1));
+    setLightboxTitles(titles || []);
+    setLightboxOpen(true);
+  };
 
   useEffect(() => {
     const unsubscribe = subscribeToAllPhotos((allPhotos) => {
@@ -96,36 +111,32 @@ const About = () => {
     <div ref={container} className="pt-32 pb-24 px-6 md:px-16 min-h-screen bg-primary">
       <div className="max-w-5xl mx-auto">
         
-        {/* Cabecera */}
-        <div className="text-center mb-20 md:mb-28">
-          <h1 className="header-elem title-main text-4xl md:text-5xl mb-4 text-textMain">
-            SOBRE MÍ
+        {/* Cabecera Editorial */}
+        <div className="text-center mb-20 md:mb-24">
+          <span className="header-elem font-serif italic text-accentMain text-base md:text-lg mb-2 block">
+            Semblanza y mirada
+          </span>
+          <h1 className="header-elem font-serif text-4xl sm:text-5xl md:text-6xl text-textMain mb-4 font-normal tracking-[-0.02em]">
+            Cristian Espinola
           </h1>
-          <p className="header-elem text-textSecondary uppercase tracking-widest text-xs font-sans">
-            La mirada detrás de la lente
+          <p className="header-elem text-textSecondary text-sm md:text-base font-sans font-light max-w-lg mx-auto">
+            Fotógrafo documental especializado en bodas y retratos con luz natural.
           </p>
-          <div className="header-elem w-12 h-px bg-accentMain mx-auto mt-6 accent-divider origin-center"></div>
         </div>
 
-        {/* Sección Principal: Retrato e Introducción */}
+        {/* Sección Principal: Retrato y Manifiesto de Autor */}
         <div className="flex flex-col md:flex-row gap-16 items-center mb-32">
-          <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary bg-neutral-50 overflow-hidden relative header-elem flex items-center justify-center shadow-apple-card">
-            {mainImg ? (
-              <img src={mainImg} alt="Retrato Principal" className="w-full h-full object-cover img-parallax absolute h-[106%] -top-[3%]" />
-            ) : (
-              <>
-                <div className="absolute inset-0 bg-neutral-100 opacity-50 img-parallax h-[106%] -top-[3%] w-full"></div>
-                <span className="text-textSecondary uppercase tracking-widest text-xs font-sans relative z-10 text-center px-4">
-                  Foto de Cristian<br/>(Retrato Principal)
-                </span>
-              </>
-            )}
+          <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary bg-neutral-50 overflow-hidden relative header-elem shadow-apple-card">
+            <SmartImage
+              src={mainImg}
+              alt="Retrato de Cristian Espinola"
+              fallbackLabel="Retrato de Cristian"
+              onClick={mainImg ? () => openLightbox([mainImg], 0, ['Retrato de Cristian Espinola']) : undefined}
+              className="group-hover:scale-105"
+            />
           </div>
           
           <div className="w-full md:w-1/2">
-            <h2 className="title-main text-2xl text-textMain mb-6 scroll-reveal">
-              HOLA, SOY CRISTIAN ESPINOLA
-            </h2>
             <div className="flex flex-col gap-5">
               <p className="text-textSecondary font-sans font-light leading-relaxed scroll-reveal text-sm md:text-base">
                 Mi acercamiento a la fotografía nació de una necesidad profunda de detener el tiempo. Creo que cada persona tiene una luz única y mi propósito es capturarla de la forma más honesta posible. No busco la perfección artificial, sino la belleza real de los instantes que compartimos.
@@ -136,141 +147,111 @@ const About = () => {
               <p className="text-textSecondary font-sans font-light leading-relaxed scroll-reveal text-sm md:text-base">
                 El trabajo de un fotógrafo no termina al pulsar el disparador. Dedico horas a la selección y edición meticulosa de cada imagen, asegurándome de que los colores, la luz y el contraste reflejen la atmósfera exacta de ese día. Mi objetivo final es entregarte un legado visual que gane valor con el paso de los años.
               </p>
+              
+              <div className="pt-2 scroll-reveal">
+                <span className="font-serif italic text-lg text-accentMain">
+                  Cristian Espinola
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Gran Cita Tipográfica */}
-        <div className="py-16 mb-28 border-y border-black/[0.06] text-center px-4 scroll-reveal">
-          <blockquote className="font-serif text-2xl md:text-4xl text-textMain leading-tight mx-auto max-w-3xl">
-            "NO FOTOGRAFÍO LO QUE VEO, FOTOGRAFÍO LO QUE SIENTO CUANDO ESTOY ALLÍ."
+        {/* Cita de Autor */}
+        <div className="py-14 mb-28 border-y border-black/[0.06] text-center px-4 scroll-reveal">
+          <blockquote className="font-serif italic text-xl md:text-3xl text-textMain leading-snug mx-auto max-w-2xl font-normal">
+            «No fotografío lo que veo, fotografío lo que siento cuando estoy allí.»
           </blockquote>
         </div>
 
-        {/* Sección de Historia, Enfoque y Manifiesto Editorial */}
-        <div className="mb-32">
-          <div className="text-center mb-16 scroll-reveal">
-            <span className="text-[10px] uppercase font-sans tracking-widest text-accentMain block mb-2 font-medium">
-              Detrás de la Mirada
-            </span>
-            <h2 className="title-main text-2xl md:text-3xl text-textMain mb-4">MI HISTORIA Y ENFOQUE</h2>
-            <div className="w-8 h-px bg-accentMain mx-auto accent-divider origin-center"></div>
+        {/* Filosofía y Enfoque Editorial */}
+        <div className="mb-28">
+          <div className="text-center mb-14 scroll-reveal">
+            <h2 className="title-main text-2xl md:text-3xl text-textMain mb-3">Filosofía de trabajo</h2>
+            <p className="text-sm text-textSecondary font-sans font-light max-w-md mx-auto">
+              Un compromiso ético y estético con cada historia que confía en mi lente.
+            </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 scroll-reveal mb-12">
-            <div className="apple-card p-8 rounded-apple-card border border-black/[0.06] shadow-apple-card">
-              <div className="flex items-center gap-2 mb-4">
-                <Heart size={16} className="text-accentMain" />
-                <h3 className="title-main text-xs sm:text-sm text-textMain tracking-widest">EL ORIGEN DE LA PASIÓN</h3>
-              </div>
-              <p className="drop-cap text-textSecondary font-sans font-light text-sm leading-relaxed mb-4">
-                Mi fascinación por la fotografía nació de una certeza temprana: el tiempo avanza sin tregua, pero una sola imagen tiene el poder sagrado de congelar una emoción para siempre. No comencé buscando la técnica perfecta, sino la verdad que habita en los gestos desapercibidos: la mano que busca apoyo antes del "sí, quiero", la risa desprevenida que descoloca la compostura o la calma cómplice de una mirada honesta.
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 scroll-reveal mb-12">
+            <div className="border-l border-accentMain/40 pl-6">
+              <h3 className="title-main text-xl text-textMain mb-3">La verdad en los gestos desapercibidos</h3>
+              <p className="text-textSecondary font-sans font-light text-sm leading-relaxed mb-4">
+                Mi fascinación por la fotografía nació de una certeza temprana: el tiempo avanza sin tregua, pero una sola imagen tiene el poder sagrado de congelar una emoción para siempre. No comencé buscando la técnica perfecta, sino la verdad que habita en los gestos desapercibidos: la mano que busca apoyo antes del enlace, la risa desprevenida o la calma cómplice de una mirada honesta.
               </p>
               <p className="text-textSecondary font-sans font-light text-sm leading-relaxed">
-                Con los años, esa curiosidad inicial se transformó en una vocación vital. Fotografiar para mí no es solo disparar una cámara; es aprender a observar con paciencia, respetar la intimidad de cada historia y construir un refugio visual donde los momentos más puros de tu vida queden a salvo del olvido.
+                Fotografiar para mí es aprender a observar con paciencia, respetar la intimidad de cada historia y construir un refugio visual donde los momentos más puros de tu vida queden a salvo del olvido.
               </p>
             </div>
 
-            <div className="apple-card p-8 rounded-apple-card border border-black/[0.06] shadow-apple-card">
-              <div className="flex items-center gap-2 mb-4">
-                <Camera size={16} className="text-accentMain" />
-                <h3 className="title-main text-xs sm:text-sm text-textMain tracking-widest">LA TÉCNICA Y EL ARTE</h3>
-              </div>
-              <p className="drop-cap text-textSecondary font-sans font-light text-sm leading-relaxed mb-4">
-                Concibo la técnica no como una demostración de artificio, sino como el lenguaje silencioso que permite a la emoción expresarse sin distracciones. El dominio riguroso de la luz natural, la composición equilibrada y una paleta cromática sobria son las herramientas con las que convierto instantes efímeros en estampas con peso narrativo y cinematográfico.
+            <div className="border-l border-accentMain/40 pl-6">
+              <h3 className="title-main text-xl text-textMain mb-3">La luz natural y la sobriedad</h3>
+              <p className="text-textSecondary font-sans font-light text-sm leading-relaxed mb-4">
+                Concibo la técnica no como una demostración de artificio, sino como el lenguaje silencioso que permite a la emoción expresarse sin distracciones. El dominio riguroso de la luz natural, la composición equilibrada y una paleta cromática sobria son las herramientas con las que convierto instantes efímeros en estampas con peso narrativo.
               </p>
               <p className="text-textSecondary font-sans font-light text-sm leading-relaxed">
-                Cada reportaje es un equilibrio entre intuición y oficio. Me alejo deliberadamente de las modas de edición pasajeras y los filtros saturados; mi compromiso es entregarte una obra con estética atemporal, donde la belleza, el contraste y la textura sigan conmoviéndote con la misma fuerza dentro de veinte años.
+                Me alejo deliberadamente de las modas de edición pasajeras y los filtros saturados; mi compromiso es entregarte una obra con estética atemporal, donde la belleza, el contraste y la textura sigan conmoviéndote con la misma fuerza dentro de veinte años.
               </p>
             </div>
           </div>
-
-          {/* Cita Editorial Flotante */}
-          <div className="py-8 px-6 my-8 apple-glass rounded-apple-card border border-black/[0.08] shadow-apple-subtle text-center relative scroll-reveal">
-            <span className="text-[10px] uppercase font-sans tracking-widest text-accentMain block mb-2 font-medium">
-              Manifiesto de Autor
-            </span>
-            <p className="font-serif italic text-base sm:text-lg text-textMain max-w-2xl mx-auto leading-relaxed">
-              "La técnica es el lenguaje invisible; la emoción es la verdadera protagonista de cada encuadre."
-            </p>
-          </div>
-
-          {/* Métricas y Sellos de Calidad con Micro-Animaciones */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 scroll-reveal">
-            <div className="apple-card p-6 text-center border border-black/[0.06] rounded-apple-card shadow-apple-subtle">
-              <span className="block text-2xl font-serif text-accentMain mb-1">+8</span>
-              <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Años de Oficio</span>
-            </div>
-            <div className="apple-card p-6 text-center border border-black/[0.06] rounded-apple-card shadow-apple-subtle">
-              <span className="block text-2xl font-serif text-accentMain mb-1">100%</span>
-              <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Colorimetría de Autor</span>
-            </div>
-            <div className="apple-card p-6 text-center border border-black/[0.06] rounded-apple-card shadow-apple-subtle">
-              <span className="block text-2xl font-serif text-accentMain mb-1">1 Evento</span>
-              <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Exclusivo por Día</span>
-            </div>
-            <div className="apple-card p-6 text-center border border-black/[0.06] rounded-apple-card shadow-apple-subtle">
-              <span className="block text-2xl font-serif text-accentMain mb-1">RAW</span>
-              <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Máxima Calidad</span>
-            </div>
-          </div>
-
         </div>
 
-        {/* Filosofía / Estilo */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center py-16 mb-28 apple-glass rounded-apple-card border border-black/[0.08] px-8 shadow-apple-card scroll-reveal">
+        {/* Principios de Trabajo (Sin tarjetas SaaS ni números falsos) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center py-12 mb-28 border-y border-black/[0.06] px-4 scroll-reveal">
           <div className="flex flex-col items-center">
-            <span className="text-accentMain text-3xl mb-3 block font-serif">01.</span>
-            <h3 className="title-main text-base text-textMain mb-3">NATURALIDAD</h3>
-            <p className="text-textSecondary font-sans font-light text-xs leading-relaxed">
-              Dirección sutil para que te sientas libre. El mejor retrato es aquel en el que simplemente eres tú mismo.
+            <h3 className="title-main text-lg text-textMain mb-2">Naturalidad</h3>
+            <p className="text-textSecondary font-sans font-light text-xs leading-relaxed max-w-xs">
+              Dirección sutil e invisible para que te sientas libre. El mejor retrato es aquel en el que simplemente eres tú mismo.
             </p>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-accentMain text-3xl mb-3 block font-serif">02.</span>
-            <h3 className="title-main text-base text-textMain mb-3">ATEMPORALIDAD</h3>
-            <p className="text-textSecondary font-sans font-light text-xs leading-relaxed">
-              Edición cuidada y colores puros que resistirán el paso de los años, alejados de las modas efímeras.
+            <h3 className="title-main text-lg text-textMain mb-2">Atemporalidad</h3>
+            <p className="text-textSecondary font-sans font-light text-xs leading-relaxed max-w-xs">
+              Edición cuidada y colores orgánicos que resistirán el paso de los años, alejados de modas pasajeras.
             </p>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-accentMain text-3xl mb-3 block font-serif">03.</span>
-            <h3 className="title-main text-base text-textMain mb-3">COMPROMISO</h3>
-            <p className="text-textSecondary font-sans font-light text-xs leading-relaxed">
-              Trato personalizado desde el primer contacto hasta la entrega de la galería final. Tu tranquilidad es clave.
+            <h3 className="title-main text-lg text-textMain mb-2">Cercanía</h3>
+            <p className="text-textSecondary font-sans font-light text-xs leading-relaxed max-w-xs">
+              Trato personalizado desde el primer contacto hasta la entrega de la galería final. Tu tranquilidad es prioritaria.
             </p>
           </div>
         </div>
 
-        {/* Galería Adicional (Detalles) */}
+        {/* Galería de Detalles con Lightbox */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 scroll-reveal">
-          <div className="aspect-[4/3] photo-card-secondary bg-neutral-50 overflow-hidden relative flex items-center justify-center shadow-apple-card">
-            {detailImgs[0] ? (
-              <img src={detailImgs[0]} alt="Detalle 1" className="w-full h-full object-cover img-parallax absolute h-[106%] -top-[3%]" />
-            ) : (
-              <>
-                <div className="absolute inset-0 bg-neutral-100 opacity-50 img-parallax h-[106%] -top-[3%] w-full"></div>
-                <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans relative z-10 text-center px-4">
-                  Foto Estilo / Detalle 1<br/>(Apaisada)
-                </span>
-              </>
-            )}
+          <div className="aspect-[4/3] photo-card-secondary bg-neutral-50 overflow-hidden relative shadow-apple-card">
+            <SmartImage
+              src={detailImgs[0]}
+              alt="Detalle y atmósfera 1"
+              fallbackLabel="Detalle y atmósfera 1"
+              onClick={detailImgs[0] ? () => openLightbox(detailImgs, 0, ['Detalle y atmósfera 1', 'Detalle y atmósfera 2']) : undefined}
+              className="group-hover:scale-105"
+            />
           </div>
-          <div className="aspect-[4/3] photo-card-secondary bg-neutral-50 overflow-hidden relative flex items-center justify-center shadow-apple-card">
-            {detailImgs[1] ? (
-              <img src={detailImgs[1]} alt="Detalle 2" className="w-full h-full object-cover img-parallax absolute h-[106%] -top-[3%]" />
-            ) : (
-              <>
-                <div className="absolute inset-0 bg-neutral-100 opacity-50 img-parallax h-[106%] -top-[3%] w-full"></div>
-                <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans relative z-10 text-center px-4">
-                  Foto Estilo / Detalle 2<br/>(Apaisada)
-                </span>
-              </>
-            )}
+          <div className="aspect-[4/3] photo-card-secondary bg-neutral-50 overflow-hidden relative shadow-apple-card">
+            <SmartImage
+              src={detailImgs[1]}
+              alt="Detalle y atmósfera 2"
+              fallbackLabel="Detalle y atmósfera 2"
+              onClick={detailImgs[1] ? () => openLightbox(detailImgs, 1, ['Detalle y atmósfera 1', 'Detalle y atmósfera 2']) : undefined}
+              className="group-hover:scale-105"
+            />
           </div>
         </div>
 
       </div>
+
+      {/* Visor Lightbox Nativo */}
+      <AppleLightbox
+        isOpen={lightboxOpen}
+        images={lightboxImages}
+        currentIndex={lightboxIndex}
+        titles={lightboxTitles}
+        onClose={() => setLightboxOpen(false)}
+        onNavigate={(newIdx) => setLightboxIndex(newIdx)}
+      />
+
     </div>
   );
 };

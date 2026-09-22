@@ -1,9 +1,8 @@
-/* Apple UI Design System – Verified: 8pt Grid, SF Pro Typography, Material-Depth, Natural Spring Motion */
 import React, { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { ShieldCheck, Mail, Phone, Instagram, Send, MessageCircle } from 'lucide-react';
+import { Send, MessageCircle, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -15,6 +14,8 @@ const Contact = () => {
     service: '',
     message: ''
   });
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [submitFeedback, setSubmitFeedback] = useState<string | null>(null);
 
   useGSAP(() => {
     // 1. Cabecera
@@ -63,6 +64,7 @@ const Contact = () => {
   }, { scope: container });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setValidationError(null);
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -71,8 +73,25 @@ const Contact = () => {
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const subject = encodeURIComponent(`Nueva consulta de ${formData.name} - ${formData.service}`);
-    const rawBody = `Hola Cristian,\n\nMi nombre es: ${formData.name}\nMi correo es: ${formData.email}\nServicio de interés: ${formData.service}\n\nMensaje:\n${formData.message}`;
+    if (!formData.name.trim()) {
+      setValidationError('Por favor, ingresa tu nombre completo.');
+      return;
+    }
+    if (!formData.email.trim() || !formData.email.includes('@')) {
+      setValidationError('Por favor, ingresa un correo electrónico válido.');
+      return;
+    }
+    if (!formData.message.trim()) {
+      setValidationError('Por favor, déjame un breve mensaje con los detalles de tu consulta.');
+      return;
+    }
+
+    setValidationError(null);
+    setSubmitFeedback('Abriendo tu gestor de correo electrónico...');
+    setTimeout(() => setSubmitFeedback(null), 5000);
+
+    const subject = encodeURIComponent(`Nueva consulta de ${formData.name} - ${formData.service || 'Fotografía'}`);
+    const rawBody = `Hola Cristian,\n\nMi nombre es: ${formData.name}\nMi correo es: ${formData.email}\nServicio de interés: ${formData.service || 'General'}\n\nMensaje:\n${formData.message}`;
     
     const bodyMailto = encodeURIComponent(rawBody);
     window.location.href = `mailto:Christianespinolas2317@gmail.com?subject=${subject}&body=${bodyMailto}`;
@@ -80,7 +99,21 @@ const Contact = () => {
 
   const handleWhatsAppSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
-    const text = encodeURIComponent(`Hola Cristian, soy ${formData.name}. Estoy interesado/a en el servicio de ${formData.service}.\n\n${formData.message}`);
+    if (!formData.name.trim()) {
+      setValidationError('Por favor, ingresa tu nombre para poder saludarte en WhatsApp.');
+      return;
+    }
+    if (!formData.message.trim()) {
+      setValidationError('Por favor, escribe un breve mensaje o fecha antes de abrir WhatsApp.');
+      return;
+    }
+
+    setValidationError(null);
+    setSubmitFeedback('Conectando directamente con WhatsApp...');
+    setTimeout(() => setSubmitFeedback(null), 5000);
+
+    const serviceText = formData.service ? ` para el servicio de ${formData.service}` : '';
+    const text = encodeURIComponent(`Hola Cristian, soy ${formData.name}. Me gustaría consultar disponibilidad${serviceText}.\n\n${formData.message}`);
     
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
     const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
@@ -98,82 +131,84 @@ const Contact = () => {
     <div ref={container} className="pt-32 pb-24 px-6 md:px-16 min-h-screen bg-primary">
       <div className="max-w-5xl mx-auto">
         
-        {/* Cabecera */}
+        {/* Cabecera Editorial */}
         <div className="text-center mb-20">
-          <h1 className="header-elem title-main text-4xl md:text-5xl mb-4 text-textMain">
-            CONTACTO
+          <span className="header-elem font-serif italic text-accentMain text-base md:text-lg mb-2 block">
+            Conversación directa
+          </span>
+          <h1 className="header-elem font-serif text-4xl sm:text-5xl md:text-6xl mb-4 text-textMain font-normal tracking-[-0.02em]">
+            Contacto y reservas
           </h1>
-          <p className="header-elem text-textSecondary uppercase tracking-widest text-xs font-sans">
-            Hablemos sobre tu próximo proyecto
+          <p className="header-elem text-textSecondary text-sm md:text-base font-sans font-light max-w-lg mx-auto">
+            Cuéntame los detalles de tu evento, fecha estimada y la atmósfera que deseas capturar.
           </p>
-          <div className="header-elem w-12 h-px bg-accentMain mx-auto mt-6 accent-divider origin-center"></div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-12 items-start">
+        <div className="flex flex-col md:flex-row gap-16 items-start">
           
-          {/* Información de Contacto Directa */}
-          <div className="w-full md:w-1/3 scroll-reveal flex flex-col gap-6">
-            <h2 className="title-main text-lg text-textMain mb-2">ESTUDIO & CONTACTO</h2>
-            
-            <a 
-              href="mailto:Christianespinolas2317@gmail.com" 
-              className="apple-card p-5 rounded-apple-card border border-black/[0.06] shadow-apple-subtle flex items-center gap-4 hover:scale-[1.02] transition-transform group"
-            >
-              <div className="w-10 h-10 rounded-apple-btn bg-accentMain/10 text-accentMain flex items-center justify-center shrink-0">
-                <Mail size={18} />
-              </div>
-              <div className="overflow-hidden">
-                <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Email</span>
-                <span className="text-xs font-sans text-textMain truncate block group-hover:text-accentMain transition-colors">
-                  Christianespinolas2317@gmail.com
-                </span>
-              </div>
-            </a>
-            
-            <a 
-              href="https://wa.me/34640646963" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="apple-card p-5 rounded-apple-card border border-black/[0.06] shadow-apple-subtle flex items-center gap-4 hover:scale-[1.02] transition-transform group"
-            >
-              <div className="w-10 h-10 rounded-apple-btn bg-accentMain/10 text-accentMain flex items-center justify-center shrink-0">
-                <Phone size={18} />
-              </div>
-              <div>
-                <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">WhatsApp / Teléfono</span>
-                <span className="text-xs font-sans text-textMain block group-hover:text-accentMain transition-colors">
-                  +34 640 64 69 63
-                </span>
-              </div>
-            </a>
+          {/* Información Editorial del Estudio */}
+          <div className="w-full md:w-5/12 scroll-reveal flex flex-col gap-8">
+            <div>
+              <h2 className="title-main text-2xl text-textMain mb-3">Estudio de fotografía</h2>
+              <p className="text-textSecondary font-sans font-light text-sm leading-relaxed mb-6">
+                Disponible para bodas, retratos y eventos en Madrid y desplazamientos en todo el territorio nacional.
+              </p>
+            </div>
 
-            <a 
-              href="https://www.instagram.com/espinolafotos/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="apple-card p-5 rounded-apple-card border border-black/[0.06] shadow-apple-subtle flex items-center gap-4 hover:scale-[1.02] transition-transform group"
-            >
-              <div className="w-10 h-10 rounded-apple-btn bg-accentMain/10 text-accentMain flex items-center justify-center shrink-0">
-                <Instagram size={18} />
+            <div className="flex flex-col gap-5">
+              <div className="border-b border-black/[0.06] pb-4">
+                <span className="text-xs text-textSecondary block mb-1">Correo electrónico</span>
+                <a 
+                  href="mailto:Christianespinolas2317@gmail.com"
+                  className="font-sans text-sm text-textMain hover:text-accentMain transition-colors"
+                >
+                  Christianespinolas2317@gmail.com
+                </a>
               </div>
-              <div>
-                <span className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans">Instagram</span>
-                <span className="text-xs font-sans text-textMain block group-hover:text-accentMain transition-colors">
+
+              <div className="border-b border-black/[0.06] pb-4">
+                <span className="text-xs text-textSecondary block mb-1">WhatsApp y teléfono</span>
+                <a 
+                  href="https://wa.me/34640646963"
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="font-sans text-sm text-textMain hover:text-accentMain transition-colors"
+                >
+                  +34 640 64 69 63
+                </a>
+              </div>
+
+              <div className="border-b border-black/[0.06] pb-4">
+                <span className="text-xs text-textSecondary block mb-1">Galería en Instagram</span>
+                <a 
+                  href="https://www.instagram.com/espinolafotos/"
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="font-sans text-sm text-textMain hover:text-accentMain transition-colors"
+                >
                   @espinolafotos
-                </span>
+                </a>
               </div>
-            </a>
+            </div>
+
+            {/* Cuadro de Compromiso de Tiempo de Respuesta */}
+            <div className="apple-glass p-5 rounded-apple-card border border-black/[0.06]">
+              <span className="font-serif italic text-accentMain text-sm block mb-1">Atención personalizada</span>
+              <p className="text-xs text-textSecondary font-sans font-light leading-relaxed">
+                Respondo habitualmente a todas las solicitudes en un plazo máximo de 24 horas con disponibilidad y propuesta detallada.
+              </p>
+            </div>
           </div>
 
           {/* Formulario de Contacto (Apple Card con 44px inputs) */}
-          <div className="w-full md:w-2/3 scroll-reveal apple-card p-8 md:p-10 rounded-apple-card border border-black/[0.06] shadow-apple-card">
-            <h2 className="title-main text-xl text-textMain mb-6">ENVÍAME UN MENSAJE</h2>
+          <div className="w-full md:w-7/12 scroll-reveal apple-card p-8 md:p-10 rounded-apple-card border border-black/[0.06] shadow-apple-card">
+            <h2 className="title-main text-2xl text-textMain mb-6">Envíame un mensaje</h2>
             
             <form onSubmit={handleEmailSubmit} className="flex flex-col gap-6">
               <div className="flex flex-col sm:flex-row gap-6">
                 <div className="w-full sm:w-1/2">
-                  <label htmlFor="name" className="block text-[11px] uppercase tracking-widest text-textSecondary font-sans mb-2">
-                    Nombre completo
+                  <label htmlFor="name" className="block text-xs text-textSecondary font-sans mb-2">
+                    Nombre y apellidos
                   </label>
                   <input 
                     type="text" 
@@ -182,13 +217,13 @@ const Contact = () => {
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Tu nombre"
+                    placeholder="Tu nombre completo"
                     className="apple-input w-full bg-white border border-black/[0.1] rounded-apple-btn px-4 font-sans text-sm text-textMain focus:outline-none focus:border-accentMain focus:ring-2 focus:ring-accentMain/20 transition-all"
                   />
                 </div>
                 <div className="w-full sm:w-1/2">
-                  <label htmlFor="email" className="block text-[11px] uppercase tracking-widest text-textSecondary font-sans mb-2">
-                    Correo Electrónico
+                  <label htmlFor="email" className="block text-xs text-textSecondary font-sans mb-2">
+                    Correo electrónico
                   </label>
                   <input 
                     type="email" 
@@ -204,8 +239,8 @@ const Contact = () => {
               </div>
 
               <div>
-                <label htmlFor="service" className="block text-[11px] uppercase tracking-widest text-textSecondary font-sans mb-2">
-                  Servicio de Interés
+                <label htmlFor="service" className="block text-xs text-textSecondary font-sans mb-2">
+                  Servicio de interés
                 </label>
                 <select 
                   id="service" 
@@ -215,18 +250,22 @@ const Contact = () => {
                   onChange={handleChange}
                   className="apple-input w-full bg-white border border-black/[0.1] rounded-apple-btn px-4 font-sans text-sm text-textMain focus:outline-none focus:border-accentMain focus:ring-2 focus:ring-accentMain/20 transition-all cursor-pointer"
                 >
-                  <option value="" disabled>Selecciona un servicio</option>
-                  <option value="Boda">Boda Completa / Civil</option>
-                  <option value="Retrato">Retrato / Sesión Individual</option>
-                  <option value="Eventos">Quinceañeras / Cumpleaños / Bautizos</option>
-                  <option value="Deportes">Eventos Deportivos</option>
-                  <option value="Otro">Otro tipo de proyecto</option>
+                  <option value="" disabled>Selecciona el tipo de sesión o reportaje</option>
+                  <option value="Boda Completa">Boda completa de autor</option>
+                  <option value="Boda Civil">Boda civil o íntima</option>
+                  <option value="Retrato">Sesión individual, retrato o moda</option>
+                  <option value="15 Años">Fiestas de 15 años y quinceañeras</option>
+                  <option value="Cumpleaños">Cumpleaños y celebraciones infantiles</option>
+                  <option value="Bautizo">Bautizo o primera comunión</option>
+                  <option value="Deportes">Eventos deportivos</option>
+                  <option value="Sesión Especial">Sesión especial de pareja o familia</option>
+                  <option value="Otro">Otro proyecto personalizado</option>
                 </select>
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-[11px] uppercase tracking-widest text-textSecondary font-sans mb-2">
-                  Mensaje o Detalles del Evento
+                <label htmlFor="message" className="block text-xs text-textSecondary font-sans mb-2">
+                  Detalles del evento o fecha estimada
                 </label>
                 <textarea 
                   id="message" 
@@ -235,34 +274,25 @@ const Contact = () => {
                   rows={4}
                   value={formData.message}
                   onChange={handleChange}
-                  placeholder="Cuéntame sobre las fechas, lugar y lo que sueñas para tu sesión..."
+                  placeholder="Cuéntame sobre la fecha deseada, la ubicación y qué tipo de momentos te gustaría recordar..."
                   className="w-full bg-white border border-black/[0.1] rounded-apple-btn p-4 font-sans text-sm text-textMain focus:outline-none focus:border-accentMain focus:ring-2 focus:ring-accentMain/20 transition-all resize-none"
                 ></textarea>
               </div>
 
-              {/* Condiciones de Reserva */}
-              <div className="bg-black/[0.02] border border-black/[0.06] p-4 rounded-apple-btn">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <ShieldCheck size={14} className="text-accentMain" />
-                  <span className="text-[10px] uppercase font-sans tracking-widest text-textMain font-medium">
-                    Condiciones Clave de Contratación
-                  </span>
+              {/* Aviso de Validación o Feedback */}
+              {validationError && (
+                <div className="apple-glass p-3.5 rounded-apple-btn border border-red-500/20 bg-red-50/50 flex items-center gap-2.5 text-xs text-red-800 animate-fade-in">
+                  <AlertCircle size={16} className="text-red-600 shrink-0" />
+                  <span>{validationError}</span>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <span className="apple-badge bg-white border border-black/[0.06] text-textSecondary">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accentMain"></span>
-                    <strong>75%</strong> Adelanto de Reserva
-                  </span>
-                  <span className="apple-badge bg-white border border-black/[0.06] text-textSecondary">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accentMain"></span>
-                    Fecha Exclusiva Bloqueada
-                  </span>
-                  <span className="apple-badge bg-white border border-black/[0.06] text-textSecondary">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accentMain"></span>
-                    Aviso 5 días para cambios
-                  </span>
+              )}
+
+              {submitFeedback && (
+                <div className="apple-glass p-3.5 rounded-apple-btn border border-accentMain/20 bg-accentMain/5 flex items-center gap-2.5 text-xs text-textMain animate-fade-in">
+                  <CheckCircle2 size={16} className="text-accentMain shrink-0" />
+                  <span>{submitFeedback}</span>
                 </div>
-              </div>
+              )}
 
               <div className="flex flex-col sm:flex-row gap-4 mt-2">
                 <button 
@@ -270,20 +300,17 @@ const Contact = () => {
                   className="btn-primary w-full text-xs gap-2"
                 >
                   <Send size={14} />
-                  <span>ENVIAR POR CORREO</span>
+                  <span>Enviar por correo</span>
                 </button>
                 <button 
                   type="button" 
                   onClick={handleWhatsAppSubmit}
-                  className="min-h-[44px] px-6 rounded-apple-btn bg-textMain text-white font-sans text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-apple-subtle hover:bg-neutral-800 active:scale-[0.97] transition-all w-full"
+                  className="min-h-[44px] px-6 rounded-apple-btn border border-black/[0.12] text-textMain font-sans text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-black/[0.03] hover:border-accentMain/40 active:scale-[0.97] transition-all w-full"
                 >
-                  <MessageCircle size={15} />
-                  <span>ENVIAR POR WHATSAPP</span>
+                  <MessageCircle size={15} className="text-accentMain" />
+                  <span>Escribir por WhatsApp</span>
                 </button>
               </div>
-              <p className="text-[11px] text-textSecondary text-center font-sans mt-1">
-                * En PC se abrirá Gmail Web o WhatsApp Web. En móvil se abrirá tu aplicación nativa.
-              </p>
             </form>
           </div>
 

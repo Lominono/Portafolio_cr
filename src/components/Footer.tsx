@@ -6,11 +6,11 @@ const Footer = () => {
   return (
     <footer className="bg-primary pt-24 pb-12 px-6 md:px-16 text-center border-t border-black/[0.06]">
       <div className="max-w-4xl mx-auto flex flex-col items-center">
-        <h2 className="title-main text-2xl md:text-3xl mb-6 text-textMain tracking-title">
-          CRISTIAN ESPINOLA
+        <h2 className="font-serif text-2xl md:text-3xl mb-3 text-textMain tracking-[-0.01em]">
+          Cristian Espinola
         </h2>
-        <p className="text-textSecondary font-sans font-light mb-10 max-w-sm mx-auto text-sm leading-relaxed">
-          Contáctame para consultar disponibilidad y organizar nuestra sesión fotográfica.
+        <p className="text-textSecondary font-sans font-light mb-8 max-w-md mx-auto text-sm leading-relaxed">
+          Fotografía documental, luz natural y memoria visual atemporal. Disponible en Madrid y desplazamientos.
         </p>
         
         {/* Enlaces Sociales con Touch Targets Apple (44x44px) */}
@@ -43,14 +43,14 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-black/[0.06] pt-8 w-full flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[11px] text-textSecondary uppercase tracking-widest font-sans">
-            © {new Date().getFullYear()} CRISTIAN ESPINOLA. TODOS LOS DERECHOS RESERVADOS.
+          <p className="text-xs text-textSecondary font-sans font-light">
+            © {new Date().getFullYear()} Cristian Espinola. Todos los derechos reservados.
           </p>
           <Link 
             to="/legal" 
-            className="text-[11px] text-textSecondary uppercase tracking-widest font-sans hover:text-accentMain transition-colors"
+            className="text-xs text-textSecondary font-sans font-light hover:text-accentMain transition-colors"
           >
-            Aviso Legal y Privacidad
+            Aviso legal y política de privacidad
           </Link>
         </div>
       </div>

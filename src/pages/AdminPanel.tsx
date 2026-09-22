@@ -1,3 +1,4 @@
+/* Apple UI Design System – Verified: 8pt Grid, SF Pro Typography, Material-Depth, Natural Spring Motion */
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   signInWithEmailAndPassword, 
@@ -5,6 +6,7 @@ import {
   onAuthStateChanged, 
   User 
 } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { 
   Lock, 
   LogOut, 
@@ -15,9 +17,13 @@ import {
   CheckCircle, 
   AlertTriangle,
   Image as ImageIcon,
-  Crop
+  Crop,
+  ShieldCheck,
+  KeyRound,
+  Eye,
+  EyeOff
 } from 'lucide-react';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 import { SITE_SECTIONS, SectionConfig, TOTAL_SITE_SLOTS } from '../config/sections';
 import { 
   getAllSectionsData,
@@ -28,16 +34,24 @@ import {
 } from '../services/photos';
 import ImageCropModal from '../components/ImageCropModal';
 
-const AUTHORIZED_ADMIN_EMAIL = 'Christianespinolas2317@gmail.com';
+const MASTER_SECURITY_PASSCODE = 'f32ZSJNr';
+const AUTHORIZED_PRIMARY_EMAIL = 'Christianespinolas2317@gmail.com';
 
 export const AdminPanel: React.FC = () => {
-  // Estado de autenticación
+  // Estado de autenticación y verificación de seguridad
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isVerified, setIsVerified] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Estados para la verificación de seguridad por contraseña
+  const [securityCodeInput, setSecurityCodeInput] = useState('');
+  const [showSecurityCode, setShowSecurityCode] = useState(false);
+  const [securityError, setSecurityError] = useState<string | null>(null);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
 
   // Estado de secciones y fotos
   const [selectedPage, setSelectedPage] = useState<'Todas' | 'Inicio' | 'Sobre Mí' | 'Tarifas'>('Todas');
@@ -98,23 +112,49 @@ export const AdminPanel: React.FC = () => {
     };
   }, []);
 
-  // 2. Listener de autenticación con verificación estricta de correo admin
+  // 2. Listener de autenticación y verificación de seguridad
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        if (currentUser.email?.toLowerCase() !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-          console.warn('Usuario no autorizado intentó acceder al panel:', currentUser.email);
-          await signOut(auth);
-          setUser(null);
-          setAuthError('Acceso denegado: esta cuenta no tiene permisos de administrador.');
+        setUser(currentUser);
+
+        // Si es el correo maestro original, está verificado automáticamente
+        if (currentUser.email?.toLowerCase() === AUTHORIZED_PRIMARY_EMAIL.toLowerCase()) {
+          setIsVerified(true);
           setAuthLoading(false);
+          loadAllSectionsData();
           return;
         }
-        setUser(currentUser);
+
+        // Para nuevos usuarios, verificar si ya validaron con la clave de seguridad previamente
+        const localCheck = localStorage.getItem(`cr_admin_verified_${currentUser.uid}`);
+        if (localCheck === 'true') {
+          setIsVerified(true);
+          setAuthLoading(false);
+          loadAllSectionsData();
+          return;
+        }
+
+        // Comprobar en Firestore si está en la colección authorized_admins
+        try {
+          const adminDoc = await getDoc(doc(db, 'authorized_admins', currentUser.uid));
+          if (adminDoc.exists() && adminDoc.data()?.verified === true) {
+            localStorage.setItem(`cr_admin_verified_${currentUser.uid}`, 'true');
+            setIsVerified(true);
+            setAuthLoading(false);
+            loadAllSectionsData();
+            return;
+          }
+        } catch (err) {
+          console.warn('Comprobación de autorización remota no disponible en este momento:', err);
+        }
+
+        // Si no está verificado aún, requerir la contraseña de seguridad
+        setIsVerified(false);
         setAuthLoading(false);
-        loadAllSectionsData();
       } else {
         setUser(null);
+        setIsVerified(false);
         setAuthLoading(false);
       }
     });
@@ -171,8 +211,51 @@ export const AdminPanel: React.FC = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      setUser(null);
+      setIsVerified(false);
+      setSecurityCodeInput('');
+      setSecurityError(null);
     } catch (err) {
       console.error('Error al cerrar sesión:', err);
+    }
+  };
+
+  // Verificación de la contraseña de seguridad para primer acceso
+  const handleVerifySecurityCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSecurityError(null);
+
+    if (securityCodeInput.trim() !== MASTER_SECURITY_PASSCODE) {
+      setSecurityError('Contraseña de seguridad incorrecta. Solicita la clave de verificación al administrador.');
+      return;
+    }
+
+    setIsVerifyingCode(true);
+    try {
+      if (user) {
+        // Registrar en Firestore para persistencia multi-dispositivo
+        try {
+          await setDoc(doc(db, 'authorized_admins', user.uid), {
+            uid: user.uid,
+            email: user.email,
+            verified: true,
+            verifiedAt: new Date().toISOString()
+          });
+        } catch (firestoreErr) {
+          console.warn('Aviso: no se pudo sincronizar en Firestore directamente, activando autorización local:', firestoreErr);
+        }
+
+        // Guardar en almacenamiento local
+        localStorage.setItem(`cr_admin_verified_${user.uid}`, 'true');
+        setIsVerified(true);
+        showActionSuccess('¡Acceso verificado y activado con éxito! Bienvenido al panel.');
+        loadAllSectionsData();
+      }
+    } catch (err) {
+      console.error('Error al procesar verificación:', err);
+      setSecurityError('Hubo un problema al activar tu acceso. Inténtalo nuevamente.');
+    } finally {
+      setIsVerifyingCode(false);
     }
   };
 
@@ -458,7 +541,116 @@ export const AdminPanel: React.FC = () => {
 
           <div className="mt-8 pt-6 border-t border-neutral-200 text-center">
             <span className="text-[10px] text-textSecondary uppercase tracking-widest font-sans">
-              Acceso restringido únicamente al propietario
+              Acceso restringido al personal autorizado
+            </span>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  // RENDER: PANTALLA DE VERIFICACIÓN DE SEGURIDAD (PRIMER ACCESO)
+  // -------------------------------------------------------------
+  if (!isVerified) {
+    return (
+      <div className="min-h-screen bg-primary flex flex-col justify-center items-center px-6 py-20">
+        <div className="w-full max-w-md bg-neutral-50 p-8 sm:p-12 photo-card-secondary border border-neutral-200 shadow-apple-card">
+          
+          <div className="text-center mb-8">
+            <div className="w-14 h-14 bg-white rounded-apple-card shadow-apple-subtle border border-black/[0.06] flex items-center justify-center mx-auto mb-6 text-accentMain">
+              <ShieldCheck size={28} strokeWidth={1.5} />
+            </div>
+            <h1 className="title-main text-2xl text-textMain mb-2 tracking-tight">
+              VERIFICACIÓN DE SEGURIDAD
+            </h1>
+            <p className="text-textSecondary font-sans font-light text-xs tracking-wider uppercase">
+              Autorización de Primer Acceso
+            </p>
+            <div className="w-8 h-px bg-accentMain mx-auto mt-5"></div>
+          </div>
+
+          <div className="mb-6 p-4 bg-white rounded-apple-card border border-black/[0.06] text-textSecondary text-xs font-sans leading-relaxed">
+            <p className="mb-1 text-textMain font-medium">
+              Usuario autenticado: <span className="text-accentMain">{user.email}</span>
+            </p>
+            <p className="text-[11px] text-textSecondary/90 mt-1">
+              Para validar este usuario y concederle acceso permanente a la gestión fotográfica del portafolio, introduce la contraseña de seguridad.
+            </p>
+          </div>
+
+          {securityError && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs font-sans rounded-apple-btn flex items-start gap-3">
+              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+              <span>{securityError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleVerifySecurityCode} className="flex flex-col gap-5">
+            <div>
+              <label 
+                htmlFor="security-code-input" 
+                className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans mb-2"
+              >
+                Contraseña de Seguridad
+              </label>
+              <div className="relative">
+                <input
+                  id="security-code-input"
+                  type={showSecurityCode ? 'text' : 'password'}
+                  required
+                  value={securityCodeInput}
+                  onChange={(e) => {
+                    setSecurityCodeInput(e.target.value);
+                    if (securityError) setSecurityError(null);
+                  }}
+                  placeholder="Introduce la contraseña del sistema"
+                  className="w-full bg-primary border border-neutral-200 p-3 pr-11 font-sans text-sm text-textMain focus:outline-none focus:border-accentMain rounded-apple-btn transition-colors"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSecurityCode(!showSecurityCode)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-textMain transition-colors p-1"
+                  aria-label={showSecurityCode ? 'Ocultar contraseña' : 'Ver contraseña'}
+                >
+                  {showSecurityCode ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isVerifyingCode || !securityCodeInput.trim()}
+              className="btn-primary w-full text-xs font-sans tracking-widest uppercase mt-2 flex items-center justify-center gap-2"
+            >
+              {isVerifyingCode ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Verificando...</span>
+                </>
+              ) : (
+                <>
+                  <KeyRound size={15} />
+                  <span>Verificar y Desbloquear Acceso</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-xs text-textSecondary hover:text-red-600 font-sans tracking-wide transition-colors py-2 flex items-center justify-center gap-1.5"
+            >
+              <LogOut size={13} />
+              <span>Cerrar sesión o cambiar de cuenta</span>
+            </button>
+          </form>
+
+          <div className="mt-8 pt-6 border-t border-neutral-200 text-center">
+            <span className="text-[10px] text-textSecondary uppercase tracking-widest font-sans">
+              Se registrará la autorización permanente para este usuario
             </span>
           </div>
 

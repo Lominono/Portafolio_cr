@@ -3,7 +3,9 @@ import { useLayoutEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTopButton from './components/ScrollToTopButton';
+import ErrorBoundary from './components/ErrorBoundary';
 import { ADMIN_ROUTE } from './config/admin';
+
 // Carga perezosa (lazy) de todas las páginas para optimizar rendimiento y tiempo de carga
 const Home = lazy(() => import('./pages/Home'));
 const Pricing = lazy(() => import('./pages/Pricing'));
@@ -12,10 +14,23 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Legal = lazy(() => import('./pages/Legal'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 
+const PAGE_TITLES: Record<string, string> = {
+  '/': 'Cristian Espinola | Fotografía Documental',
+  '/sobre-mi': 'Sobre Mí | Cristian Espinola',
+  '/tarifas': 'Tarifas y Servicios | Cristian Espinola',
+  '/contacto': 'Contacto | Cristian Espinola',
+  '/legal': 'Aviso Legal y Privacidad | Cristian Espinola',
+};
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
+
+    // Actualizar título de la pestaña según la ruta
+    if (PAGE_TITLES[pathname]) {
+      document.title = PAGE_TITLES[pathname];
+    }
   }, [pathname]);
   return null;
 };
@@ -52,11 +67,14 @@ const AppContent = () => {
 
 function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <AppContent />
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <ScrollToTop />
+        <AppContent />
+      </Router>
+    </ErrorBoundary>
   );
 }
 
 export default App;
+

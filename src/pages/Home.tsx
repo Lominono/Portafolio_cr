@@ -1,11 +1,12 @@
-/* Apple UI Design System – Verified: 8pt Grid, SF Pro Typography, Material-Depth, Natural Spring Motion */
 import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { Link } from 'react-router-dom';
-import { Camera, ArrowRight, MessageCircle } from 'lucide-react';
+import { ArrowRight, MessageCircle } from 'lucide-react';
 import { subscribeToAllPhotos } from '../services/photos';
+import SmartImage from '../components/SmartImage';
+import AppleLightbox from '../components/AppleLightbox';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -49,8 +50,23 @@ const Home = () => {
   const [portfolioImgs, setPortfolioImgs] = useState<string[]>([]);
   const [photosMap, setPhotosMap] = useState<Record<string, string[]>>({});
 
+  // Estado del visor Apple Lightbox
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [lightboxTitles, setLightboxTitles] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openLightbox = (images: string[], index: number, titles?: string[]) => {
+    const validImages = images.filter(Boolean);
+    if (validImages.length === 0) return;
+    setLightboxImages(validImages);
+    setLightboxIndex(Math.min(index, validImages.length - 1));
+    setLightboxTitles(titles || []);
+    setLightboxOpen(true);
+  };
+
   useEffect(() => {
-    // Suscripción en tiempo real a Firebase Firestore
+    // Suscripción en tiempo real a Firebase Firestore con caché resiliente
     const unsubscribe = subscribeToAllPhotos((allPhotos) => {
       setPhotosMap(allPhotos);
 
@@ -160,55 +176,70 @@ const Home = () => {
     return null;
   };
 
+  const portfolioTitles = [
+    'Fotografía documental y narrativa',
+    'Retrato y luz natural',
+    'Momentos espontáneos',
+    'Detalles de autor'
+  ];
+
   return (
     <div ref={container} className="pt-20 bg-primary">
       
-      {/* Hero Section */}
-      <section className="pt-36 pb-24 md:pt-48 md:pb-36 px-6 md:px-16 flex flex-col items-center text-center">
-        <h1 className="hero-elem title-main text-4xl md:text-6xl text-textMain mb-6 leading-tight tracking-tight">
-          CRISTIAN ESPINOLA<br />
-          <span className="text-xl md:text-3xl text-accentMain mt-4 block font-normal tracking-wide">
-            FOTOGRAFÍA DOCUMENTAL
-          </span>
+      {/* Hero Section Editorial con Fotografía Protagonista */}
+      <section className="pt-32 pb-20 md:pt-44 md:pb-28 px-6 md:px-16 flex flex-col items-center text-center max-w-5xl mx-auto">
+        <span className="hero-elem font-serif italic text-accentMain text-base md:text-lg mb-3 block">
+          Fotografía documental de autor
+        </span>
+        <h1 className="hero-elem font-serif text-4xl sm:text-6xl md:text-7xl text-textMain mb-6 font-normal tracking-[-0.02em]">
+          Cristian Espinola
         </h1>
-        <p className="hero-elem text-textSecondary max-w-lg mx-auto mb-10 font-sans font-light leading-relaxed text-sm md:text-base">
-          Un enfoque íntimo y profesional para capturar la esencia de tus momentos más importantes.
+        
+        <p className="hero-elem text-textSecondary max-w-xl mx-auto mb-10 font-sans font-light leading-relaxed text-sm md:text-base">
+          Capturando la belleza espontánea de tus momentos más valiosos con luz natural, discreción y una mirada sobria que resiste el paso del tiempo.
         </p>
-        <div className="hero-elem flex flex-col sm:flex-row items-center gap-4">
+
+        <div className="hero-elem flex flex-col sm:flex-row items-center gap-4 mb-16">
           <Link to="/tarifas" className="btn-primary">
-            VER TARIFAS Y SERVICIOS
+            Ver tarifas y colecciones
           </Link>
           <a 
             href="https://wa.me/34640646963"
             target="_blank" 
             rel="noopener noreferrer"
-            className="min-h-[44px] px-6 rounded-apple-btn border border-black/[0.12] text-textMain uppercase tracking-widest text-xs font-sans inline-flex items-center justify-center gap-2 hover:bg-black/[0.03] hover:border-accentMain/40 transition-all duration-300 active:scale-95 shadow-sm"
+            className="min-h-[44px] px-6 rounded-apple-btn border border-black/[0.12] text-textMain text-xs font-sans inline-flex items-center justify-center gap-2 hover:bg-black/[0.03] hover:border-accentMain/40 transition-all duration-300 active:scale-95 shadow-sm"
           >
             <MessageCircle size={15} className="text-accentMain" />
-            <span>CONTACTAR POR WHATSAPP</span>
+            <span>Escribir por WhatsApp</span>
           </a>
+        </div>
+
+        {/* Portada Cinemática Hero (Fotografía Central) */}
+        <div className="hero-elem w-full aspect-[16/9] md:aspect-[21/9] rounded-apple-card overflow-hidden shadow-apple-card border border-black/[0.06] bg-neutral-50 relative group">
+          <SmartImage
+            src={portfolioImgs[0] || aboutImg}
+            alt="Fotografía documental Cristian Espinola"
+            fallbackLabel="Fotografía documental de autor"
+            onClick={(portfolioImgs[0] || aboutImg) ? () => openLightbox([portfolioImgs[0] || aboutImg || ''], 0, ['Fotografía documental de autor']) : undefined}
+            className="group-hover:scale-105"
+          />
         </div>
       </section>
 
       {/* About Section */}
       <section className="py-24 px-6 md:px-16 max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16 border-t border-black/[0.06]">
-        <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary relative scroll-reveal bg-neutral-50 flex items-center justify-center overflow-hidden group shadow-apple-card">
-          {aboutImg ? (
-            <img 
-              src={aboutImg} 
-              alt="Retrato Cristian" 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center p-6 text-center">
-              <span className="w-8 h-px bg-accentMain mb-3"></span>
-              <span className="text-textSecondary uppercase tracking-widest text-xs font-sans">Retrato de Cristian</span>
-            </div>
-          )}
+        <div className="w-full md:w-1/2 aspect-[3/4] photo-card-secondary relative scroll-reveal bg-neutral-50 overflow-hidden group shadow-apple-card">
+          <SmartImage
+            src={aboutImg}
+            alt="Retrato de Cristian Espinola"
+            fallbackLabel="Retrato de Cristian"
+            onClick={aboutImg ? () => openLightbox([aboutImg], 0, ['Retrato de Cristian Espinola']) : undefined}
+            className="group-hover:scale-105"
+          />
         </div>
         
         <div className="w-full md:w-1/2 scroll-reveal">
-          <h2 className="title-main text-3xl md:text-4xl text-textMain mb-6">SOBRE MÍ</h2>
+          <h2 className="title-main text-3xl md:text-4xl text-textMain mb-6">Sobre mí</h2>
           <p className="text-textSecondary font-sans font-light leading-relaxed mb-6 text-sm md:text-base">
             Hola, soy <strong className="font-normal text-textMain">Cristian Espinola</strong>. Mi pasión es contar historias a través de imágenes auténticas y atemporales. Creo firmemente que cada persona, pareja o evento tiene una narrativa única que merece ser preservada con el mayor cuidado y sentido estético.
           </p>
@@ -217,20 +248,22 @@ const Home = () => {
           </p>
           <Link 
             to="/sobre-mi" 
-            className="min-h-[44px] px-6 rounded-apple-btn border border-accentMain/30 text-accentMain uppercase tracking-widest text-xs font-sans inline-flex items-center justify-center gap-2 hover:bg-accentMain hover:text-white transition-all duration-300 active:scale-95 shadow-sm"
+            className="min-h-[44px] px-6 rounded-apple-btn border border-accentMain/30 text-accentMain text-xs font-sans inline-flex items-center justify-center gap-2 hover:bg-accentMain hover:text-white transition-all duration-300 active:scale-95 shadow-sm"
           >
-            <span>CONOCE MÁS SOBRE MI TRABAJO</span>
+            <span>Conocer más sobre mi trabajo</span>
             <ArrowRight size={14} />
           </Link>
         </div>
       </section>
 
-      {/* Services / Especialidades */}
+      {/* Services / Disciplinas Fotográficas */}
       <section className="py-24 px-6 md:px-16 border-t border-black/[0.06]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 scroll-reveal">
-            <h2 className="title-main text-3xl md:text-4xl text-textMain mb-4">ESPECIALIDADES</h2>
-            <div className="w-12 h-px bg-accentMain mx-auto accent-divider origin-center"></div>
+            <h2 className="title-main text-3xl md:text-4xl text-textMain mb-3">Disciplinas fotográficas</h2>
+            <p className="text-sm text-textSecondary font-sans font-light max-w-md mx-auto">
+              Cada sesión está diseñada con un ritmo natural, respetando la atmósfera del lugar.
+            </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 services-container">
@@ -241,29 +274,22 @@ const Home = () => {
                 <Link 
                   key={i} 
                   to="/tarifas" 
-                  className="service-card group cursor-pointer block p-4 rounded-apple-card apple-card transition-all duration-300"
+                  className="service-card group cursor-pointer block transition-all duration-300"
                 >
-                  <div className="aspect-[4/5] mb-5 rounded-[14px] overflow-hidden relative bg-neutral-50 border border-black/[0.04]">
-                    {srvImg ? (
-                      <img 
-                        src={srvImg} 
-                        alt={srv.title} 
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                      />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
-                        <span className="w-6 h-px bg-accentMain mb-2"></span>
-                        <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">
-                          {srv.title}
-                        </span>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="aspect-[4/5] mb-5 rounded-apple-card overflow-hidden relative bg-neutral-50 border border-black/[0.06] shadow-apple-subtle">
+                    <SmartImage
+                      src={srvImg}
+                      alt={srv.title}
+                      fallbackLabel={srv.title}
+                      expandable={false}
+                      className="group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                   </div>
-                  <h3 className="title-main text-base text-textMain mb-2 group-hover:text-accentMain transition-colors text-center">
+                  <h3 className="title-main text-lg text-textMain mb-2 group-hover:text-accentMain transition-colors text-center">
                     {srv.title}
                   </h3>
-                  <p className="text-xs text-textSecondary font-sans font-light leading-relaxed text-center">
+                  <p className="text-xs text-textSecondary font-sans font-light leading-relaxed text-center px-2">
                     {srv.desc}
                   </p>
                 </Link>
@@ -273,81 +299,58 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Portfolio Highlight (4 slots fijos con radios de 20px estilo Apple) */}
+      {/* Portfolio Highlight */}
       <section className="py-24 px-6 md:px-16 max-w-6xl mx-auto border-t border-black/[0.06] scroll-reveal">
         <div className="text-center mb-16">
-          <h2 className="title-main text-3xl md:text-4xl text-textMain mb-4">PORTAFOLIO</h2>
-          <div className="w-12 h-px bg-accentMain mx-auto accent-divider origin-center"></div>
+          <h2 className="title-main text-3xl md:text-4xl text-textMain mb-3">Colección destacada</h2>
+          <p className="text-sm text-textSecondary font-sans font-light">
+            Haz clic en cualquier imagen para abrirla en alta resolución
+          </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 portfolio-grid mb-12">
           {/* Foto 1 (Apaisada 16:9) */}
-          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group portfolio-card-anim shadow-apple-card">
-            {portfolioImgs[0] ? (
-              <img 
-                src={portfolioImgs[0]} 
-                alt="Portafolio Documental Cristian Espinola 1" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center p-6 text-center">
-                <Camera size={26} strokeWidth={1.2} className="text-accentMain mb-2.5 opacity-60" />
-                <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">
-                  Portafolio Documental
-                </span>
-              </div>
-            )}
+          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 overflow-hidden group portfolio-card-anim shadow-apple-card">
+            <SmartImage
+              src={portfolioImgs[0]}
+              alt={portfolioTitles[0]}
+              fallbackLabel="Portafolio Documental"
+              onClick={portfolioImgs[0] ? () => openLightbox(portfolioImgs, 0, portfolioTitles) : undefined}
+              className="group-hover:scale-105"
+            />
           </div>
+          
           {/* Foto 2 (Vertical 3:4) */}
-          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group portfolio-card-anim shadow-apple-card">
-            {portfolioImgs[1] ? (
-              <img 
-                src={portfolioImgs[1]} 
-                alt="Portafolio Retrato Cristian Espinola 2" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center p-6 text-center">
-                <Camera size={24} strokeWidth={1.2} className="text-accentMain mb-2 opacity-60" />
-                <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">
-                  Retrato & Luz
-                </span>
-              </div>
-            )}
+          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 overflow-hidden group portfolio-card-anim shadow-apple-card">
+            <SmartImage
+              src={portfolioImgs[1]}
+              alt={portfolioTitles[1]}
+              fallbackLabel="Retrato y luz natural"
+              onClick={portfolioImgs[1] ? () => openLightbox(portfolioImgs, 1, portfolioTitles) : undefined}
+              className="group-hover:scale-105"
+            />
           </div>
+          
           {/* Foto 3 (Vertical 3:4) */}
-          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group portfolio-card-anim shadow-apple-card">
-            {portfolioImgs[2] ? (
-              <img 
-                src={portfolioImgs[2]} 
-                alt="Portafolio Momentos Cristian Espinola 3" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center p-6 text-center">
-                <Camera size={24} strokeWidth={1.2} className="text-accentMain mb-2 opacity-60" />
-                <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">
-                  Detalles & Emoción
-                </span>
-              </div>
-            )}
+          <div className="aspect-[3/4] photo-card-secondary bg-neutral-50 overflow-hidden group portfolio-card-anim shadow-apple-card">
+            <SmartImage
+              src={portfolioImgs[2]}
+              alt={portfolioTitles[2]}
+              fallbackLabel="Momentos espontáneos"
+              onClick={portfolioImgs[2] ? () => openLightbox(portfolioImgs, 2, portfolioTitles) : undefined}
+              className="group-hover:scale-105"
+            />
           </div>
+          
           {/* Foto 4 (Apaisada 16:9) */}
-          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 flex items-center justify-center overflow-hidden group portfolio-card-anim shadow-apple-card">
-            {portfolioImgs[3] ? (
-              <img 
-                src={portfolioImgs[3]} 
-                alt="Portafolio Narrativa Cristian Espinola 4" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center p-6 text-center">
-                <Camera size={26} strokeWidth={1.2} className="text-accentMain mb-2.5 opacity-60" />
-                <span className="text-textSecondary uppercase tracking-widest text-[10px] font-sans">
-                  Narrativa Visual
-                </span>
-              </div>
-            )}
+          <div className="md:col-span-2 aspect-[16/9] photo-card-secondary bg-neutral-50 overflow-hidden group portfolio-card-anim shadow-apple-card">
+            <SmartImage
+              src={portfolioImgs[3]}
+              alt={portfolioTitles[3]}
+              fallbackLabel="Detalles de autor"
+              onClick={portfolioImgs[3] ? () => openLightbox(portfolioImgs, 3, portfolioTitles) : undefined}
+              className="group-hover:scale-105"
+            />
           </div>
         </div>
         
@@ -356,12 +359,22 @@ const Home = () => {
             href="https://www.instagram.com/espinolafotos/" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="min-h-[44px] px-8 rounded-apple-btn border border-black/[0.12] text-textMain uppercase tracking-widest text-xs font-sans inline-flex items-center justify-center hover:bg-black/[0.03] hover:border-accentMain/40 transition-all duration-300 active:scale-95 shadow-sm"
+            className="min-h-[44px] px-8 rounded-apple-btn border border-black/[0.12] text-textMain text-xs font-sans inline-flex items-center justify-center hover:bg-black/[0.03] hover:border-accentMain/40 transition-all duration-300 active:scale-95 shadow-sm"
           >
-            VER MÁS EN INSTAGRAM
+            Explorar más en Instagram
           </a>
         </div>
       </section>
+
+      {/* Visor Lightbox Nativo de Fotografía */}
+      <AppleLightbox
+        isOpen={lightboxOpen}
+        images={lightboxImages}
+        currentIndex={lightboxIndex}
+        titles={lightboxTitles}
+        onClose={() => setLightboxOpen(false)}
+        onNavigate={(newIdx) => setLightboxIndex(newIdx)}
+      />
 
     </div>
   );
