@@ -295,9 +295,18 @@ export const AdminPanel: React.FC = () => {
         showHighRes: 'Entrega en alta resolución',
       };
       showActionSuccess(`Opción "${labelMap[key]}" ${newValue ? 'activada' : 'desactivada'} en tiempo real.`);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error al actualizar característica de tarifas:', err);
-      showActionError('No se pudo sincronizar el cambio con Firestore.');
+      const isPermissionDenied = 
+        err?.code === 'permission-denied' || 
+        err?.message?.toLowerCase().includes('permission') ||
+        err?.message?.toLowerCase().includes('insufficient');
+
+      if (isPermissionDenied) {
+        showActionError('Permisos de Firebase: Publica las reglas actualizadas en Firebase Console para permitir cambios con este usuario.');
+      } else {
+        showActionError('No se pudo sincronizar el cambio con Firestore.');
+      }
       // Revertir en caso de error
       setPricingFeatures((prev) => ({ ...prev, [key]: !newValue }));
     } finally {
