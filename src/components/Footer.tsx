@@ -10,7 +10,7 @@ const Footer = () => {
           Cristian Espinola
         </h2>
         <p className="text-textSecondary font-sans font-light mb-8 max-w-md mx-auto text-sm leading-relaxed">
-          Fotografía documental, luz natural y memoria visual atemporal. Disponible en Madrid y desplazamientos.
+          Fotografía documental, luz natural y memoria visual atemporal. Disponible en Santander, Cantabria y desplazamientos.
         </p>
         
         {/* Enlaces Sociales con Touch Targets Apple (44x44px) */}

@@ -151,7 +151,7 @@ const Contact = () => {
             <div>
               <h2 className="title-main text-2xl text-textMain mb-3">Estudio de fotografía</h2>
               <p className="text-textSecondary font-sans font-light text-sm leading-relaxed mb-6">
-                Disponible para bodas, retratos y eventos en Madrid y desplazamientos en todo el territorio nacional.
+                Disponible para bodas, retratos y eventos en Santander, Cantabria y desplazamientos en todo el territorio nacional.
               </p>
             </div>
 

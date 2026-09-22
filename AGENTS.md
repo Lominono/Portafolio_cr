@@ -51,3 +51,10 @@ Estas directrices deben aplicarse **siempre** en cualquier tarea de frontend, in
   - Numeraciones (`01`, `02`) solo si el contenido es realmente secuencial.
 - **Plan en dos fases:** Planificar tokens y contrastar con la intención del diseño antes de escribir código.
 - **Copywriting intencionado:** Textos activos, directos y naturales para el usuario.
+
+---
+
+## 5. Regla Estricta: Prohibido Inventar Datos Biográficos y Ubicaciones
+- **Base Territorial Oficial:** Cristian Espinola trabaja desde **Santander, Cantabria** (NUNCA en Madrid). Cualquier mención a su ubicación base debe indicar **Santander, Cantabria** (con disponibilidad para desplazamientos).
+- **Prohibido Inventar Datos:** NUNCA inventar años de experiencia ni de servicio (como "8 años de servicio" o cualquier otra cifra no suministrada), premios, certificaciones, número de bodas ni ningún dato biográfico que no haya sido dado expresamente por el cliente.
+- **Fidelidad al cliente:** Todos los textos, semblanza y datos comerciales deben ceñirse estrictamente a la realidad comunicada por el fotógrafo.

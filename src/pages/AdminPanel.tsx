@@ -21,7 +21,8 @@ import {
   ShieldCheck,
   KeyRound,
   Eye,
-  EyeOff
+  EyeOff,
+  SlidersHorizontal
 } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { SITE_SECTIONS, SectionConfig, TOTAL_SITE_SLOTS } from '../config/sections';
@@ -32,6 +33,12 @@ import {
   deletePhoto, 
   StoredPhoto 
 } from '../services/photos';
+import { 
+  subscribeToPricingFeatures, 
+  updatePricingFeatures, 
+  PricingFeaturesConfig, 
+  DEFAULT_PRICING_FEATURES 
+} from '../services/settings';
 import ImageCropModal from '../components/ImageCropModal';
 
 const MASTER_SECURITY_PASSCODE = 'f32ZSJNr';
@@ -52,6 +59,10 @@ export const AdminPanel: React.FC = () => {
   const [showSecurityCode, setShowSecurityCode] = useState(false);
   const [securityError, setSecurityError] = useState<string | null>(null);
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+
+  // Estado de características visibles en tarifas (en tiempo real)
+  const [pricingFeatures, setPricingFeatures] = useState<PricingFeaturesConfig>(DEFAULT_PRICING_FEATURES);
+  const [isUpdatingFeature, setIsUpdatingFeature] = useState(false);
 
   // Estado de secciones y fotos
   const [selectedPage, setSelectedPage] = useState<'Todas' | 'Inicio' | 'Sobre Mí' | 'Tarifas'>('Todas');
@@ -256,6 +267,41 @@ export const AdminPanel: React.FC = () => {
       setSecurityError('Hubo un problema al activar tu acceso. Inténtalo nuevamente.');
     } finally {
       setIsVerifyingCode(false);
+    }
+  };
+
+  // Suscripción reactiva a las características de tarifas cuando el administrador esté autenticado
+  useEffect(() => {
+    if (!isVerified) return;
+    const unsub = subscribeToPricingFeatures((features) => {
+      setPricingFeatures(features);
+    });
+    return () => unsub();
+  }, [isVerified]);
+
+  // Manejo de activación / desactivación en tiempo real de características de tarifas
+  type FeatureKey = 'showImageEditing' | 'showPrivateGallery' | 'showHighRes';
+
+  const handleTogglePricingFeature = async (key: FeatureKey) => {
+    const newValue = !pricingFeatures[key];
+    // Actualización optimista inmediata en la UI
+    setPricingFeatures((prev) => ({ ...prev, [key]: newValue }));
+    setIsUpdatingFeature(true);
+    try {
+      await updatePricingFeatures({ [key]: newValue });
+      const labelMap: Record<FeatureKey, string> = {
+        showImageEditing: 'Edición de imagen',
+        showPrivateGallery: 'Galería privada',
+        showHighRes: 'Entrega en alta resolución',
+      };
+      showActionSuccess(`Opción "${labelMap[key]}" ${newValue ? 'activada' : 'desactivada'} en tiempo real.`);
+    } catch (err) {
+      console.error('Error al actualizar característica de tarifas:', err);
+      showActionError('No se pudo sincronizar el cambio con Firestore.');
+      // Revertir en caso de error
+      setPricingFeatures((prev) => ({ ...prev, [key]: !newValue }));
+    } finally {
+      setIsUpdatingFeature(false);
     }
   };
 
@@ -811,6 +857,127 @@ export const AdminPanel: React.FC = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-10">
+            {/* Panel de Control de Características en Tarifas (Tiempo Real) */}
+            {(selectedPage === 'Todas' || selectedPage === 'Tarifas') && (
+              <div className="bg-white rounded-apple-card p-6 sm:p-8 border border-neutral-200 shadow-apple-card photo-card-secondary transition-all">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-neutral-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-apple-btn bg-accentMain/10 text-accentMain flex items-center justify-center shrink-0">
+                      <SlidersHorizontal size={20} strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <h2 className="title-main text-base sm:text-lg text-textMain tracking-tight">
+                        CARACTERÍSTICAS VISIBLES EN TARIFAS
+                      </h2>
+                      <p className="text-xs text-textSecondary font-sans font-light mt-0.5">
+                        Activa o desactiva qué inclusiones se muestran a los visitantes en los paquetes de servicios.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="apple-badge text-green-700 bg-green-50 border-green-200/60 shrink-0 self-start sm:self-auto">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span className="font-sans text-[11px] font-medium">Sincronización en Vivo</span>
+                  </div>
+                </div>
+
+                {/* Lista de Interruptores Apple iOS */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
+                  
+                  {/* Opción 1: Edición de Imagen */}
+                  <div className="p-4 rounded-apple-card bg-neutral-50/70 border border-black/[0.04] flex items-center justify-between gap-4 transition-all hover:bg-neutral-100/50">
+                    <div className="pr-2">
+                      <span className="text-xs font-medium text-textMain font-sans block mb-0.5">
+                        Edición de imagen
+                      </span>
+                      <span className="text-[11px] text-textSecondary font-sans font-light leading-snug block">
+                        Muestra «✓ Edición de imagen» en cada paquete.
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={pricingFeatures.showImageEditing}
+                      disabled={isUpdatingFeature}
+                      onClick={() => handleTogglePricingFeature('showImageEditing')}
+                      className={`w-[51px] h-[31px] rounded-full p-[2px] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] relative shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accentMain ${
+                        pricingFeatures.showImageEditing ? 'bg-accentMain' : 'bg-neutral-300'
+                      }`}
+                      aria-label="Alternar visibilidad de Edición de imagen"
+                    >
+                      <span 
+                        className={`block w-[27px] h-[27px] rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+                          pricingFeatures.showImageEditing ? 'translate-x-[20px]' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Opción 2: Galería Privada */}
+                  <div className="p-4 rounded-apple-card bg-neutral-50/70 border border-black/[0.04] flex items-center justify-between gap-4 transition-all hover:bg-neutral-100/50">
+                    <div className="pr-2">
+                      <span className="text-xs font-medium text-textMain font-sans block mb-0.5">
+                        Galería privada
+                      </span>
+                      <span className="text-[11px] text-textSecondary font-sans font-light leading-snug block">
+                        Muestra «✓ Galería privada» protegida digitalmente.
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={pricingFeatures.showPrivateGallery}
+                      disabled={isUpdatingFeature}
+                      onClick={() => handleTogglePricingFeature('showPrivateGallery')}
+                      className={`w-[51px] h-[31px] rounded-full p-[2px] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] relative shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accentMain ${
+                        pricingFeatures.showPrivateGallery ? 'bg-accentMain' : 'bg-neutral-300'
+                      }`}
+                      aria-label="Alternar visibilidad de Galería privada"
+                    >
+                      <span 
+                        className={`block w-[27px] h-[27px] rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+                          pricingFeatures.showPrivateGallery ? 'translate-x-[20px]' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Opción 3: Entrega en Alta Resolución */}
+                  <div className="p-4 rounded-apple-card bg-neutral-50/70 border border-black/[0.04] flex items-center justify-between gap-4 transition-all hover:bg-neutral-100/50">
+                    <div className="pr-2">
+                      <span className="text-xs font-medium text-textMain font-sans block mb-0.5">
+                        Entrega en alta resolución
+                      </span>
+                      <span className="text-[11px] text-textSecondary font-sans font-light leading-snug block">
+                        Muestra «✓ Entrega en alta resolución».
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={pricingFeatures.showHighRes}
+                      disabled={isUpdatingFeature}
+                      onClick={() => handleTogglePricingFeature('showHighRes')}
+                      className={`w-[51px] h-[31px] rounded-full p-[2px] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] relative shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accentMain ${
+                        pricingFeatures.showHighRes ? 'bg-accentMain' : 'bg-neutral-300'
+                      }`}
+                      aria-label="Alternar visibilidad de Entrega en alta resolución"
+                    >
+                      <span 
+                        className={`block w-[27px] h-[27px] rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+                          pricingFeatures.showHighRes ? 'translate-x-[20px]' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
             {filteredSections.map((section) => {
               const currentPhotos = photosData[section.id] || [];
               const isLimitReached = currentPhotos.length >= section.maxPhotos;

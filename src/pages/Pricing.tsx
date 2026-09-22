@@ -5,6 +5,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { MessageCircle, ShieldCheck, FileText, Clock, ArrowRight } from 'lucide-react';
 import { subscribeToAllPhotos } from '../services/photos';
+import { 
+  subscribeToPricingFeatures, 
+  PricingFeaturesConfig, 
+  DEFAULT_PRICING_FEATURES 
+} from '../services/settings';
 import SmartImage from '../components/SmartImage';
 import AppleLightbox from '../components/AppleLightbox';
 
@@ -103,6 +108,7 @@ const extrasData = [
 const Pricing = () => {
   const container = useRef<HTMLDivElement>(null);
   const [pricingImgs, setPricingImgs] = useState<Record<string, string[]>>({});
+  const [features, setFeatures] = useState<PricingFeaturesConfig>(DEFAULT_PRICING_FEATURES);
 
   // Estado del visor Apple Lightbox
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -120,11 +126,18 @@ const Pricing = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = subscribeToAllPhotos((allPhotos) => {
+    const unsubPhotos = subscribeToAllPhotos((allPhotos) => {
       setPricingImgs(allPhotos);
     });
 
-    return () => unsubscribe();
+    const unsubFeatures = subscribeToPricingFeatures((newFeatures) => {
+      setFeatures(newFeatures);
+    });
+
+    return () => {
+      unsubPhotos();
+      unsubFeatures();
+    };
   }, []);
 
   useGSAP(() => {
@@ -303,11 +316,14 @@ const Pricing = () => {
                     {item.desc}
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-textSecondary font-sans font-light mb-8">
-                    <span>✓ Edición de autor</span>
-                    <span>✓ Galería privada</span>
-                    <span>✓ Descarga en alta resolución</span>
-                  </div>
+                  {/* Características de servicio dinámicas según configuración en tiempo real */}
+                  {(features.showImageEditing || features.showPrivateGallery || features.showHighRes) && (
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-textSecondary font-sans font-light mb-8 animate-fade-in">
+                      {features.showImageEditing && <span>✓ Edición de imagen</span>}
+                      {features.showPrivateGallery && <span>✓ Galería privada</span>}
+                      {features.showHighRes && <span>✓ Entrega en alta resolución</span>}
+                    </div>
+                  )}
 
                   <div>
                     <a 
