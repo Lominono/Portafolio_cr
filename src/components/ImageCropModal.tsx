@@ -6,15 +6,11 @@ import {
   RotateCw, 
   ZoomIn, 
   ZoomOut, 
-  Crop,
-  Eye,
-  Smartphone,
-  Sparkles,
-  AlertCircle,
-  User,
-  Crosshair,
-  Lock,
-  CheckCircle2
+  Crop, 
+  Eye, 
+  AlertCircle, 
+  User, 
+  Crosshair 
 } from 'lucide-react';
 
 interface ImageCropModalProps {
@@ -362,47 +358,42 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
       <div className="bg-white w-full max-w-3xl rounded-apple-card border border-neutral-300 shadow-2xl flex flex-col max-h-[96vh] overflow-hidden my-auto">
         
         {/* Cabecera del Editor con Identificación de Marco */}
-        <div className="bg-neutral-50 px-5 py-3.5 border-b border-neutral-200 flex items-center justify-between shrink-0">
+        <div className="bg-white px-5 py-3.5 border-b border-black/[0.06] flex items-center justify-between shrink-0">
           <div className="flex-1 pr-3 truncate">
             <div className="flex items-center gap-2">
               <Crop size={16} className="text-accentMain shrink-0" />
-              <h2 className="title-main text-xs sm:text-sm text-textMain tracking-widest truncate">
-                ENCUADRE EXACTO DE FOTOGRAFÍA
+              <h2 className="font-serif text-sm text-textMain tracking-tight truncate">
+                Ajustar encuadre
               </h2>
             </div>
-            <p className="text-[11px] text-textSecondary font-sans truncate mt-0.5">
-              {sectionTitle} {slotLabel ? `— ${slotLabel}` : ''}
+            <p className="text-xs text-textSecondary font-sans truncate mt-0.5">
+              {sectionTitle} {slotLabel ? `· ${slotLabel}` : ''}
             </p>
           </div>
 
           <button
             onClick={onCancel}
             disabled={isProcessing}
-            className="w-8 h-8 rounded-apple-btn flex items-center justify-center text-textSecondary hover:text-textMain hover:bg-black/[0.05] transition-colors"
-            title="Cerrar sin guardar"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-textSecondary hover:text-textMain hover:bg-black/[0.04] transition-colors"
+            title="Cerrar"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
-        {/* Notificación de Bloqueo de Formato Obligatorio */}
-        <div className="bg-accentMain/[0.06] border-b border-accentMain/20 px-5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-sans shrink-0">
+        {/* Barra de proporción y recomendación */}
+        <div className="bg-neutral-50 border-b border-black/[0.04] px-5 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-sans shrink-0">
           <div className="flex items-center gap-2">
-            <Lock size={13} className="text-accentMain shrink-0" />
-            <span className="text-[11px] text-textMain font-medium">
-              Formato Obligatorio para este marco: <strong className="text-accentMain">{lockedRatioConfig.label}</strong>
+            <span className="text-textSecondary">Proporción:</span>
+            <span className="font-medium text-textMain px-2 py-0.5 bg-white border border-black/[0.06] rounded-md text-[11px]">
+              {lockedRatioConfig.label}
             </span>
           </div>
-          {recommendationTip ? (
-            <div className="flex items-center gap-1.5 text-[10px] text-textSecondary">
+          {recommendationTip && (
+            <div className="flex items-center gap-1.5 text-[11px] text-textSecondary truncate max-w-md">
               <AlertCircle size={12} className="text-accentMain shrink-0" />
-              <span className="truncate max-w-md">{recommendationTip}</span>
+              <span className="truncate">{recommendationTip}</span>
             </div>
-          ) : (
-            <span className="text-[10px] text-textSecondary hidden sm:inline-flex items-center gap-1">
-              <CheckCircle2 size={12} className="text-green-600" />
-              Garantiza 100% de coincidencia en la web
-            </span>
           )}
         </div>
 
@@ -460,23 +451,14 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
               <div></div>
             </div>
 
-            {/* Guía de esquinas Apple redondeadas */}
             <div className="absolute inset-0 border border-white/40 rounded-apple-card pointer-events-none"></div>
-
-            {/* Ayuda de gestos móvil */}
-            <div className="absolute bottom-2 left-0 right-0 flex justify-center pointer-events-none px-2">
-              <span className="bg-black/80 backdrop-blur-sm text-white text-[9px] uppercase font-sans tracking-widest px-3 py-1 rounded-apple-badge flex items-center gap-1.5 shadow-sm">
-                <Smartphone size={11} className="text-accentSecondary" />
-                Arrastra para encuadrar • Zoom con slider abajo
-              </span>
-            </div>
           </div>
 
-          {/* Maqueta de Vista Previa (Simulador Web) */}
+          {/* Maqueta de Vista Previa */}
           {showWebPreview && (
             <div className="absolute top-4 right-4 z-30 bg-white/95 backdrop-blur-md p-3.5 rounded-apple-card border border-neutral-300 shadow-2xl max-w-[170px] animate-fadeIn">
-              <span className="block text-[9px] uppercase tracking-widest text-textSecondary font-sans mb-1.5 font-medium">
-                En la web pública:
+              <span className="block text-[10px] text-textSecondary font-sans mb-1.5 font-medium">
+                Vista previa
               </span>
               <div 
                 style={{ aspectRatio: `${targetRatio}` }}
@@ -499,7 +481,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
                   />
                 )}
               </div>
-              <span className="block text-[10px] text-textMain truncate font-serif uppercase text-center">
+              <span className="block text-[11px] text-textMain truncate font-serif text-center">
                 {sectionTitle}
               </span>
             </div>
@@ -507,7 +489,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
         </div>
 
         {/* Barra de Controles y Ajuste Fino */}
-        <div className="p-4 sm:p-5 bg-white border-t border-neutral-200 flex flex-col gap-3.5 shrink-0">
+        <div className="p-4 sm:p-5 bg-white border-t border-black/[0.06] flex flex-col gap-3.5 shrink-0">
           
           {/* Fila de Herramientas de Encuadre */}
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -515,17 +497,17 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
               <button
                 type="button"
                 onClick={handleFocusFace}
-                className="min-h-[36px] px-3 rounded-apple-btn border border-neutral-200 text-xs font-sans text-textMain hover:bg-neutral-50 flex items-center gap-1.5 transition-colors active:scale-95"
-                title="Alinear rostro con el tercio superior"
+                className="h-9 px-3 rounded-lg border border-black/[0.08] text-xs font-sans text-textMain hover:bg-neutral-50 flex items-center gap-1.5 transition-all active:scale-95"
+                title="Alinear con el tercio superior"
               >
                 <User size={13} className="text-accentMain" />
-                <span>Enfocar Rostro</span>
+                <span>Enfocar rostro</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleCenter}
-                className="min-h-[36px] px-3 rounded-apple-btn border border-neutral-200 text-xs font-sans text-textSecondary hover:text-textMain hover:bg-neutral-50 flex items-center gap-1.5 transition-colors active:scale-95"
+                className="h-9 px-3 rounded-lg border border-black/[0.08] text-xs font-sans text-textSecondary hover:text-textMain hover:bg-neutral-50 flex items-center gap-1.5 transition-all active:scale-95"
                 title="Centrar en el marco"
               >
                 <Crosshair size={13} />
@@ -535,7 +517,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
               <button
                 type="button"
                 onClick={handleRotate}
-                className="min-h-[36px] px-3 rounded-apple-btn border border-neutral-200 text-xs font-sans text-textSecondary hover:text-textMain hover:bg-neutral-50 flex items-center gap-1.5 transition-colors active:scale-95"
+                className="h-9 px-3 rounded-lg border border-black/[0.08] text-xs font-sans text-textSecondary hover:text-textMain hover:bg-neutral-50 flex items-center gap-1.5 transition-all active:scale-95"
                 title="Girar 90 grados"
               >
                 <RotateCw size={13} />
@@ -546,30 +528,30 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
             <button
               type="button"
               onClick={() => setShowWebPreview(!showWebPreview)}
-              className={`min-h-[36px] px-3 rounded-apple-btn border text-xs font-sans flex items-center gap-1.5 transition-all ${
+              className={`h-9 px-3 rounded-lg border text-xs font-sans flex items-center gap-1.5 transition-all active:scale-95 ${
                 showWebPreview 
                   ? 'bg-accentMain text-white border-accentMain shadow-sm' 
-                  : 'border-neutral-200 text-textSecondary hover:bg-neutral-50'
+                  : 'border-black/[0.08] text-textSecondary hover:bg-neutral-50'
               }`}
-              title="Previsualizar cómo queda en la web"
+              title="Previsualizar resultado"
             >
               <Eye size={13} />
-              <span>Simulador Web</span>
+              <span>Vista previa</span>
             </button>
           </div>
 
           {/* Fila de Zoom con Control Deslizante Apple */}
-          <div className="flex items-center gap-3 pt-2 border-t border-neutral-100">
-            <span className="text-[10px] uppercase tracking-widest font-sans text-textSecondary w-12 shrink-0">
-              Zoom:
+          <div className="flex items-center gap-3 pt-2 border-t border-black/[0.04]">
+            <span className="text-xs font-sans text-textSecondary w-12 shrink-0">
+              Zoom
             </span>
             <button
               type="button"
               onClick={handleZoomOut}
-              className="w-8 h-8 rounded-apple-btn border border-neutral-200 flex items-center justify-center text-textSecondary hover:text-textMain hover:bg-neutral-50 shrink-0 active:scale-90 transition-all"
+              className="w-8 h-8 rounded-lg border border-black/[0.08] flex items-center justify-center text-textSecondary hover:text-textMain hover:bg-neutral-50 shrink-0 active:scale-90 transition-all"
               title="Reducir zoom"
             >
-              <ZoomOut size={14} />
+              <ZoomOut size={13} />
             </button>
             
             <input
@@ -579,58 +561,51 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
               step={0.05}
               value={zoom}
               onChange={(e) => setZoom(parseFloat(e.target.value))}
-              className="w-full accent-accentMain h-2 bg-neutral-200 rounded-lg cursor-pointer"
+              className="w-full accent-accentMain h-1.5 bg-neutral-200 rounded-lg cursor-pointer"
             />
 
             <button
               type="button"
               onClick={handleZoomIn}
-              className="w-8 h-8 rounded-apple-btn border border-neutral-200 flex items-center justify-center text-textSecondary hover:text-textMain hover:bg-neutral-50 shrink-0 active:scale-90 transition-all"
+              className="w-8 h-8 rounded-lg border border-black/[0.08] flex items-center justify-center text-textSecondary hover:text-textMain hover:bg-neutral-50 shrink-0 active:scale-90 transition-all"
               title="Aumentar zoom"
             >
-              <ZoomIn size={14} />
+              <ZoomIn size={13} />
             </button>
-            <span className="text-xs font-sans text-textSecondary w-12 text-right shrink-0">
+            <span className="text-xs font-sans text-textSecondary w-10 text-right shrink-0">
               {Math.round(zoom * 100)}%
             </span>
           </div>
 
           {/* Botones Principales de Guardar / Cancelar */}
-          <div className="flex items-center justify-between pt-3 border-t border-neutral-200 gap-3">
-            <span className="text-[11px] text-textSecondary font-sans font-light hidden sm:inline-flex items-center gap-1.5">
-              <Sparkles size={13} className="text-accentMain" />
-              Recorte sin pixelación calibrado para {lockedRatioConfig.exportWidth}px
-            </span>
+          <div className="flex items-center justify-end pt-3 border-t border-black/[0.06] gap-3">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isProcessing}
+              className="h-10 px-5 rounded-lg text-xs font-sans font-medium text-textSecondary hover:text-textMain border border-black/[0.08] hover:bg-neutral-50 active:scale-95 transition-all"
+            >
+              Cancelar
+            </button>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto ml-auto">
-              <button
-                type="button"
-                onClick={onCancel}
-                disabled={isProcessing}
-                className="w-1/3 sm:w-auto min-h-[44px] text-xs uppercase tracking-widest font-sans px-5 rounded-apple-btn text-textSecondary hover:text-textMain border border-neutral-200 hover:bg-neutral-50 active:scale-95 transition-all"
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                onClick={handleCropAndSave}
-                disabled={isProcessing}
-                className="w-2/3 sm:w-auto min-h-[44px] btn-primary text-xs tracking-widest uppercase flex items-center justify-center gap-2 px-6"
-              >
-                {isProcessing ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Procesando...</span>
-                  </>
-                ) : (
-                  <>
-                    <Check size={16} />
-                    <span>Aplicar y Subir a la Web</span>
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleCropAndSave}
+              disabled={isProcessing}
+              className="h-10 btn-primary text-xs font-medium flex items-center justify-center gap-2 px-6"
+            >
+              {isProcessing ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Procesando...</span>
+                </>
+              ) : (
+                <>
+                  <Check size={15} />
+                  <span>Guardar y publicar</span>
+                </>
+              )}
+            </button>
           </div>
 
         </div>

@@ -259,7 +259,7 @@ export const AdminPanel: React.FC = () => {
         // Guardar en almacenamiento local
         localStorage.setItem(`cr_admin_verified_${user.uid}`, 'true');
         setIsVerified(true);
-        showActionSuccess('¡Acceso verificado y activado con éxito! Bienvenido al panel.');
+        showActionSuccess('Acceso verificado correctamente.');
         loadAllSectionsData();
       }
     } catch (err) {
@@ -294,7 +294,7 @@ export const AdminPanel: React.FC = () => {
         showPrivateGallery: 'Galería privada',
         showHighRes: 'Entrega en alta resolución',
       };
-      showActionSuccess(`Opción "${labelMap[key]}" ${newValue ? 'activada' : 'desactivada'} en tiempo real.`);
+      showActionSuccess(`Opción «${labelMap[key]}» ${newValue ? 'activada' : 'desactivada'}.`);
     } catch (err: any) {
       console.error('Error al actualizar característica de tarifas:', err);
       const isPermissionDenied = 
@@ -406,7 +406,7 @@ export const AdminPanel: React.FC = () => {
           return { ...prev, [section.id]: copy };
         });
 
-        showActionSuccess(`Fotografía recortada y reemplazada con éxito en "${section.title}".`);
+        showActionSuccess(`Imagen actualizada en «${section.title}».`);
       } else {
         // Subida nueva a Cloudinary y Firestore
         const newPhoto = await uploadPhoto(section.id, croppedFile, (progress) => {
@@ -418,7 +418,7 @@ export const AdminPanel: React.FC = () => {
           [section.id]: [...(prev[section.id] || []), newPhoto]
         }));
 
-        showActionSuccess(`Fotografía recortada y publicada en "${section.title}".`);
+        showActionSuccess(`Imagen publicada en «${section.title}».`);
       }
     } catch (err: any) {
       console.error('Error al procesar subida:', err);
@@ -475,7 +475,7 @@ export const AdminPanel: React.FC = () => {
         )
       }));
 
-      showActionSuccess('Fotografía eliminada permanentemente de la web y de la nube.');
+      showActionSuccess('Imagen eliminada.');
       setPhotoToDelete(null);
     } catch (err: any) {
       console.error('Error al eliminar:', err);
@@ -502,11 +502,11 @@ export const AdminPanel: React.FC = () => {
   // -------------------------------------------------------------
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center p-6">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-accentMain border-t-transparent rounded-full animate-spin"></div>
-          <p className="title-main text-xs text-textSecondary tracking-widest">
-            Verificando Credenciales...
+      <div className="min-h-screen bg-[#FBFBFC] flex items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 border-2 border-accentMain border-t-transparent rounded-full animate-spin"></div>
+          <p className="font-sans text-xs text-textSecondary font-light">
+            Verificando sesión...
           </p>
         </div>
       </div>
@@ -518,36 +518,35 @@ export const AdminPanel: React.FC = () => {
   // -------------------------------------------------------------
   if (!user) {
     return (
-      <div className="min-h-screen bg-primary flex flex-col justify-center items-center px-6 py-20">
-        <div className="w-full max-w-md bg-neutral-50 p-8 sm:p-12 photo-card-secondary border border-neutral-200">
+      <div className="min-h-screen bg-[#FBFBFC] flex flex-col justify-center items-center px-6 py-16">
+        <div className="w-full max-w-sm bg-white p-8 sm:p-10 rounded-[20px] border border-black/[0.06] shadow-apple-card">
           
-          <div className="text-center mb-10">
-            <div className="w-12 h-12 bg-primary photo-card-secondary flex items-center justify-center mx-auto mb-6 text-accentMain">
-              <Lock size={20} />
+          <div className="text-center mb-8">
+            <div className="w-10 h-10 bg-accentMain/[0.08] text-accentMain rounded-xl flex items-center justify-center mx-auto mb-4">
+              <Lock size={18} strokeWidth={1.8} />
             </div>
-            <h1 className="title-main text-2xl text-textMain mb-2">
-              PANEL PRIVADO
+            <h1 className="font-serif text-2xl text-textMain tracking-tight mb-1">
+              Cristian Espinola
             </h1>
-            <p className="text-textSecondary font-sans font-light text-xs tracking-wider uppercase">
-              Cristian Espinola Fotografía
+            <p className="text-textSecondary font-sans text-xs font-light">
+              Gestión de portafolio
             </p>
-            <div className="w-8 h-px bg-accentMain mx-auto mt-6"></div>
           </div>
 
           {authError && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs font-sans rounded-none flex items-start gap-3">
-              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+            <div className="mb-5 p-3.5 bg-red-50/80 border border-red-200/80 text-red-700 text-xs font-sans rounded-xl flex items-start gap-2.5">
+              <AlertTriangle size={15} className="shrink-0 mt-0.5 text-red-600" />
               <span>{authError}</span>
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-6">
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <div>
               <label 
                 htmlFor="admin-email" 
-                className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans mb-2"
+                className="block text-xs font-medium text-textMain font-sans mb-1.5"
               >
-                Correo Electrónico
+                Correo electrónico
               </label>
               <input
                 id="admin-email"
@@ -555,15 +554,15 @@ export const AdminPanel: React.FC = () => {
                 required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="tu-correo@gmail.com"
-                className="w-full bg-primary border border-neutral-200 p-3 font-sans text-sm text-textMain focus:outline-none focus:border-accentMain transition-colors"
+                placeholder="nombre@ejemplo.com"
+                className="apple-input w-full"
               />
             </div>
 
             <div>
               <label 
                 htmlFor="admin-password" 
-                className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans mb-2"
+                className="block text-xs font-medium text-textMain font-sans mb-1.5"
               >
                 Contraseña
               </label>
@@ -574,31 +573,25 @@ export const AdminPanel: React.FC = () => {
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full bg-primary border border-neutral-200 p-3 font-sans text-sm text-textMain focus:outline-none focus:border-accentMain transition-colors"
+                className="apple-input w-full"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="btn-primary w-full text-xs font-sans tracking-widest uppercase mt-2 flex items-center justify-center gap-2"
+              className="btn-primary w-full mt-2"
             >
               {isLoggingIn ? (
-                <>
+                <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Accediendo...</span>
-                </>
+                </div>
               ) : (
-                <span>Ingresar al Panel</span>
+                <span>Iniciar sesión</span>
               )}
             </button>
           </form>
-
-          <div className="mt-8 pt-6 border-t border-neutral-200 text-center">
-            <span className="text-[10px] text-textSecondary uppercase tracking-widest font-sans">
-              Acceso restringido al personal autorizado
-            </span>
-          </div>
 
         </div>
       </div>
@@ -610,45 +603,42 @@ export const AdminPanel: React.FC = () => {
   // -------------------------------------------------------------
   if (!isVerified) {
     return (
-      <div className="min-h-screen bg-primary flex flex-col justify-center items-center px-6 py-20">
-        <div className="w-full max-w-md bg-neutral-50 p-8 sm:p-12 photo-card-secondary border border-neutral-200 shadow-apple-card">
+      <div className="min-h-screen bg-[#FBFBFC] flex flex-col justify-center items-center px-6 py-16">
+        <div className="w-full max-w-sm bg-white p-8 sm:p-10 rounded-[20px] border border-black/[0.06] shadow-apple-card">
           
-          <div className="text-center mb-8">
-            <div className="w-14 h-14 bg-white rounded-apple-card shadow-apple-subtle border border-black/[0.06] flex items-center justify-center mx-auto mb-6 text-accentMain">
-              <ShieldCheck size={28} strokeWidth={1.5} />
+          <div className="text-center mb-6">
+            <div className="w-10 h-10 bg-accentMain/[0.08] text-accentMain rounded-xl flex items-center justify-center mx-auto mb-4">
+              <ShieldCheck size={20} strokeWidth={1.8} />
             </div>
-            <h1 className="title-main text-2xl text-textMain mb-2 tracking-tight">
-              VERIFICACIÓN DE SEGURIDAD
+            <h1 className="font-serif text-xl text-textMain tracking-tight mb-1">
+              Verificación de acceso
             </h1>
-            <p className="text-textSecondary font-sans font-light text-xs tracking-wider uppercase">
-              Autorización de Primer Acceso
+            <p className="text-textSecondary font-sans text-xs font-light">
+              Dispositivo no autorizado
             </p>
-            <div className="w-8 h-px bg-accentMain mx-auto mt-5"></div>
           </div>
 
-          <div className="mb-6 p-4 bg-white rounded-apple-card border border-black/[0.06] text-textSecondary text-xs font-sans leading-relaxed">
-            <p className="mb-1 text-textMain font-medium">
-              Usuario autenticado: <span className="text-accentMain">{user.email}</span>
-            </p>
-            <p className="text-[11px] text-textSecondary/90 mt-1">
-              Para validar este usuario y concederle acceso permanente a la gestión fotográfica del portafolio, introduce la contraseña de seguridad.
-            </p>
+          <div className="mb-5 p-3.5 bg-neutral-50 rounded-xl border border-black/[0.04] text-xs font-sans text-textSecondary">
+            <span className="text-textMain font-medium block truncate">{user.email}</span>
+            <span className="text-[11px] text-textSecondary mt-0.5 block font-light">
+              Introduce la clave para autorizar este navegador.
+            </span>
           </div>
 
           {securityError && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs font-sans rounded-apple-btn flex items-start gap-3">
-              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+            <div className="mb-5 p-3.5 bg-red-50/80 border border-red-200/80 text-red-700 text-xs font-sans rounded-xl flex items-start gap-2.5">
+              <AlertTriangle size={15} className="shrink-0 mt-0.5 text-red-600" />
               <span>{securityError}</span>
             </div>
           )}
 
-          <form onSubmit={handleVerifySecurityCode} className="flex flex-col gap-5">
+          <form onSubmit={handleVerifySecurityCode} className="flex flex-col gap-4">
             <div>
               <label 
                 htmlFor="security-code-input" 
-                className="block text-[10px] uppercase tracking-widest text-textSecondary font-sans mb-2"
+                className="block text-xs font-medium text-textMain font-sans mb-1.5"
               >
-                Contraseña de Seguridad
+                Código de seguridad
               </label>
               <div className="relative">
                 <input
@@ -660,15 +650,15 @@ export const AdminPanel: React.FC = () => {
                     setSecurityCodeInput(e.target.value);
                     if (securityError) setSecurityError(null);
                   }}
-                  placeholder="Introduce la contraseña del sistema"
-                  className="w-full bg-primary border border-neutral-200 p-3 pr-11 font-sans text-sm text-textMain focus:outline-none focus:border-accentMain rounded-apple-btn transition-colors"
+                  placeholder="Código de autorización"
+                  className="apple-input w-full pr-11"
                   autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => setShowSecurityCode(!showSecurityCode)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-textMain transition-colors p-1"
-                  aria-label={showSecurityCode ? 'Ocultar contraseña' : 'Ver contraseña'}
+                  aria-label={showSecurityCode ? 'Ocultar código' : 'Ver código'}
                 >
                   {showSecurityCode ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -678,36 +668,30 @@ export const AdminPanel: React.FC = () => {
             <button
               type="submit"
               disabled={isVerifyingCode || !securityCodeInput.trim()}
-              className="btn-primary w-full text-xs font-sans tracking-widest uppercase mt-2 flex items-center justify-center gap-2"
+              className="btn-primary w-full mt-2"
             >
               {isVerifyingCode ? (
-                <>
+                <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Verificando...</span>
-                </>
+                </div>
               ) : (
-                <>
+                <div className="flex items-center gap-2">
                   <KeyRound size={15} />
-                  <span>Verificar y Desbloquear Acceso</span>
-                </>
+                  <span>Autorizar dispositivo</span>
+                </div>
               )}
             </button>
 
             <button
               type="button"
               onClick={handleLogout}
-              className="text-xs text-textSecondary hover:text-red-600 font-sans tracking-wide transition-colors py-2 flex items-center justify-center gap-1.5"
+              className="text-xs text-textSecondary hover:text-textMain font-sans transition-colors pt-2 flex items-center justify-center gap-1.5"
             >
               <LogOut size={13} />
-              <span>Cerrar sesión o cambiar de cuenta</span>
+              <span>Cerrar sesión</span>
             </button>
           </form>
-
-          <div className="mt-8 pt-6 border-t border-neutral-200 text-center">
-            <span className="text-[10px] text-textSecondary uppercase tracking-widest font-sans">
-              Se registrará la autorización permanente para este usuario
-            </span>
-          </div>
 
         </div>
       </div>
@@ -744,38 +728,43 @@ export const AdminPanel: React.FC = () => {
       />
 
       {/* Barra Superior de Navegación del Panel */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-neutral-200 px-4 sm:px-8 py-4">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-black/[0.06] px-4 sm:px-8 py-3.5">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           
-          <div>
-            <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              <h1 className="title-main text-lg sm:text-xl text-textMain tracking-widest">
-                PANEL DE GESTIÓN FOTOGRÁFICA
-              </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="font-serif text-lg text-textMain tracking-tight">
+              Cristian Espinola
+            </h1>
+            <span className="w-px h-3.5 bg-neutral-300"></span>
+            <span className="text-xs text-textSecondary font-sans">
+              Catálogo
+            </span>
+            <div className="inline-flex items-center gap-1.5 ml-2 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-[11px] font-sans">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>En línea</span>
             </div>
-            <p className="text-[11px] text-textSecondary font-sans font-light mt-0.5">
-              Administrador: <strong className="font-normal text-textMain">{user.email}</strong>
-            </p>
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            <span className="text-xs text-textSecondary font-sans hidden md:inline truncate max-w-[220px]">
+              {user.email}
+            </span>
             <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-textSecondary hover:text-textMain font-sans border-b border-neutral-300 pb-0.5 transition-colors"
+              className="h-8 px-3 rounded-lg border border-black/[0.08] hover:bg-black/[0.03] text-xs font-sans text-textMain inline-flex items-center gap-1.5 transition-all active:scale-95"
             >
-              <span>Ver Web</span>
-              <ExternalLink size={12} />
+              <span>Ver web</span>
+              <ExternalLink size={12} className="text-textSecondary" />
             </a>
 
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-2 text-xs text-red-700 hover:text-red-900 font-sans border border-red-200 px-3 py-1.5 transition-colors"
+              className="h-8 px-3 rounded-lg text-xs font-sans text-neutral-600 hover:text-red-600 hover:bg-red-50/50 transition-all inline-flex items-center gap-1.5 active:scale-95"
             >
               <LogOut size={13} />
-              <span>Cerrar Sesión</span>
+              <span>Salir</span>
             </button>
           </div>
 
@@ -783,124 +772,114 @@ export const AdminPanel: React.FC = () => {
       </header>
 
       {/* Alertas Globales de Éxito / Error */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 mt-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 mt-5">
         {actionSuccess && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 text-sm font-sans flex items-center gap-3">
-            <CheckCircle size={18} className="text-green-600 shrink-0" />
+          <div className="mb-5 p-3.5 bg-emerald-50/90 border border-emerald-200/80 text-emerald-800 text-xs font-sans rounded-xl flex items-center gap-2.5 animate-fadeIn">
+            <CheckCircle size={16} className="text-emerald-600 shrink-0" />
             <span>{actionSuccess}</span>
           </div>
         )}
 
         {actionError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 text-sm font-sans flex items-center gap-3">
-            <AlertTriangle size={18} className="text-red-600 shrink-0" />
+          <div className="mb-5 p-3.5 bg-red-50/90 border border-red-200/80 text-red-800 text-xs font-sans rounded-xl flex items-center gap-2.5 animate-fadeIn">
+            <AlertTriangle size={16} className="text-red-600 shrink-0" />
             <span>{actionError}</span>
           </div>
         )}
       </div>
 
-      {/* Resumen Global de Cupos y Filtros */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-8 mt-4 mb-10">
-        
-        {/* Banner de Estado */}
-        <div className="bg-neutral-50 p-6 photo-card-secondary border border-neutral-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-          <div>
-            <h2 className="title-main text-sm text-textMain mb-1">
-              ESTADO DEL PORTAFOLIO EN VIVO
-            </h2>
-            <p className="text-xs text-textSecondary font-sans font-light">
-              Las fotos se procesan en Cloudinary con entrega WebP/AVIF y se sincronizan en Firestore. Puedes arrastrar fotos directamente sobre cualquier sección.
-            </p>
+      {/* Resumen y Filtros */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-8 pt-2 pb-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          
+          {/* Pestañas de Filtro (Apple Segmented Control) */}
+          <div className="p-1 bg-black/[0.04] rounded-xl flex items-center gap-1 border border-black/[0.03] overflow-x-auto max-w-full no-scrollbar">
+            {(['Todas', 'Inicio', 'Sobre Mí', 'Tarifas'] as const).map((tab) => {
+              const isActive = selectedPage === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setSelectedPage(tab)}
+                  className={`text-xs font-sans px-3.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                    isActive
+                      ? 'bg-white text-textMain shadow-[0_1px_3px_rgba(0,0,0,0.08)] font-medium'
+                      : 'text-textSecondary hover:text-textMain'
+                  }`}
+                >
+                  {tab === 'Todas' ? 'Todas' : tab}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <span className="block text-2xl font-serif text-accentMain">
+          {/* Contador de Cupo y Botón de Recarga */}
+          <div className="flex items-center gap-2.5 self-end sm:self-auto">
+            <div className="h-8 px-3 rounded-lg bg-black/[0.03] border border-black/[0.04] flex items-center gap-2 text-xs font-sans">
+              <span className="text-textSecondary">Espacios:</span>
+              <span className="font-medium text-textMain">
                 {totalUploadedPhotos} / {TOTAL_SITE_SLOTS}
-              </span>
-              <span className="text-[10px] text-textSecondary uppercase tracking-widest font-sans">
-                Slots Globales Ocupados
               </span>
             </div>
             <button
               onClick={loadAllSectionsData}
               disabled={loadingSections}
-              className="p-3 bg-white photo-card-secondary border border-neutral-200 hover:border-accentMain text-textSecondary hover:text-accentMain transition-colors"
-              title="Recargar datos"
+              className="w-8 h-8 rounded-lg border border-black/[0.08] hover:bg-black/[0.03] text-textSecondary hover:text-textMain flex items-center justify-center transition-all active:scale-95"
+              title="Actualizar datos"
+              aria-label="Actualizar datos"
             >
-              <RefreshCw size={16} className={loadingSections ? 'animate-spin' : ''} />
+              <RefreshCw size={13} className={loadingSections ? 'animate-spin' : ''} />
             </button>
           </div>
-        </div>
 
-        {/* Pestañas de Filtro por Página */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-neutral-200 no-scrollbar">
-          {(['Todas', 'Inicio', 'Sobre Mí', 'Tarifas'] as const).map((tab) => {
-            const isActive = selectedPage === tab;
-            return (
-              <button
-                key={tab}
-                onClick={() => setSelectedPage(tab)}
-                className={`text-xs uppercase tracking-widest font-sans px-5 py-2.5 transition-all whitespace-nowrap ${
-                  isActive
-                    ? 'bg-accentMain text-white font-normal'
-                    : 'bg-neutral-100 text-textSecondary hover:bg-neutral-200'
-                }`}
-              >
-                {tab === 'Todas' ? 'Todas las Secciones' : `Página ${tab}`}
-              </button>
-            );
-          })}
         </div>
-
       </section>
 
       {/* Grid de Secciones */}
       <main className="max-w-6xl mx-auto px-4 sm:px-8">
         {loadingSections ? (
-          <div className="py-24 text-center">
-            <div className="w-8 h-8 border-2 border-accentMain border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-xs uppercase tracking-widest text-textSecondary font-sans">
-              Cargando catálogo de secciones...
+          <div className="py-20 text-center">
+            <div className="w-7 h-7 border-2 border-accentMain border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <p className="text-xs text-textSecondary font-sans font-light">
+              Cargando secciones...
             </p>
           </div>
         ) : (
-          <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-6">
             {/* Panel de Control de Características en Tarifas (Tiempo Real) */}
             {(selectedPage === 'Todas' || selectedPage === 'Tarifas') && (
-              <div className="bg-white rounded-apple-card p-6 sm:p-8 border border-neutral-200 shadow-apple-card photo-card-secondary transition-all">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-neutral-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-apple-btn bg-accentMain/10 text-accentMain flex items-center justify-center shrink-0">
-                      <SlidersHorizontal size={20} strokeWidth={1.5} />
+              <div className="bg-white rounded-[20px] p-6 border border-black/[0.06] shadow-apple-subtle transition-all">
+                <div className="flex items-center justify-between pb-4 border-b border-black/[0.04]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-accentMain/[0.08] text-accentMain flex items-center justify-center shrink-0">
+                      <SlidersHorizontal size={16} strokeWidth={1.8} />
                     </div>
                     <div>
-                      <h2 className="title-main text-base sm:text-lg text-textMain tracking-tight">
-                        CARACTERÍSTICAS VISIBLES EN TARIFAS
+                      <h2 className="font-serif text-base text-textMain">
+                        Inclusiones en tarifas
                       </h2>
-                      <p className="text-xs text-textSecondary font-sans font-light mt-0.5">
-                        Activa o desactiva qué inclusiones se muestran a los visitantes en los paquetes de servicios.
+                      <p className="text-xs text-textSecondary font-sans font-light">
+                        Elementos visibles en los paquetes de servicios
                       </p>
                     </div>
                   </div>
 
-                  <div className="apple-badge text-green-700 bg-green-50 border-green-200/60 shrink-0 self-start sm:self-auto">
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <span className="font-sans text-[11px] font-medium">Sincronización en Vivo</span>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-[11px] font-sans">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span className="font-medium">En vivo</span>
                   </div>
                 </div>
 
                 {/* Lista de Interruptores Apple iOS */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-4">
                   
                   {/* Opción 1: Edición de Imagen */}
-                  <div className="p-4 rounded-apple-card bg-neutral-50/70 border border-black/[0.04] flex items-center justify-between gap-4 transition-all hover:bg-neutral-100/50">
-                    <div className="pr-2">
-                      <span className="text-xs font-medium text-textMain font-sans block mb-0.5">
+                  <div className="p-3.5 rounded-xl bg-neutral-50/80 border border-black/[0.03] flex items-center justify-between gap-3">
+                    <div className="pr-1">
+                      <span className="text-xs font-medium text-textMain font-sans block">
                         Edición de imagen
                       </span>
-                      <span className="text-[11px] text-textSecondary font-sans font-light leading-snug block">
-                        Muestra «✓ Edición de imagen» en cada paquete.
+                      <span className="text-[11px] text-textSecondary font-sans font-light">
+                        Ajustes de revelado y color
                       </span>
                     </div>
 
@@ -910,10 +889,10 @@ export const AdminPanel: React.FC = () => {
                       aria-checked={pricingFeatures.showImageEditing}
                       disabled={isUpdatingFeature}
                       onClick={() => handleTogglePricingFeature('showImageEditing')}
-                      className={`w-[51px] h-[31px] rounded-full p-[2px] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] relative shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accentMain ${
+                      className={`w-[51px] h-[31px] rounded-full p-[2px] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] relative shrink-0 focus:outline-none ${
                         pricingFeatures.showImageEditing ? 'bg-accentMain' : 'bg-neutral-300'
                       }`}
-                      aria-label="Alternar visibilidad de Edición de imagen"
+                      aria-label="Alternar Edición de imagen"
                     >
                       <span 
                         className={`block w-[27px] h-[27px] rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
@@ -924,13 +903,13 @@ export const AdminPanel: React.FC = () => {
                   </div>
 
                   {/* Opción 2: Galería Privada */}
-                  <div className="p-4 rounded-apple-card bg-neutral-50/70 border border-black/[0.04] flex items-center justify-between gap-4 transition-all hover:bg-neutral-100/50">
-                    <div className="pr-2">
-                      <span className="text-xs font-medium text-textMain font-sans block mb-0.5">
+                  <div className="p-3.5 rounded-xl bg-neutral-50/80 border border-black/[0.03] flex items-center justify-between gap-3">
+                    <div className="pr-1">
+                      <span className="text-xs font-medium text-textMain font-sans block">
                         Galería privada
                       </span>
-                      <span className="text-[11px] text-textSecondary font-sans font-light leading-snug block">
-                        Muestra «✓ Galería privada» protegida digitalmente.
+                      <span className="text-[11px] text-textSecondary font-sans font-light">
+                        Entrega digital con contraseña
                       </span>
                     </div>
 
@@ -940,10 +919,10 @@ export const AdminPanel: React.FC = () => {
                       aria-checked={pricingFeatures.showPrivateGallery}
                       disabled={isUpdatingFeature}
                       onClick={() => handleTogglePricingFeature('showPrivateGallery')}
-                      className={`w-[51px] h-[31px] rounded-full p-[2px] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] relative shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accentMain ${
+                      className={`w-[51px] h-[31px] rounded-full p-[2px] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] relative shrink-0 focus:outline-none ${
                         pricingFeatures.showPrivateGallery ? 'bg-accentMain' : 'bg-neutral-300'
                       }`}
-                      aria-label="Alternar visibilidad de Galería privada"
+                      aria-label="Alternar Galería privada"
                     >
                       <span 
                         className={`block w-[27px] h-[27px] rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
@@ -954,13 +933,13 @@ export const AdminPanel: React.FC = () => {
                   </div>
 
                   {/* Opción 3: Entrega en Alta Resolución */}
-                  <div className="p-4 rounded-apple-card bg-neutral-50/70 border border-black/[0.04] flex items-center justify-between gap-4 transition-all hover:bg-neutral-100/50">
-                    <div className="pr-2">
-                      <span className="text-xs font-medium text-textMain font-sans block mb-0.5">
-                        Entrega en alta resolución
+                  <div className="p-3.5 rounded-xl bg-neutral-50/80 border border-black/[0.03] flex items-center justify-between gap-3">
+                    <div className="pr-1">
+                      <span className="text-xs font-medium text-textMain font-sans block">
+                        Alta resolución
                       </span>
-                      <span className="text-[11px] text-textSecondary font-sans font-light leading-snug block">
-                        Muestra «✓ Entrega en alta resolución».
+                      <span className="text-[11px] text-textSecondary font-sans font-light">
+                        Archivos para impresión
                       </span>
                     </div>
 
@@ -970,10 +949,10 @@ export const AdminPanel: React.FC = () => {
                       aria-checked={pricingFeatures.showHighRes}
                       disabled={isUpdatingFeature}
                       onClick={() => handleTogglePricingFeature('showHighRes')}
-                      className={`w-[51px] h-[31px] rounded-full p-[2px] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] relative shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accentMain ${
+                      className={`w-[51px] h-[31px] rounded-full p-[2px] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] relative shrink-0 focus:outline-none ${
                         pricingFeatures.showHighRes ? 'bg-accentMain' : 'bg-neutral-300'
                       }`}
-                      aria-label="Alternar visibilidad de Entrega en alta resolución"
+                      aria-label="Alternar Alta resolución"
                     >
                       <span 
                         className={`block w-[27px] h-[27px] rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
@@ -999,35 +978,32 @@ export const AdminPanel: React.FC = () => {
                   onDragOver={(e) => handleDragOver(e, section.id)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, section)}
-                  className={`relative bg-white border photo-card-secondary transition-all duration-300 overflow-hidden ${
+                  className={`relative bg-white rounded-[20px] border transition-all duration-300 overflow-hidden ${
                     isDraggingOverThisSection 
-                      ? 'border-accentMain ring-4 ring-accentMain/20 bg-amber-50/30' 
-                      : 'border-neutral-200'
+                      ? 'border-accentMain ring-4 ring-accentMain/20 bg-amber-50/20' 
+                      : 'border-black/[0.06] shadow-apple-subtle'
                   }`}
                 >
                   {/* Overlay visual cuando se arrastra un archivo */}
                   {isDraggingOverThisSection && (
-                    <div className="absolute inset-0 z-30 bg-accentMain/10 backdrop-blur-[2px] border-2 border-dashed border-accentMain flex flex-col items-center justify-center p-6 text-center animate-pulse pointer-events-none">
-                      <div className="w-14 h-14 rounded-full bg-accentMain text-white flex items-center justify-center mb-3 shadow-lg">
-                        <Upload size={28} />
+                    <div className="absolute inset-0 z-30 bg-accentMain/[0.08] backdrop-blur-[2px] border-2 border-dashed border-accentMain flex flex-col items-center justify-center p-6 text-center animate-fadeIn pointer-events-none rounded-[20px]">
+                      <div className="w-12 h-12 rounded-full bg-accentMain text-white flex items-center justify-center mb-2 shadow-md">
+                        <Upload size={22} />
                       </div>
-                      <h4 className="title-main text-base text-textMain mb-1">
-                        ¡SUELTA TU FOTOGRAFÍA AQUÍ!
+                      <h4 className="font-serif text-base text-textMain">
+                        Soltar imagen para encuadrar
                       </h4>
-                      <p className="text-xs text-textSecondary font-sans">
-                        Se abrirá el editor para ajustar el encuadre ({section.slots[0]?.aspectRatio || '3:4'})
-                      </p>
                     </div>
                   )}
 
                   {/* Encabezado de la Tarjeta de Sección */}
-                  <div className="bg-neutral-50 px-6 py-5 border-b border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="px-6 py-4 border-b border-black/[0.04] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] uppercase font-sans tracking-widest text-accentMain border border-accentMain/30 px-2 py-0.5 bg-white">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-[11px] font-medium font-sans text-accentMain bg-accentMain/[0.08] px-2.5 py-0.5 rounded-full">
                           {section.page}
                         </span>
-                        <h3 className="title-main text-base sm:text-lg text-textMain">
+                        <h3 className="font-serif text-base text-textMain">
                           {section.title}
                         </h3>
                       </div>
@@ -1037,16 +1013,15 @@ export const AdminPanel: React.FC = () => {
                     </div>
 
                     {/* Contador de Cupo de Fotos */}
-                    <div className="shrink-0 flex items-center gap-2">
+                    <div className="shrink-0">
                       <span
-                        className={`text-xs uppercase tracking-widest font-sans px-3 py-1 font-medium ${
+                        className={`text-[11px] font-sans px-2.5 py-0.5 rounded-full ${
                           isLimitReached
-                            ? 'bg-accentMain text-white'
-                            : 'bg-white border border-neutral-300 text-textSecondary'
+                            ? 'bg-neutral-100 text-textSecondary border border-black/[0.04]'
+                            : 'bg-accentMain/[0.08] text-accentMain border border-accentMain/20 font-medium'
                         }`}
                       >
-                        {currentPhotos.length} / {section.maxPhotos} Fotos
-                        {isLimitReached ? ' (Límite Alcanzado)' : ''}
+                        {currentPhotos.length} / {section.maxPhotos} {section.maxPhotos === 1 ? 'espacio' : 'espacios'}
                       </span>
                     </div>
                   </div>
@@ -1056,7 +1031,7 @@ export const AdminPanel: React.FC = () => {
                     
                     {/* Lista de Fotos Actuales */}
                     {currentPhotos.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         {currentPhotos.map((photo, idx) => {
                           const slotInfo = section.slots[idx] || {
                             label: `Foto ${idx + 1}`,
@@ -1066,7 +1041,7 @@ export const AdminPanel: React.FC = () => {
                           return (
                             <div 
                               key={photo.id} 
-                              className="group relative bg-neutral-100 border border-neutral-200 flex flex-col overflow-hidden photo-card-secondary"
+                              className="group relative bg-neutral-100 rounded-xl border border-black/[0.06] flex flex-col overflow-hidden transition-all hover:border-black/[0.12]"
                             >
                               {/* Contenedor de la Imagen */}
                               <div className="aspect-[3/4] relative overflow-hidden bg-neutral-200">
@@ -1077,30 +1052,30 @@ export const AdminPanel: React.FC = () => {
                                 />
                                 
                                 {/* Slot Overlay Tag */}
-                                <div className="absolute top-2 left-2 bg-black/75 text-white text-[10px] font-sans px-2 py-0.5 uppercase tracking-widest backdrop-blur-sm">
-                                  Slot #{idx + 1}
+                                <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-md text-white text-[11px] font-sans px-2 py-0.5 rounded-md font-medium">
+                                  #{idx + 1}
                                 </div>
                               </div>
 
                               {/* Información del Slot */}
-                              <div className="p-3 bg-white border-t border-neutral-200">
-                                <span className="block text-xs font-serif uppercase tracking-wider text-textMain truncate">
+                              <div className="p-3 bg-white border-t border-black/[0.04]">
+                                <span className="block text-xs font-serif text-textMain truncate">
                                   {slotInfo.label}
                                 </span>
-                                <span className="block text-[10px] text-textSecondary font-sans font-light">
-                                  Proporción: {slotInfo.aspectRatio}
+                                <span className="block text-[11px] text-textSecondary font-sans font-light mt-0.5">
+                                  {slotInfo.aspectRatio}
                                 </span>
 
                                 {/* Botones de Acción (Reemplazar y Eliminar) */}
-                                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-neutral-100">
+                                <div className="flex items-center gap-2 mt-2.5 pt-2.5 border-t border-black/[0.04]">
                                   <button
                                     onClick={() => triggerReplacePhoto(section, photo.id, idx)}
                                     disabled={isUploadingThisSection}
-                                    className="w-1/2 inline-flex items-center justify-center gap-1.5 text-[11px] font-sans text-accentMain border border-accentMain/40 hover:bg-accentMain hover:text-white py-1.5 transition-colors"
-                                    title="Elegir nueva foto y ajustar encuadre"
+                                    className="w-1/2 h-8 rounded-lg border border-black/[0.08] hover:border-accentMain text-xs font-sans text-textMain hover:text-accentMain flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                                    title="Ajustar encuadre con una nueva foto"
                                   >
-                                    <Crop size={11} />
-                                    <span>Reemplazar</span>
+                                    <Crop size={12} />
+                                    <span>Cambiar</span>
                                   </button>
 
                                   <button
@@ -1110,10 +1085,10 @@ export const AdminPanel: React.FC = () => {
                                       sectionTitle: section.title
                                     })}
                                     disabled={isUploadingThisSection}
-                                    className="w-1/2 inline-flex items-center justify-center gap-1 text-[11px] font-sans text-red-700 border border-red-200 hover:bg-red-700 hover:text-white py-1.5 transition-colors"
-                                    title="Eliminar permanentemente de la nube"
+                                    className="w-1/2 h-8 rounded-lg border border-black/[0.06] hover:border-red-200 text-xs font-sans text-neutral-500 hover:text-red-600 hover:bg-red-50/50 flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                                    title="Eliminar fotografía"
                                   >
-                                    <Trash2 size={11} />
+                                    <Trash2 size={12} />
                                     <span>Eliminar</span>
                                   </button>
                                 </div>
@@ -1123,48 +1098,31 @@ export const AdminPanel: React.FC = () => {
                         })}
                       </div>
                     ) : (
-                      <div className="py-10 border border-dashed border-neutral-300 bg-neutral-50/50 text-center mb-6 flex flex-col items-center justify-center p-6">
-                        <ImageIcon size={32} className="text-neutral-400 mb-2" />
-                        <span className="text-xs uppercase tracking-widest text-textMain font-sans">
-                          No hay fotografías subidas en esta sección
-                        </span>
-                        <span className="text-[11px] text-neutral-400 font-sans font-light mt-1">
-                          Arrastra un archivo aquí o pulsa el botón de abajo para enmarcar y publicar.
+                      <div className="py-8 border border-dashed border-neutral-200 rounded-xl bg-neutral-50/50 text-center mb-5 flex flex-col items-center justify-center p-4">
+                        <ImageIcon size={24} className="text-neutral-300 mb-1.5" />
+                        <span className="text-xs text-textSecondary font-sans font-light">
+                          Sin fotografías asignadas
                         </span>
                       </div>
                     )}
 
-                    {/* Zona de Subida o Bloqueo por Límite */}
+                    {/* Zona de Subida o Estado de Cupo Completo */}
                     {isLimitReached ? (
-                      <div className="p-4 bg-amber-50/60 border border-amber-200 text-amber-900 text-xs font-sans flex items-start gap-3">
-                        <Lock size={16} className="text-amber-700 shrink-0 mt-0.5" />
-                        <div>
-                          <strong className="font-medium block mb-0.5">
-                            Cupo completo ({section.maxPhotos} de {section.maxPhotos} fotos)
-                          </strong>
-                          <span>
-                            Has alcanzado el límite de fotografías para el diseño de esta sección. Para subir una nueva imagen, primero debes <strong>eliminar</strong> o <strong>reemplazar</strong> una existente.
-                          </span>
-                        </div>
+                      <div className="py-2.5 px-3.5 bg-neutral-50 rounded-xl border border-black/[0.04] text-xs font-sans text-textSecondary flex items-center justify-between gap-2">
+                        <span>Sección completa ({section.maxPhotos} de {section.maxPhotos})</span>
+                        <span className="text-[11px] text-textSecondary/80 font-light">Reemplaza una imagen para actualizar</span>
                       </div>
                     ) : (
-                      <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-2">
                         <label 
                           htmlFor={`file-input-${section.id}`}
-                          className={`border-2 border-dashed border-neutral-300 hover:border-accentMain p-6 text-center cursor-pointer transition-colors bg-white hover:bg-neutral-50 flex flex-col items-center justify-center ${
+                          className={`border border-dashed border-neutral-300 hover:border-accentMain p-4 rounded-xl text-center cursor-pointer transition-all bg-white hover:bg-neutral-50/80 flex items-center justify-center gap-2 text-xs font-sans text-textMain active:scale-[0.99] ${
                             isUploadingThisSection ? 'pointer-events-none opacity-50' : ''
                           }`}
                         >
-                          <div className="flex items-center gap-2 mb-2 text-accentMain">
-                            <Upload size={20} />
-                            <Crop size={16} />
-                          </div>
-                          <span className="text-xs uppercase tracking-widest text-textMain font-sans font-medium">
-                            + Subir Fotografía (Espacio disponible: {section.maxPhotos - currentPhotos.length} de {section.maxPhotos})
-                          </span>
-                          <span className="text-[11px] text-textSecondary font-sans font-light mt-1">
-                            Haz clic o arrastra tu foto aquí para abrir el <strong>Editor de Recorte</strong>
-                          </span>
+                          <Upload size={15} className="text-accentMain" />
+                          <span className="font-medium">Añadir fotografía</span>
+                          <span className="text-textSecondary text-[11px]">({section.maxPhotos - currentPhotos.length} disponible{section.maxPhotos - currentPhotos.length > 1 ? 's' : ''})</span>
                         </label>
                         
                         <input
@@ -1178,12 +1136,12 @@ export const AdminPanel: React.FC = () => {
 
                         {/* Barra de progreso si está subiendo */}
                         {isUploadingThisSection && (
-                          <div className="p-4 bg-neutral-50 border border-neutral-200">
-                            <div className="flex justify-between text-xs font-sans text-textSecondary mb-2">
-                              <span>Subiendo fotografía a la nube (Cloudinary CDN)...</span>
+                          <div className="p-3 bg-neutral-50 rounded-xl border border-black/[0.04] mt-1">
+                            <div className="flex justify-between text-xs font-sans text-textSecondary mb-1.5">
+                              <span>Subiendo imagen...</span>
                               <span className="font-medium text-accentMain">{uploadProgress}%</span>
                             </div>
-                            <div className="w-full bg-neutral-200 h-1.5 overflow-hidden">
+                            <div className="w-full bg-neutral-200 h-1 rounded-full overflow-hidden">
                               <div 
                                 className="bg-accentMain h-full transition-all duration-300"
                                 style={{ width: `${uploadProgress}%` }}
@@ -1204,22 +1162,18 @@ export const AdminPanel: React.FC = () => {
 
       {/* Modal de Confirmación de Eliminación */}
       {photoToDelete && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white p-6 sm:p-8 max-w-md w-full photo-card-secondary border border-neutral-300 shadow-2xl">
-            <div className="w-10 h-10 bg-red-50 text-red-700 flex items-center justify-center mb-4">
-              <Trash2 size={20} />
-            </div>
-
-            <h3 className="title-main text-lg text-textMain mb-2">
-              ¿Eliminar Fotografía?
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white p-6 sm:p-7 max-w-sm w-full rounded-[20px] border border-black/[0.08] shadow-2xl">
+            <h3 className="font-serif text-lg text-textMain mb-1.5">
+              ¿Eliminar fotografía?
             </h3>
             
-            <p className="text-xs text-textSecondary font-sans font-light leading-relaxed mb-6">
-              Esta fotografía se eliminará de la sección <strong className="text-textMain font-normal">"{photoToDelete.sectionTitle}"</strong> y se purgará de forma permanente de Cloudinary para liberar espacio de almacenamiento.
+            <p className="text-xs text-textSecondary font-sans leading-relaxed mb-4">
+              La imagen se retirará de la sección «{photoToDelete.sectionTitle}».
             </p>
 
             {/* Miniatura de la foto a borrar */}
-            <div className="aspect-[16/9] w-full bg-neutral-100 overflow-hidden mb-6 border border-neutral-200">
+            <div className="aspect-[16/9] w-full rounded-xl overflow-hidden mb-5 border border-black/[0.06] bg-neutral-100">
               <img 
                 src={photoToDelete.photo.url} 
                 alt="Foto a eliminar" 
@@ -1227,12 +1181,12 @@ export const AdminPanel: React.FC = () => {
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3">
+            <div className="flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => setPhotoToDelete(null)}
                 disabled={isDeleting}
-                className="text-xs uppercase tracking-widest font-sans px-4 py-2.5 text-textSecondary hover:text-textMain border border-neutral-300 transition-colors"
+                className="h-9 px-4 rounded-lg text-xs font-sans font-medium text-textSecondary hover:text-textMain border border-black/[0.08] hover:bg-black/[0.02] transition-colors"
               >
                 Cancelar
               </button>
@@ -1241,15 +1195,12 @@ export const AdminPanel: React.FC = () => {
                 type="button"
                 onClick={handleExecuteDelete}
                 disabled={isDeleting}
-                className="btn-primary text-xs tracking-widest uppercase bg-red-700 hover:bg-red-800 text-white flex items-center gap-2"
+                className="h-9 px-4 rounded-lg text-xs font-sans font-medium bg-red-600 hover:bg-red-700 text-white transition-all flex items-center gap-1.5 active:scale-95 shadow-sm"
               >
                 {isDeleting ? (
-                  <>
-                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Eliminando...</span>
-                  </>
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  <span>Sí, Eliminar de la Nube</span>
+                  <span>Eliminar</span>
                 )}
               </button>
             </div>
